@@ -1,4 +1,4 @@
-# Sostén
+# Trazo
 
 App móvil de consulta psicológica con programa solidario post-sismo (Pereira, 2026).
 Proyecto de la asignatura Desarrollo Móvil, Universidad Visión de las Américas.

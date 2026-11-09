@@ -1,6 +1,6 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
-## Sostén: project rules
+## Trazo: project rules
 
 - Product spec lives in `docs/` (documento maestro, v0.2). Read the relevant chapter before building a feature; user stories are `HU-xx`, business rules `RN-xx`.
 - **Expo Go only**: the app must run in Expo Go on iPhone (no Mac, $0). Before adding any library with native code, confirm it ships in Expo Go; otherwise pick a JS-only alternative.

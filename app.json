@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Sostén",
-    "slug": "sosten",
+    "name": "Trazo",
+    "slug": "trazo",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "sosten",
+    "scheme": "trazo",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F6F7F9",
     "ios": {
