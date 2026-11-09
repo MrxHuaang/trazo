@@ -11,6 +11,7 @@ export default function AppTabs() {
     <NativeTabs
       backgroundColor={color.surface}
       tintColor={color.accent}
+      labelVisibilityMode="labeled"
       indicatorColor={tile.consulta.bg}
       iconColor={{ default: color.inkSoft, selected: color.accent }}
       labelStyle={{ default: { color: color.inkSoft }, selected: { color: color.accent } }}>

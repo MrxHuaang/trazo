@@ -1,5 +1,6 @@
-import { StyleSheet } from 'react-native';
-import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
+import { useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Svg, { Line } from 'react-native-svg';
 
 type HatchProps = {
   color: string;
@@ -10,16 +11,29 @@ type HatchProps = {
 /**
  * Textura rayada a 45°: marca visual de lo solidario además del color,
  * para que ningún estado dependa solo del color (accesibilidad).
+ * Se dibuja con líneas medidas (no con <Pattern>) para cubrir el bloque completo en Android.
  */
 export function HatchOverlay({ color, opacity = 0.12, gap = 7 }: HatchProps) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setSize({ w: Math.ceil(width), h: Math.ceil(height) });
+  };
+
+  const lines = [];
+  if (size.w > 0) {
+    for (let x = -size.h; x < size.w; x += gap) {
+      lines.push(<Line key={x} x1={x} y1={size.h} x2={x + size.h} y2={0} stroke={color} strokeWidth={1.4} strokeOpacity={opacity} />);
+    }
+  }
+
   return (
-    <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" pointerEvents="none">
-      <Defs>
-        <Pattern id="hatch" patternUnits="userSpaceOnUse" width={gap} height={gap} patternTransform="rotate(45)">
-          <Line x1="0" y1="0" x2="0" y2={gap} stroke={color} strokeWidth={2} strokeOpacity={opacity} />
-        </Pattern>
-      </Defs>
-      <Rect x="0" y="0" width="100%" height="100%" fill="url(#hatch)" />
-    </Svg>
+    <View style={StyleSheet.absoluteFill} pointerEvents="none" onLayout={onLayout}>
+      {size.w > 0 && (
+        <Svg width={size.w} height={size.h}>
+          {lines}
+        </Svg>
+      )}
+    </View>
   );
 }
