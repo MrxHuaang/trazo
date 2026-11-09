@@ -11,6 +11,31 @@ This is an Expo/React Native mobile application. Prioritize mobile-first pattern
 - Demo data only (`src/features/demo/`); never real patient data.
 - UI copy in Spanish (Colombia); dates in `America/Bogota`.
 
+## Data layer (local-first)
+
+- Persistence is **local SQLite** (`expo-sqlite`, ships in Expo Go). Schema: `src/data/schema.ts` (append-only migrations, `PRAGMA user_version`). Helpers: `src/data/db.ts` (`consultar`, `consultarUno`, `ejecutar`, `bool`, `bit`, `ahoraIso`).
+- Domain types and enums: `src/domain/types.ts`. Shared repositories: `src/data/repos/` (consultorio, pacientes, citas, pagos, seguimientos). Shared TanStack Query hooks: `src/data/hooks.ts`. Base query keys: `src/data/keys.ts` (`qk`): every query key starts with one of them; mutations invalidate by base key.
+- Feature-specific tables (notas, consentimientos, disponibilidad, bloqueos, jornadas, asistentes, recursos) get their repository and hooks **inside the owning feature** (`src/features/<feature>/repo.ts`, `hooks.ts`), using the helpers above.
+- Dates: always use `src/lib/dates.ts` (`isoDesde`, `fechaClave`, `horaTexto`, `fechaCorta`, `inicioSemana`, …). Money: `src/lib/format.ts`. WhatsApp: `src/lib/whatsapp.ts`. IDs: `src/lib/id.ts`.
+- Demo data: `src/data/seed.ts` (`cargarDemo()`), fictitious only.
+- Supabase is a future adapter (ADR-010); do not add network calls.
+
+## UI building blocks
+
+`src/ui`: Text, Button, Field, Segmented, ToggleRow, Sheet + SheetHeader (for `formSheet` routes), Tile, TraceLine, HatchOverlay, SolidarioMark, ListRow, Chip, Fab, EmptyState, Screen. Sheet routes declare `<Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.75, 1], sheetGrabberVisible: false }} />` in the route file. New components that only one feature needs live in that feature folder, not in `src/ui`.
+
+## Module ownership (parallel work)
+
+| Module | Owns routes | Feature folder |
+|---|---|---|
+| agenda | `(tabs)/agenda`, `cita/nueva`, `cita/[id]`, `ajustes/disponibilidad` | `src/features/agenda` |
+| pacientes | `(tabs)/pacientes`, `paciente/nuevo`, `paciente/[id]`, `nota/[id]` | `src/features/pacientes` |
+| hoy | `(tabs)/index`, `por-confirmar`, `pagos`, `ajustes/plantillas` | `src/features/hoy`, `src/features/pagos` |
+| solidario | `(tabs)/solidario`, `jornada/nueva`, `jornada/[id]`, `seguimientos`, `informe`, `ajustes/cupos` | `src/features/solidario` |
+| acceso | `onboarding`, `ajustes/index`, `AccessGate` | `src/features/acceso` |
+
+Edit only your module's routes and folder. Shared files (`src/data/*`, `src/domain/*`, `src/lib/*`, `src/ui/*`, `src/theme/*`, `src/app/_layout.tsx`, `package.json`) are read-only for modules; if you truly need a change there, keep it minimal and additive and say so in your report.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
