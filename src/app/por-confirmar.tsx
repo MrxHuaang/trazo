@@ -1,6 +1,12 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack } from 'expo-router';
 
-/** Stub: lo implementa el módulo `hoy`. */
+import { PorConfirmarScreen } from '@/features/hoy/por-confirmar-screen';
+
 export default function PorConfirmarRoute() {
-  return <PlaceholderScreen title="Por confirmar" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.6, 1], sheetGrabberVisible: false }} />
+      <PorConfirmarScreen />
+    </>
+  );
 }
