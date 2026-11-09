@@ -1,0 +1,159 @@
+<!-- ===================== 16. ANEXOS ===================== -->
+<section>
+  <h2 class="chapter">Anexos</h2>
+
+  <h3 class="nonum">Anexo A · Entorno de desarrollo paso a paso (Windows)</h3>
+  <h4>1. Instalar herramientas</h4>
+  <ol>
+    <li><strong>Git</strong> (git-scm.com) y <strong>Node.js LTS</strong> (nodejs.org). Verificar: <code>node -v</code>, <code>git --version</code>.</li>
+    <li><strong>VS Code</strong> con las extensiones Expo Tools, ESLint y Prettier.</li>
+    <li><strong>Android Studio</strong>: instalar el SDK de Android y crear el emulador principal: Device Manager → Create device → <strong>Pixel 8</strong> → imagen Android 15 (API 35) “Google Play” → 4 GB de RAM. Crear también un perfil pequeño (≈360 dp de ancho) para detectar desbordes. Activar “Plataforma del hipervisor de Windows” si el emulador va lento y agregar <code>ANDROID_HOME</code> si Expo no encuentra el SDK.</li>
+    <li><strong>Expo Go</strong> se instala solo en el emulador la primera vez. Para la prueba final, Expo Go desde App Store en un iPhone.</li>
+  </ol>
+  <h4>2. Crear cuentas gratuitas</h4>
+  <p>GitHub, expo.dev y supabase.com. En Supabase crear el proyecto <code>trazo-dev</code> en la región São Paulo.</p>
+  <h4>3. Crear y abrir el proyecto</h4>
+<pre><code>npx create-expo-app@latest trazo
+cd trazo
+npx expo start            <span class="c"># "a" abre el emulador Android; el QR abre el iPhone con Expo Go</span>
+npx expo start --tunnel   <span class="c"># si el celular no está en la misma red</span></code></pre>
+  <h4>4. Conectar Supabase</h4>
+<pre><code>npx supabase login
+npx supabase init
+npx supabase link --project-ref &lt;id-del-proyecto&gt;
+npx supabase migration new citas          <span class="c"># escribir el SQL en supabase/migrations/</span>
+npx supabase db push                      <span class="c"># aplicar migraciones al proyecto remoto</span>
+npx supabase gen types typescript --linked &gt; src/types/database.ts</code></pre>
+  <p class="small">Opcional: con Docker Desktop, <code>npx supabase start</code> levanta una base local para probar migraciones y ejecutar <code>npx supabase test db</code>.</p>
+  <h4>5. Variables de entorno</h4>
+<pre><code><span class="c"># .env  (en .gitignore; se sube solo .env.example con valores vacíos)</span>
+EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_xxxx   <span class="c"># clave publicable; NUNCA la de servicio</span></code></pre>
+<pre><code><span class="c">// src/lib/supabase.ts</span>
+<span class="k">import</span> { createClient } <span class="k">from</span> <span class="s">'@supabase/supabase-js'</span>;
+<span class="k">import</span> { AppState } <span class="k">from</span> <span class="s">'react-native'</span>;
+<span class="k">import</span> { almacenamientoCifrado } <span class="k">from</span> <span class="s">'./secure-storage'</span>;   <span class="c">// AES + SecureStore</span>
+<span class="k">import type</span> { Database } <span class="k">from</span> <span class="s">'@/types/database'</span>;
+
+<span class="k">export const</span> supabase = createClient&lt;Database&gt;(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_KEY!,
+  { auth: { storage: almacenamientoCifrado, autoRefreshToken: <span class="k">true</span>, persistSession: <span class="k">true</span>, detectSessionInUrl: <span class="k">false</span> } },
+);
+
+AppState.addEventListener(<span class="s">'change'</span>, (estado) =&gt; {
+  <span class="k">if</span> (estado === <span class="s">'active'</span>) supabase.auth.startAutoRefresh();
+  <span class="k">else</span> supabase.auth.stopAutoRefresh();
+});</code></pre>
+  <h4>6. Configurar EAS</h4>
+<pre><code>npm install -g eas-cli
+eas login
+eas init                  <span class="c"># vincula el proyecto con tu cuenta de Expo</span>
+eas update:configure      <span class="c"># habilita actualizaciones OTA (canal demo)</span>
+eas build:configure</code></pre>
+<pre><code><span class="c">// eas.json</span>
+{
+  <span class="s">"cli"</span>: { <span class="s">"appVersionSource"</span>: <span class="s">"remote"</span> },
+  <span class="s">"build"</span>: {
+    <span class="s">"preview"</span>:    { <span class="s">"distribution"</span>: <span class="s">"internal"</span>, <span class="s">"channel"</span>: <span class="s">"demo"</span>, <span class="s">"android"</span>: { <span class="s">"buildType"</span>: <span class="s">"apk"</span> } },
+    <span class="s">"production"</span>: { <span class="s">"channel"</span>: <span class="s">"production"</span> }
+  }
+}</code></pre>
+  <h4>7. Verificación de la Semana 0</h4>
+  <ul class="check">
+    <li>La app de plantilla abre en el emulador Pixel 8 con Expo Go.</li>
+    <li>Las fuentes (Bricolage Grotesque, Geist, Geist Mono) y los tokens de Trazo suave cargan correctamente; se probó si una actualización de EAS abre en Expo Go.</li>
+    <li>La app lee una tabla de prueba de Supabase con RLS activado.</li>
+    <li>El CI corre en GitHub y queda en verde.</li>
+  </ul>
+
+  <h3 class="nonum">Anexo B · Convenciones de código</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Elemento</th><th>Convención</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Componentes</td><td>PascalCase, un componente por archivo, exportación con nombre</td><td><code>TimelineItem.tsx</code></td></tr>
+      <tr><td class="k">Hooks</td><td>Prefijo <code>use</code>, en <code>queries.ts</code> o <code>hooks/</code></td><td><code>useCitasDeLaSemana</code></td></tr>
+      <tr><td class="k">Rutas</td><td>minúsculas según Expo Router; exportación por defecto solo aquí</td><td><code>app/(app)/cita/[id].tsx</code></td></tr>
+      <tr><td class="k">Tipos y esquemas</td><td>Mismo nombre para el esquema Zod y su tipo</td><td><code>Cita</code> / <code>z.infer&lt;typeof Cita&gt;</code></td></tr>
+      <tr><td class="k">Base de datos</td><td>snake_case, plural, en español</td><td><code>notas_sesion.autora_id</code></td></tr>
+      <tr><td class="k">Imports</td><td>Alias <code>@/</code> para <code>src/</code>; nada de rutas <code>../../../</code></td><td><code>@/features/citas</code></td></tr>
+      <tr><td class="k">TypeScript</td><td><code>strict</code>, <code>noUncheckedIndexedAccess</code>; prohibido <code>any</code> sin justificar</td><td>—</td></tr>
+      <tr><td class="k">Commits</td><td>Conventional Commits con ID de historia</td><td><code>feat(pagos): resumen mensual (HU-16)</code></td></tr>
+    </tbody>
+  </table>
+  <h4>Plantilla de Pull Request</h4>
+<pre><code>## Qué cambia
+HU-xx · descripción breve
+
+## Cómo probarlo
+1. …
+
+## Lista de verificación
+- [ ] Criterios de aceptación cumplidos
+- [ ] Pruebas nuevas / actualizadas
+- [ ] Probado en iPhone (Expo Go) y Android
+- [ ] Sin datos reales ni secretos
+- [ ] Capturas (con datos ficticios)</code></pre>
+
+  <h3 class="nonum">Anexo C · Borrador de autorización de tratamiento de datos</h3>
+  <div class="card sand">
+    <p><strong>Autorización para el tratamiento de datos personales</strong> <span class="tag mid">Borrador v0.1 · para revisión de la responsable</span></p>
+    <p>Yo, ______________________, identificado(a) con ______________________, autorizo de manera previa, expresa e informada a <strong>Angela Sophia Córdoba</strong>, psicóloga, como Responsable del Tratamiento, para recolectar, almacenar, usar, actualizar y suprimir mis datos personales, incluidos datos sensibles relativos a mi salud, con las siguientes finalidades:</p>
+    <ol>
+      <li>Agendar y gestionar mis citas.</li>
+      <li>Enviarme recordatorios y comunicaciones sobre mi atención por WhatsApp, llamada o correo electrónico.</li>
+      <li>Llevar el registro de mi proceso de atención psicológica.</li>
+      <li>Gestionar pagos y tarifas, incluidas tarifas solidarias.</li>
+      <li>Elaborar estadísticas anónimas sobre la atención brindada a personas afectadas por el sismo del 10 de agosto de 2026.</li>
+    </ol>
+    <p>Declaro que se me informó que: el suministro de datos sensibles es facultativo y no estoy obligado(a) a autorizar su tratamiento; mis datos se almacenan en servicios en la nube con servidores ubicados fuera de Colombia, bajo medidas de seguridad; como titular tengo derecho a conocer, actualizar, rectificar y solicitar la supresión de mis datos y a revocar esta autorización, salvo cuando exista un deber legal o contractual de conservarlos; puedo ejercer estos derechos escribiendo a [correo de contacto] y consultar la política de tratamiento en [enlace].</p>
+    <p style="margin:0">Fecha: ____________ · Firma o aceptación en la app: ____________ · Si es menor de edad, representante legal: ____________</p>
+  </div>
+  <p class="small">Texto de trabajo basado en la Ley 1581 de 2012; no constituye asesoría legal.</p>
+
+  <h3 class="nonum">Anexo D · Glosario</h3>
+  <table class="compact">
+    <tbody>
+      <tr><td class="k">ADR</td><td>Registro de decisión de arquitectura: documento corto con contexto, decisión y consecuencias.</td></tr>
+      <tr><td class="k">EAS</td><td>Expo Application Services: compilación en la nube (Build), actualizaciones por aire (Update), publicación (Submit) y hosting web.</td></tr>
+      <tr><td class="k">Edge Function</td><td>Función que corre en los servidores de Supabase; aquí guarda la clave de servicio y valida las reservas web.</td></tr>
+      <tr><td class="k">Expo Go</td><td>App gratuita que ejecuta proyectos Expo sin compilarlos; permite probar en iPhone sin Mac.</td></tr>
+      <tr><td class="k">MASVS</td><td>Estándar de OWASP para la seguridad de aplicaciones móviles.</td></tr>
+      <tr><td class="k">MoSCoW</td><td>Priorización: Must, Should, Could, Won't.</td></tr>
+      <tr><td class="k">MVP</td><td>Producto mínimo viable: lo mínimo que la usuaria usaría de verdad.</td></tr>
+      <tr><td class="k">OTA</td><td>Actualización por aire: cambia el código JavaScript sin reinstalar la app.</td></tr>
+      <tr><td class="k">RLS</td><td>Row Level Security: reglas en PostgreSQL que deciden qué filas puede ver o modificar cada usuario.</td></tr>
+      <tr><td class="k">SUS</td><td>System Usability Scale: cuestionario de 10 preguntas que da un puntaje de usabilidad de 0 a 100.</td></tr>
+      <tr><td class="k">UTC</td><td>Tiempo universal coordinado; las fechas se guardan así y se muestran en hora de Colombia.</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="nonum">Anexo E · Referencias</h3>
+  <h4>Contexto del sismo y salud mental</h4>
+  <ul class="small" style="color:#3F414A">
+    <li>Wikipedia. <em>Terremoto de Colombia de 2026</em>. https://es.wikipedia.org/wiki/Terremoto_de_Colombia_de_2026</li>
+    <li>El Tiempo. <em>Pereira inicia su reconstrucción tras el terremoto: 120 mil afectados…</em> https://www.eltiempo.com/colombia/otras-ciudades/pereira-inicia-su-reconstruccion-tras-el-terremoto-120-mil-afectados-y-danos-que-superan-los-10-billones-terminaria-en-cinco-anos-3579150</li>
+    <li>El Tiempo. <em>Pereira, la ciudad más golpeada por el terremoto.</em> https://www.eltiempo.com/justicia/investigacion/pereira-la-ciudad-mas-golpeada-por-el-terremoto-al-menos-67-victimas-mortales-3577462</li>
+    <li>Pulzo. <em>Terremoto en Pereira y Eje Cafetero: cifras de afectados, daños y medidas de emergencia.</em> https://www.pulzo.com/nacion/terremoto-en-pereira-y-eje-cafetero-cifras-de-afectados-danos-y-medidas-de-emergencia-PP5271151A</li>
+    <li>OPS/OMS. <em>La OPS/OMS apoya los servicios de salud en Pereira tras el terremoto</em> (4 sep. 2026). https://www.paho.org/es/noticias/4-9-2026-opsoms-apoya-servicios-salud-pereira-tras-terremoto</li>
+    <li>Vanguardia. <em>Salud mental tras el terremoto en Colombia: la emergencia que apenas comienza</em> (20 ago. 2026). https://www.vanguardia.com/colombia/2026/08/20/salud-mental-tras-el-terremoto-en-colombia-la-emergencia-que-apenas-comienza/</li>
+    <li>Ministerio de Salud. <em>Directorio de líneas de salud mental y prevención del suicidio</em> (Línea Amiga Risaralda, Línea 106). https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/PP/ET/directorio-salud-mental-prevencion-suicidio-minsalud.pdf</li>
+  </ul>
+  <h4>Tecnología</h4>
+  <ul class="small" style="color:#3F414A">
+    <li>Expo. <em>Expo SDK 58</em> (changelog). https://expo.dev/changelog/sdk-58</li>
+    <li>Expo. <em>Pricing</em> y <em>Billing plans</em>. https://expo.dev/pricing · https://docs.expo.dev/billing/plans/</li>
+    <li>Expo. <em>LocalAuthentication</em> (Face ID en Expo Go). https://docs.expo.dev/versions/latest/sdk/local-authentication/</li>
+    <li>Expo. <em>QR codes</em> (vista previa de EAS Update). https://docs.expo.dev/more/qr-codes</li>
+    <li>Supabase. <em>Pricing</em> y <em>Do Supabase projects pause when they're inactive?</em> https://supabase.com/pricing · https://supabase.com/kb/faqs/platform/free-project-pausing</li>
+    <li>TanStack. <em>React Native</em> (Query). https://tanstack.com/query/latest/docs/framework/react/react-native</li>
+    <li>OWASP. <em>Mobile Application Security Verification Standard (MASVS)</em>. https://mas.owasp.org/MASVS/</li>
+  </ul>
+  <h4>Normas</h4>
+  <ul class="small" style="color:#3F414A">
+    <li>Congreso de Colombia. <em>Ley 1581 de 2012</em>. http://www.secretariasenado.gov.co/senado/basedoc/ley_1581_2012.html</li>
+    <li>Congreso de Colombia. <em>Ley 1090 de 2006</em>. http://www.secretariasenado.gov.co/senado/basedoc/ley_1090_2006.html</li>
+    <li>Ministerio de Salud. <em>Resolución 1995 de 1999</em> y <em>Resolución 839 de 2017</em> (historia clínica).</li>
+    <li>Congreso de Colombia. <em>Ley 1616 de 2013</em> (salud mental).</li>
+  </ul>
+</section>

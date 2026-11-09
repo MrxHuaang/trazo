@@ -44,3 +44,6 @@ example
 
 # Documentación compilada
 docs/out/
+
+# Caché de herramientas de diseño
+.impeccable/
