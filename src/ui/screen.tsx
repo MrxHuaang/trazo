@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { color, space, tabBarInset } from '@/theme';
+import { tabBarInset } from '@/theme';
 
 type ScreenProps = {
   children: ReactNode;
@@ -13,10 +13,11 @@ type ScreenProps = {
 /** Contenedor de pantalla: lienzo, márgenes seguros y espacio para la barra de pestañas. */
 export function Screen({ children, overlay }: ScreenProps) {
   return (
-    <View style={styles.root}>
-      <SafeAreaView edges={['top']} style={styles.root}>
+    <View className="flex-1 bg-canvas">
+      <SafeAreaView edges={['top']} className="flex-1 bg-canvas">
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerClassName="gap-3 px-5 pt-4"
+          contentContainerStyle={{ paddingBottom: tabBarInset + 96 }}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}>
           {children}
@@ -26,13 +27,3 @@ export function Screen({ children, overlay }: ScreenProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: color.canvas },
-  content: {
-    paddingHorizontal: space.xl,
-    paddingTop: space.lg,
-    paddingBottom: tabBarInset + 96,
-    gap: space.md,
-  },
-});

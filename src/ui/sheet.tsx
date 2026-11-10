@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { color, space } from '@/theme';
 
 type SheetProps = {
   header: ReactNode;
@@ -18,25 +16,16 @@ type SheetProps = {
 export function Sheet({ header, children, footer }: SheetProps) {
   const insets = useSafeAreaInsets();
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView className="flex-1 bg-canvas" behavior="padding">
       {header}
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerClassName="gap-4 px-5 pb-8" keyboardShouldPersistTaps="handled">
         {children}
       </ScrollView>
-      {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>{footer}</View> : null}
+      {footer ? (
+        <View className="gap-2 border-t border-line bg-canvas px-5 pt-3" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+          {footer}
+        </View>
+      ) : null}
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: color.canvas },
-  content: { paddingHorizontal: space.xl, paddingBottom: space.xxxl, gap: space.lg },
-  footer: {
-    paddingHorizontal: space.xl,
-    paddingTop: space.md,
-    gap: space.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: color.line,
-    backgroundColor: color.canvas,
-  },
-});

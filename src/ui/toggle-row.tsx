@@ -1,6 +1,6 @@
-import { StyleSheet, Switch, View } from 'react-native';
+import { Switch, View } from 'react-native';
 
-import { color, space } from '@/theme';
+import { color } from '@/theme';
 
 import { Text } from './text';
 
@@ -13,11 +13,11 @@ type ToggleRowProps = {
 
 export function ToggleRow({ label, description, value, onChange }: ToggleRowProps) {
   return (
-    <View style={styles.row}>
-      <View style={styles.text}>
+    <View className="flex-row items-center gap-3 py-2">
+      <View className="flex-1 gap-0.5">
         <Text variant="bodyMedium">{label}</Text>
         {description ? (
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             {description}
           </Text>
         ) : null}
@@ -32,8 +32,3 @@ export function ToggleRow({ label, description, value, onChange }: ToggleRowProp
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm },
-  text: { flex: 1, gap: 2 },
-});

@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
 
 import { Text } from './text';
 
@@ -9,30 +9,20 @@ type ChipProps = {
   /** `action`: texto cobalto sin borde. `outline`: píldora con borde de tinta. */
   kind?: 'action' | 'outline';
   onPress?: () => void;
+  className?: string;
 };
 
-export function Chip({ label, kind = 'action', onPress }: ChipProps) {
+export function Chip({ label, kind = 'action', onPress, className }: ChipProps) {
   return (
     <Pressable
       disabled={!onPress}
       onPress={onPress}
-      hitSlop={8}
+      hitSlop={10}
       accessibilityRole={onPress ? 'button' : undefined}
-      style={({ pressed }) => [kind === 'outline' && styles.outline, pressed && styles.pressed]}>
-      <Text variant="label" tone={kind === 'action' ? color.accent : color.ink}>
+      className={cn('active:opacity-60', kind === 'outline' && 'rounded-full border border-ink px-3 py-[3px]', className)}>
+      <Text variant="label" className={kind === 'action' ? 'text-accent' : 'text-ink'}>
         {label}
       </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  outline: {
-    borderWidth: 1,
-    borderColor: color.ink,
-    borderRadius: radius.pill,
-    paddingHorizontal: space.md,
-    paddingVertical: 3,
-  },
-  pressed: { opacity: 0.6 },
-});

@@ -1,0 +1,21 @@
+export declare const palette: {
+  readonly canvas: string;
+  readonly surface: string;
+  readonly ink: string;
+  readonly inkSoft: string;
+  readonly line: string;
+  readonly accent: string;
+  readonly accentSoft: string;
+  readonly onAccent: string;
+  readonly danger: string;
+  readonly dangerBg: string;
+  readonly quiet: string;
+  readonly lavanda: string;
+  readonly lavandaInk: string;
+  readonly menta: string;
+  readonly mentaInk: string;
+  readonly durazno: string;
+  readonly duraznoInk: string;
+  readonly mantequilla: string;
+  readonly mantequillaInk: string;
+};

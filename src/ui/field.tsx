@@ -1,7 +1,8 @@
-import type { ComponentProps } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { useState, type ComponentProps } from 'react';
+import { TextInput, View } from 'react-native';
 
-import { color, font, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
 
 import { Text } from './text';
 
@@ -9,49 +10,45 @@ type FieldProps = ComponentProps<typeof TextInput> & {
   label: string;
   error?: string;
   helper?: string;
+  className?: string;
 };
 
 /** Campo de texto: etiqueta arriba, ayuda y error abajo (nunca placeholder como etiqueta). */
-export function Field({ label, error, helper, style, multiline, ...rest }: FieldProps) {
+export function Field({ label, error, helper, className, multiline, onFocus, onBlur, ...rest }: FieldProps) {
+  const [enfocado, setEnfocado] = useState(false);
   return (
-    <View style={styles.wrap}>
-      <Text variant="label" tone={color.ink}>
-        {label}
-      </Text>
+    <View className="gap-1.5">
+      <Text variant="label">{label}</Text>
       <TextInput
         placeholderTextColor={color.inkSoft}
         accessibilityLabel={label}
         multiline={multiline}
-        style={[styles.input, multiline && styles.multiline, !!error && styles.inputError, style]}
+        textAlignVertical={multiline ? 'top' : 'center'}
+        onFocus={(e) => {
+          setEnfocado(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setEnfocado(false);
+          onBlur?.(e);
+        }}
+        className={cn(
+          'min-h-[50px] rounded-field border bg-surface px-4 py-3 font-body text-[16px] text-ink',
+          multiline && 'min-h-[120px]',
+          error ? 'border-danger' : enfocado ? 'border-accent' : 'border-line',
+          className,
+        )}
         {...rest}
       />
       {error ? (
-        <Text variant="caption" tone={color.danger}>
+        <Text variant="caption" className="text-danger">
           {error}
         </Text>
       ) : helper ? (
-        <Text variant="caption" tone={color.inkSoft}>
+        <Text variant="caption" className="text-ink-soft">
           {helper}
         </Text>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { gap: 6 },
-  input: {
-    minHeight: 50,
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.md,
-    fontFamily: font.body,
-    fontSize: 16,
-    color: color.ink,
-  },
-  multiline: { minHeight: 120, textAlignVertical: 'top' },
-  inputError: { borderColor: color.danger },
-});

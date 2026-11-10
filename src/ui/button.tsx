@@ -1,74 +1,78 @@
-import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
 
+import { Presionable } from './presionable';
 import { Text } from './text';
+
+type Variante = 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger';
 
 type ButtonProps = {
   label: string;
   onPress: () => void;
   /** primary: tinta (acción principal de la pantalla) · accent: cobalto · secondary: borde · ghost: solo texto · danger */
-  variant?: 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger';
+  variant?: Variante;
   size?: 'md' | 'sm';
   icon?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  className?: string;
   style?: StyleProp<ViewStyle>;
   accessibilityHint?: string;
 };
 
-const FONDO = { primary: color.ink, accent: color.accent, secondary: 'transparent', ghost: 'transparent', danger: color.dangerBg };
-const TEXTO = { primary: color.onAccent, accent: color.onAccent, secondary: color.ink, ghost: color.accent, danger: color.danger };
+const FONDO: Record<Variante, string> = {
+  primary: 'bg-ink',
+  accent: 'bg-accent',
+  secondary: 'border border-ink bg-transparent',
+  ghost: 'bg-transparent',
+  danger: 'bg-danger-bg',
+};
+const TEXTO: Record<Variante, string> = {
+  primary: 'text-accent-on',
+  accent: 'text-accent-on',
+  secondary: 'text-ink',
+  ghost: 'text-accent',
+  danger: 'text-danger',
+};
+const INDICADOR: Record<Variante, string> = {
+  primary: color.onAccent,
+  accent: color.onAccent,
+  secondary: color.ink,
+  ghost: color.accent,
+  danger: color.danger,
+};
 
-export function Button({ label, onPress, variant = 'primary', size = 'md', icon, loading, disabled, style, accessibilityHint }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', size = 'md', icon, loading, disabled, className, style, accessibilityHint }: ButtonProps) {
   const inactivo = disabled || loading;
   return (
-    <Pressable
+    <Presionable
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!inactivo, busy: !!loading }}
       disabled={inactivo}
-      onPress={() => {
-        void Haptics.selectionAsync();
-        onPress();
-      }}
-      style={({ pressed }) => [
-        styles.base,
-        size === 'sm' && styles.sm,
-        { backgroundColor: FONDO[variant] },
-        variant === 'secondary' && styles.outline,
-        pressed && styles.pressed,
-        inactivo && styles.inactivo,
-        style,
-      ]}>
+      onPress={onPress}
+      className={className}
+      style={style}
+      contentClassName={cn(
+        'items-center justify-center rounded-full px-5',
+        size === 'sm' ? 'min-h-[44px] px-4' : 'min-h-[52px]',
+        FONDO[variant],
+        inactivo && 'opacity-50',
+      )}>
       {loading ? (
-        <ActivityIndicator color={TEXTO[variant]} />
+        <ActivityIndicator color={INDICADOR[variant]} />
       ) : (
-        <View style={styles.row}>
+        <View className="flex-row items-center gap-2">
           {icon}
-          <Text variant={size === 'sm' ? 'label' : 'bodyMedium'} tone={TEXTO[variant]}>
+          <Text variant={size === 'sm' ? 'label' : 'bodyMedium'} className={TEXTO[variant]}>
             {label}
           </Text>
         </View>
       )}
-    </Pressable>
+    </Presionable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    minHeight: 52,
-    borderRadius: radius.pill,
-    paddingHorizontal: space.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sm: { minHeight: 36, paddingHorizontal: space.lg },
-  outline: { borderWidth: 1, borderColor: color.ink },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  pressed: { transform: [{ scale: 0.98 }] },
-  inactivo: { opacity: 0.5 },
-});

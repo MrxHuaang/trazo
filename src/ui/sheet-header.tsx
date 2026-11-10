@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { XIcon } from 'phosphor-react-native/src/icons/X';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { color, radius, space } from '@/theme';
+import { color } from '@/theme';
 
 import { Text } from './text';
 
@@ -18,38 +18,29 @@ type SheetHeaderProps = {
 /** Encabezado de hojas (formSheet): título, cerrar y una acción. */
 export function SheetHeader({ title, subtitle, action, onClose }: SheetHeaderProps) {
   return (
-    <View style={styles.wrap}>
-      <View style={styles.grip} />
-      <View style={styles.row}>
+    <View className="gap-2 px-5 pb-3 pt-2">
+      <View className="h-[5px] w-10 self-center rounded-full bg-line" />
+      <View className="flex-row items-center gap-3">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Cerrar"
-          hitSlop={10}
+          hitSlop={8}
           onPress={onClose ?? (() => router.back())}
-          style={styles.close}>
+          className="h-11 w-11 items-center justify-center rounded-full bg-quiet active:opacity-60">
           <XIcon size={20} color={color.ink} />
         </Pressable>
-        <View style={styles.titles}>
+        <View className="flex-1">
           <Text variant="heading" numberOfLines={1}>
             {title}
           </Text>
           {subtitle ? (
-            <Text variant="caption" tone={color.inkSoft} numberOfLines={1}>
+            <Text variant="caption" className="text-ink-soft" numberOfLines={1}>
               {subtitle}
             </Text>
           ) : null}
         </View>
-        <View style={styles.action}>{action}</View>
+        <View className="min-w-[36px] items-end">{action}</View>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { paddingTop: space.sm, paddingBottom: space.md, paddingHorizontal: space.xl, gap: space.sm },
-  grip: { alignSelf: 'center', width: 40, height: 5, borderRadius: radius.pill, backgroundColor: color.line },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  close: { width: 36, height: 36, borderRadius: radius.pill, backgroundColor: color.quiet, alignItems: 'center', justifyContent: 'center' },
-  titles: { flex: 1 },
-  action: { minWidth: 36, alignItems: 'flex-end' },
-});

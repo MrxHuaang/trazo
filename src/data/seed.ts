@@ -3,7 +3,7 @@
  * Ningún dato corresponde a personas reales; los teléfonos son números de prueba.
  */
 import type { Afectacion, EstadoCita, Tarifa } from '@/domain/types';
-import { diaSemana, hoyClave, isoDesde, sumarDias } from '@/lib/dates';
+import { diaSemana, hoyClave, inicioSemana, isoDesde, sumarDias } from '@/lib/dates';
 import { nuevoId } from '@/lib/id';
 
 import { ahoraIso, borrarTodo, db } from './db';
@@ -59,6 +59,7 @@ export async function cargarDemo() {
   const hoy = hoyClave();
   const ahora = Date.now();
   let n = 0;
+  const solidariasPorSemana = new Map<string, number>();
   // Citas de 14 días atrás a 14 días adelante, entre semana, 3 por día.
   for (let d = -14; d <= 14; d++) {
     const dia = sumarDias(hoy, d);
@@ -74,7 +75,12 @@ export async function cargarDemo() {
       if (pasada && n % 9 === 4) estado = 'no_asistio';
       if (pasada && n % 13 === 6) estado = 'cancelada';
       if (!pasada && (n % 7 === 3 || (d === 0 && hora === '16:00'))) estado = 'solicitada';
-      const solidaria = p.tarifa !== 'normal';
+      // Cupos solidarios (RN-03): máximo 3 por semana; en la semana actual quedan 2 usados y 1 libre.
+      const semana = inicioSemana(dia);
+      const tope = semana === inicioSemana(hoy) ? 2 : 3;
+      const usados = solidariasPorSemana.get(semana) ?? 0;
+      const solidaria = p.tarifa !== 'normal' && estado !== 'cancelada' && estado !== 'no_asistio' && usados < tope;
+      if (solidaria) solidariasPorSemana.set(semana, usados + 1);
       const citaId = nuevoId();
       await base.runAsync(
         `INSERT INTO citas (id, paciente_id, inicio, fin, estado, modalidad, enlace, motivo, es_solidaria, origen,

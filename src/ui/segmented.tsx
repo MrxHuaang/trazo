@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
 
 import { Text } from './text';
 
@@ -10,12 +10,16 @@ type SegmentedProps<T extends string> = {
   value: T;
   onChange: (valor: T) => void;
   accessibilityLabel?: string;
+  className?: string;
 };
 
 /** Selector de opciones excluyentes en píldora (p. ej. presencial / virtual). */
-export function Segmented<T extends string>({ options, value, onChange, accessibilityLabel }: SegmentedProps<T>) {
+export function Segmented<T extends string>({ options, value, onChange, accessibilityLabel, className }: SegmentedProps<T>) {
   return (
-    <View style={styles.wrap} accessibilityRole="radiogroup" accessibilityLabel={accessibilityLabel}>
+    <View
+      className={cn('flex-row flex-wrap gap-1 self-start rounded-[26px] bg-quiet p-1', className)}
+      accessibilityRole="radiogroup"
+      accessibilityLabel={accessibilityLabel}>
       {options.map((o) => {
         const activo = o.valor === value;
         return (
@@ -27,8 +31,8 @@ export function Segmented<T extends string>({ options, value, onChange, accessib
               if (!activo) void Haptics.selectionAsync();
               onChange(o.valor);
             }}
-            style={[styles.item, activo && styles.activo]}>
-            <Text variant="label" tone={activo ? color.onAccent : color.ink}>
+            className={cn('min-h-[44px] justify-center rounded-full px-4', activo && 'bg-ink')}>
+            <Text variant="label" className={activo ? 'text-accent-on' : 'text-ink'}>
               {o.etiqueta}
             </Text>
           </Pressable>
@@ -37,17 +41,3 @@ export function Segmented<T extends string>({ options, value, onChange, accessib
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: space.xs,
-    padding: space.xs,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignSelf: 'flex-start',
-  },
-  item: { paddingHorizontal: space.lg, paddingVertical: space.sm, borderRadius: radius.pill },
-  activo: { backgroundColor: color.ink },
-});
