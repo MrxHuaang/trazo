@@ -7,28 +7,28 @@ import { HandHeartIcon } from 'phosphor-react-native/src/icons/HandHeart';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { WhatsappLogoIcon } from 'phosphor-react-native/src/icons/WhatsappLogo';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useActualizarConsultorio, useConsultorio } from '@/data/hooks';
 import type { Consultorio } from '@/domain/types';
 import { formatoCOP } from '@/lib/format';
-import { color, radius, space, tile } from '@/theme';
-import { Segmented, SolidarioMark, Text, Tile, ToggleRow, TraceLine } from '@/ui';
+import { color, tile } from '@/theme';
+import { Aparecer, Presionable, Segmented, SolidarioMark, Text, Tile, ToggleRow, TraceLine } from '@/ui';
 
 import { useBorrarTodo, useCargarDemo } from '../hooks';
 import { abrirSesion } from '../sesion';
 import { useTelefonoProtegido } from '../use-telefono-protegido';
 import { pesosDesdeTexto, pesosEnEdicion, validarCampo } from '../validacion';
 import { verificarIdentidad } from '../verificacion';
-import { AccionConfirmada, FilaEnlace, Seccion, ValorEditable } from './piezas';
+import { AccionConfirmada, Acomodable, FilaEnlace, Seccion, ValorEditable } from './piezas';
 
 type Campo = 'nombre' | 'profesional' | 'correo' | 'tarifaBase' | 'tarifaSocial';
 type Confirmacion = 'demo' | 'borrar';
 
 const DURACIONES = [30, 45, 50, 60, 90];
 
-/** Ajustes: datos del consultorio editables en línea, seguridad, accesos y datos del teléfono. */
+/** Ajustes: datos del consultorio editables en línea, seguridad, Calma, accesos y datos del teléfono. */
 export function AjustesScreen() {
   const { data: consultorio } = useConsultorio();
   const actualizar = useActualizarConsultorio();
@@ -43,7 +43,7 @@ export function AjustesScreen() {
   const volver = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   // Sin consultorio (recién borrado) el AccessGate ya está llevando a la bienvenida.
-  if (!consultorio) return <View style={styles.root} />;
+  if (!consultorio) return <View className="flex-1 bg-canvas" />;
 
   const guardar = (cambios: Partial<Omit<Consultorio, 'id' | 'creadoEn'>>) => actualizar.mutateAsync(cambios);
   const abrir = (campo: Campo) => () => {
@@ -82,36 +82,40 @@ export function AjustesScreen() {
   const version = Constants.expoConfig?.version;
 
   return (
-    <SafeAreaView style={styles.root} edges={['top']}>
-      <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <SafeAreaView className="flex-1 bg-canvas" edges={['top']}>
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
         <ScrollView
-          contentContainerStyle={styles.contenido}
+          contentContainerClassName="px-5 pb-16 pt-2"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Volver"
-            onPress={volver}
-            style={({ pressed }) => [styles.volver, pressed && styles.presionado]}>
-            <CaretLeftIcon size={22} color={color.ink} />
-          </Pressable>
-
-          <Text variant="display" accessibilityRole="header">
-            Ajustes
-          </Text>
+          <Aparecer orden={0}>
+            <Presionable
+              accessibilityRole="button"
+              accessibilityLabel="Volver"
+              onPress={volver}
+              className="-ml-2 mb-2 self-start"
+              contentClassName="h-11 w-11 items-center justify-center rounded-full">
+              <CaretLeftIcon size={22} color={color.ink} />
+            </Presionable>
+            <Text variant="display" accessibilityRole="header">
+              Ajustes
+            </Text>
+          </Aparecer>
 
           {/* Consultorio: la identidad va en un bloque y cada dato se edita donde está. */}
-          <Tile tone="consulta" style={styles.identidad}>
-            <TraceLine height={24} agitation={0.7} calmFrom={0.3} animate={false} />
-            <Text variant="title" tone={tile.consulta.fg}>
-              {consultorio.nombre}
-            </Text>
-            <Text variant="bodyMedium" tone={tile.consulta.fg}>
-              {consultorio.profesional}
-            </Text>
-          </Tile>
+          <Aparecer orden={1} reacomodar className="mt-4">
+            <Tile tone="consulta" contentClassName="gap-1">
+              <TraceLine height={24} agitation={0.7} calmFrom={0.3} stroke={tile.consulta.fg} />
+              <Text variant="title" className="text-lavanda-ink">
+                {consultorio.nombre}
+              </Text>
+              <Text variant="bodyMedium" className="text-lavanda-ink">
+                {consultorio.profesional}
+              </Text>
+            </Tile>
+          </Aparecer>
 
-          <Seccion titulo="Consultorio" nota="Toca un dato para cambiarlo.">
+          <Seccion orden={2} titulo="Consultorio" nota="Toca un dato para cambiarlo.">
             <ValorEditable
               etiqueta="Nombre del consultorio"
               valor={consultorio.nombre}
@@ -166,7 +170,7 @@ export function AjustesScreen() {
                 guardar: (t) => guardar({ tarifaBase: pesosDesdeTexto(t) }),
                 onCerrar: cerrar,
                 helper: 'En pesos colombianos (COP).',
-                campo: { keyboardType: 'number-pad' },
+                campo: { keyboardType: 'number-pad', className: 'font-mono' },
               }}
             />
             <ValorEditable
@@ -182,11 +186,11 @@ export function AjustesScreen() {
                 guardar: (t) => guardar({ tarifaSocial: pesosDesdeTexto(t) }),
                 onCerrar: cerrar,
                 helper: 'En pesos colombianos (COP). Aplica a pacientes con tarifa social.',
-                campo: { keyboardType: 'number-pad' },
+                campo: { keyboardType: 'number-pad', className: 'font-mono' },
               }}
             />
-            <View style={styles.duracion}>
-              <Text variant="caption" tone={color.inkSoft}>
+            <Acomodable className="gap-2 py-3">
+              <Text variant="caption" className="text-ink-soft">
                 Duración de cada cita
               </Text>
               <Segmented
@@ -197,13 +201,13 @@ export function AjustesScreen() {
                   if (Number(valor) !== consultorio.duracionCita) actualizar.mutate({ duracionCita: Number(valor) });
                 }}
               />
-              <Text variant="caption" tone={color.inkSoft}>
+              <Text variant="caption" className="text-ink-soft">
                 Se usa en las citas nuevas; las que ya están agendadas no cambian.
               </Text>
-            </View>
+            </Acomodable>
           </Seccion>
 
-          <Seccion titulo="Seguridad">
+          <Seccion orden={3} titulo="Seguridad">
             <ToggleRow
               label="Bloqueo al abrir"
               description="Pide tu huella, tu rostro o el código del teléfono al abrir Trazo y al volver después de 2 minutos."
@@ -211,18 +215,35 @@ export function AjustesScreen() {
               onChange={(valor) => void cambiarBloqueo(valor)}
             />
             {errorBloqueo ? (
-              <Text variant="label" tone={color.danger} accessibilityLiveRegion="polite">
+              <Text variant="label" className="text-danger" accessibilityLiveRegion="polite">
                 {errorBloqueo}
               </Text>
             ) : telefonoProtegido === false ? (
-              <Text variant="caption" tone={color.inkSoft}>
+              <Text variant="caption" className="text-ink-soft">
                 Este teléfono no tiene código, huella ni rostro configurado. Hasta que lo configures en los ajustes del
                 teléfono, Trazo avisará pero dejará entrar sin verificar.
               </Text>
             ) : null}
           </Seccion>
 
-          <Seccion titulo="Agenda y programa">
+          <Seccion orden={4} titulo="Calma" nota="Para pasarle el teléfono a un paciente.">
+            <Tile
+              tone="confirmar"
+              onPress={() => router.push('/calma')}
+              accessibilityLabel="Abrir Calma: respiración guiada y quietud"
+              className="mt-1"
+              contentClassName="gap-1">
+              <TraceLine height={28} agitation={0.9} calmFrom={0.6} animate={false} stroke={tile.confirmar.fg} />
+              <Text variant="heading" className="text-menta-ink">
+                Respiración guiada y quietud
+              </Text>
+              <Text variant="body" className="text-menta-ink">
+                Dos ejercicios breves a pantalla completa, sin datos del consultorio a la vista.
+              </Text>
+            </Tile>
+          </Seccion>
+
+          <Seccion orden={5} titulo="Agenda y programa">
             <FilaEnlace
               icono={<CalendarBlankIcon size={20} color={color.ink} />}
               titulo="Disponibilidad"
@@ -249,7 +270,7 @@ export function AjustesScreen() {
             />
           </Seccion>
 
-          <Seccion titulo="Datos" nota="Todo se guarda solo en este teléfono.">
+          <Seccion orden={6} titulo="Datos" nota="Todo se guarda solo en este teléfono.">
             <AccionConfirmada
               icono={<DatabaseIcon size={20} color={color.ink} />}
               titulo="Cargar datos de demostración"
@@ -292,18 +313,18 @@ export function AjustesScreen() {
             />
           </Seccion>
 
-          <Seccion titulo="Acerca de">
-            <View style={styles.acerca}>
-              <View style={styles.version}>
+          <Seccion orden={7} titulo="Acerca de">
+            <View className="gap-2 py-2">
+              <View className="flex-row items-baseline justify-between">
                 <Text variant="bodyMedium">Trazo</Text>
                 {version ? (
-                  <Text variant="mono" tone={color.inkSoft}>
+                  <Text variant="mono" className="text-ink-soft">
                     v{version}
                   </Text>
                 ) : null}
               </View>
               <Text variant="body">Todos los datos de esta versión son ficticios.</Text>
-              <Text variant="caption" tone={color.inkSoft}>
+              <Text variant="caption" className="text-ink-soft">
                 Proyecto académico. Si algún día se usa con pacientes reales, la Ley 1581 de 2012 exige su autorización
                 previa, expresa e informada para tratar datos de salud, y les da derecho a conocer, actualizar, rectificar
                 y suprimir sus datos. Esta nota no es asesoría legal.
@@ -315,22 +336,3 @@ export function AjustesScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: color.canvas },
-  contenido: { paddingHorizontal: space.xl, paddingTop: space.sm, paddingBottom: space.xxxl * 2 },
-  volver: {
-    width: 44,
-    height: 44,
-    marginLeft: -space.sm,
-    marginBottom: space.sm,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  presionado: { opacity: 0.6 },
-  identidad: { marginTop: space.lg },
-  duracion: { gap: space.sm, paddingVertical: space.md },
-  acerca: { gap: space.sm, paddingVertical: space.sm },
-  version: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-});
