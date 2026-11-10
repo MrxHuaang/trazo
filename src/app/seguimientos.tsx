@@ -1,6 +1,6 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { SeguimientosScreen } from '@/features/solidario/seguimientos-screen';
 
-/** Stub: lo implementa el módulo `solidario`. */
+/** Lista completa de seguimientos (HU-22). */
 export default function SeguimientosRoute() {
-  return <PlaceholderScreen title="Seguimientos" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  return <SeguimientosScreen />;
 }

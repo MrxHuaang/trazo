@@ -1,6 +1,9 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { useLocalSearchParams } from 'expo-router';
 
-/** Stub: lo implementa el módulo `solidario`. */
+import { JornadaScreen } from '@/features/solidario/jornada-screen';
+
+/** Jornada con registro rápido de asistentes (HU-21). */
 export default function JornadaRoute() {
-  return <PlaceholderScreen title="Jornada" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <JornadaScreen id={id} />;
 }

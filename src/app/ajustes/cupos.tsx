@@ -1,6 +1,13 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack } from 'expo-router';
 
-/** Stub: lo implementa el módulo `solidario`. */
+import { CuposSheet } from '@/features/solidario/cupos-sheet';
+
+/** Hoja de cupos solidarios y tarifa social (HU-18). */
 export default function CuposRoute() {
-  return <PlaceholderScreen title="Cupos solidarios" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
+      <CuposSheet />
+    </>
+  );
 }
