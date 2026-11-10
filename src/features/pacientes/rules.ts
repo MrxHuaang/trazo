@@ -85,6 +85,12 @@ export function esFechaClave(v: string) {
   return fechaClave(isoDesde(v)) === v;
 }
 
+/** Mientras se escribe: deja solo dígitos y pone los guiones de aaaa-mm-dd. */
+export function formatearFechaEscrita(v: string) {
+  const d = soloDigitos(v).slice(0, 8);
+  return [d.slice(0, 4), d.slice(4, 6), d.slice(6, 8)].filter(Boolean).join('-');
+}
+
 /** Menor de 18 años a la fecha de hoy (Ley 1581: autoriza su representante legal). */
 export function esMenorDeEdad(fechaNacimiento: string | null | undefined, hoy = hoyClave()) {
   if (!fechaNacimiento || !esFechaClave(fechaNacimiento)) return false;
