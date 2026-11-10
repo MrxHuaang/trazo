@@ -3,11 +3,13 @@ import { LockSimpleIcon } from 'phosphor-react-native/src/icons/LockSimple';
 import { LockSimpleOpenIcon } from 'phosphor-react-native/src/icons/LockSimpleOpen';
 import { WarningCircleIcon } from 'phosphor-react-native/src/icons/WarningCircle';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, View } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { color, radius, space } from '@/theme';
-import { Button, Text, TraceLine } from '@/ui';
+import { useSismografo } from '@/features/calma/use-sismografo';
+import { color } from '@/theme';
+import { Aparecer, Button, Text, TraceLine } from '@/ui';
 
 import { abrirSesion } from './sesion';
 import { useEstadoApp } from './use-estado-app';
@@ -19,6 +21,8 @@ const PAUSA_ANTES_DE_PEDIR = 350;
 /** Pantalla completa de bloqueo (HU-01). No muestra ningún dato del consultorio. */
 export function PantallaBloqueo() {
   const estadoApp = useEstadoApp();
+  const reducir = useReducedMotion();
+  const { energia } = useSismografo({ activo: !reducir, impulso: 0.7 });
   const [verificando, setVerificando] = useState(false);
   const [sinProteccion, setSinProteccion] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,32 +67,47 @@ export function PantallaBloqueo() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <View style={styles.centro}>
-        <View style={styles.sello}>
-          <LockSimpleIcon size={26} color={color.ink} />
-        </View>
-        <TraceLine height={56} calmFrom={0.5} strokeWidth={2} style={styles.trazo} />
-        <Text variant="title" accessibilityRole="header">
-          Trazo está bloqueado
-        </Text>
-        <Text variant="body" tone={color.inkSoft}>
-          Tus pacientes, notas y cobros quedan protegidos. Desbloquea con tu huella, tu rostro o el código del teléfono.
-        </Text>
+    <SafeAreaView className="flex-1 bg-canvas" edges={['top', 'bottom']}>
+      <View className="flex-1 justify-center gap-4">
+        <Aparecer orden={0} className="px-5">
+          <View className="h-14 w-14 items-center justify-center rounded-full bg-quiet">
+            <LockSimpleIcon size={26} color={color.ink} />
+          </View>
+        </Aparecer>
+
+        {/* Sismógrafo vivo de borde a borde: se agita si mueves el teléfono y se calma al dejarlo quieto. */}
+        <Aparecer orden={1}>
+          {reducir ? (
+            <TraceLine height={96} agitation={0.8} calmFrom={0.5} strokeWidth={2} animate={false} />
+          ) : (
+            <TraceLine height={96} agitation={0.05} calmFrom={1} strokeWidth={2} animate={false} energia={energia} />
+          )}
+        </Aparecer>
+
+        <Aparecer orden={2} className="gap-2 px-5">
+          <Text variant="title" accessibilityRole="header">
+            Trazo está bloqueado
+          </Text>
+          <Text variant="body" className="text-ink-soft">
+            Tus pacientes, notas y cobros quedan protegidos. Desbloquea con tu huella, tu rostro o el código del teléfono.
+          </Text>
+        </Aparecer>
       </View>
 
-      <View style={styles.pie}>
+      <Aparecer orden={3} className="gap-3 px-5 pb-4">
         {error ? (
-          <Text variant="label" tone={color.danger} accessibilityLiveRegion="polite">
+          <Text variant="label" className="text-danger" accessibilityLiveRegion="polite">
             {error}
           </Text>
         ) : null}
 
         {sinProteccion ? (
           <>
-            <View style={styles.aviso} accessibilityLiveRegion="polite">
+            <View
+              className="flex-row gap-3 rounded-field border border-line bg-surface p-4"
+              accessibilityLiveRegion="polite">
               <WarningCircleIcon size={22} color={color.ink} />
-              <Text variant="body" style={styles.avisoTexto}>
+              <Text variant="body" className="flex-1">
                 Este teléfono no tiene huella, rostro ni código configurado, así que Trazo no puede verificar que eres tú.
                 Configura un código de bloqueo en los ajustes del teléfono.
               </Text>
@@ -103,32 +122,7 @@ export function PantallaBloqueo() {
             icon={<LockSimpleOpenIcon size={20} color={color.onAccent} />}
           />
         )}
-      </View>
+      </Aparecer>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, paddingHorizontal: space.xl, backgroundColor: color.canvas },
-  centro: { flex: 1, justifyContent: 'center', gap: space.md },
-  sello: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  trazo: { marginVertical: space.sm },
-  pie: { gap: space.md, paddingBottom: space.lg },
-  aviso: {
-    flexDirection: 'row',
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-  },
-  avisoTexto: { flex: 1 },
-});

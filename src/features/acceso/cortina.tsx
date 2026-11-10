@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { space } from '@/theme';
 import { TraceLine } from '@/ui';
 
 type CortinaProps = {
@@ -17,13 +16,9 @@ type CortinaProps = {
  */
 export function Cortina({ animate = true, children }: CortinaProps) {
   return (
-    <View style={styles.wrap} accessibilityLabel="Trazo">
+    <View className="flex-1 justify-center gap-2 p-6" accessibilityLabel="Trazo">
       <TraceLine height={40} animate={animate} />
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { flex: 1, justifyContent: 'center', padding: space.xxl, gap: space.sm },
-});

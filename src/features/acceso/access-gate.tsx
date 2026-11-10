@@ -1,9 +1,8 @@
 import { router, useRootNavigationState, useSegments } from 'expo-router';
 import { useEffect, type ReactNode } from 'react';
-import { AppState, Keyboard, StyleSheet, View } from 'react-native';
+import { AppState, Keyboard, View } from 'react-native';
 
 import { useConsultorio } from '@/data/hooks';
-import { color, space } from '@/theme';
 import { Button, Text } from '@/ui';
 
 import { CapaSuperior } from './capa-superior';
@@ -49,9 +48,9 @@ export function AccessGate({ children }: { children: ReactNode }) {
   const tapada = cargando || errorSinDatos || bloqueada || privacidad;
 
   return (
-    <View style={styles.root}>
+    <View className="flex-1">
       <View
-        style={styles.root}
+        className="flex-1"
         accessibilityElementsHidden={tapada}
         importantForAccessibility={tapada ? 'no-hide-descendants' : 'auto'}>
         {children}
@@ -61,10 +60,15 @@ export function AccessGate({ children }: { children: ReactNode }) {
         <CapaSuperior modal>
           <Cortina animate={false}>
             <Text variant="heading">No pudimos leer tu consultorio</Text>
-            <Text variant="body" tone={color.inkSoft}>
+            <Text variant="body" className="text-ink-soft">
               Los datos siguen en este teléfono. Intenta de nuevo.
             </Text>
-            <Button label="Reintentar" variant="secondary" onPress={() => void consulta.refetch()} style={styles.boton} />
+            <Button
+              label="Reintentar"
+              variant="secondary"
+              onPress={() => void consulta.refetch()}
+              className="mt-2 self-start"
+            />
           </Cortina>
         </CapaSuperior>
       ) : cargando ? (
@@ -105,8 +109,3 @@ function useBloqueoPorAusencia() {
     return () => sub.remove();
   }, []);
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  boton: { alignSelf: 'flex-start', marginTop: space.sm },
-});
