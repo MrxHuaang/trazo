@@ -1,6 +1,14 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
-/** Stub: lo implementa el módulo `solidario`. */
+import { JornadaFormSheet } from '@/features/solidario/jornada-form-sheet';
+
+/** Hoja para programar una jornada (HU-20). Con `?id=` edita una existente. */
 export default function NuevaJornadaRoute() {
-  return <PlaceholderScreen title="Nueva jornada" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
+      <JornadaFormSheet id={id} />
+    </>
+  );
 }
