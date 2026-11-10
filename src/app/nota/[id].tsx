@@ -1,6 +1,14 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
-/** Stub: lo implementa el módulo `pacientes`. */
+import { NotaScreen } from '@/features/pacientes/nota-screen';
+
+/** Nota de sesión: `id` es el id de una cita (o de una nota sin cita), o `nueva` con `?pacienteId=`. */
 export default function NotaRoute() {
-  return <PlaceholderScreen title="Nota de sesión" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  const { id, pacienteId } = useLocalSearchParams<{ id: string; pacienteId?: string }>();
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.9, 1], sheetGrabberVisible: false }} />
+      <NotaScreen key={`${id}-${pacienteId ?? ''}`} id={id} pacienteId={pacienteId} />
+    </>
+  );
 }
