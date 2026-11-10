@@ -1,11 +1,3 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { AgendaScreen } from '@/features/agenda/agenda-screen';
 
-export default function AgendaRoute() {
-  return (
-    <PlaceholderScreen
-      title="Agenda"
-      emptyTitle="Semana tranquila"
-      emptyBody="La línea de tiempo con tus citas llega en el sprint 2. Tocarás un hueco libre para agendar."
-    />
-  );
-}
+export default AgendaScreen;

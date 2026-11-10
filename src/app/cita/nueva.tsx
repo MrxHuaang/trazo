@@ -1,6 +1,13 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack } from 'expo-router';
 
-/** Stub: lo implementa el módulo `agenda`. */
+import { NuevaCitaSheet } from '@/features/agenda/nueva-cita-sheet';
+
+/** Hoja para agendar. Parámetros opcionales: `inicio` (ISO) y `pacienteId`. */
 export default function NuevaCitaRoute() {
-  return <PlaceholderScreen title="Nueva cita" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
+      <NuevaCitaSheet />
+    </>
+  );
 }
