@@ -1,6 +1,8 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { useLocalSearchParams } from 'expo-router';
 
-/** Stub: lo implementa el módulo `pacientes`. */
+import { FichaPacienteScreen } from '@/features/pacientes/ficha-screen';
+
 export default function PacienteRoute() {
-  return <PlaceholderScreen title="Paciente" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <FichaPacienteScreen key={id} id={id} />;
 }
