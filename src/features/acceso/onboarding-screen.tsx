@@ -40,7 +40,8 @@ export function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.root} edges={paso === 'inicio' ? ['top', 'bottom'] : ['top']}>
-      <Stack.Screen options={{ animation: 'fade', gestureEnabled: false }} />
+      {/* Sin animación: la bienvenida reemplaza a las pestañas y no debe dejar ver lo que había debajo. */}
+      <Stack.Screen options={{ animation: 'none', gestureEnabled: false }} />
 
       {paso === 'crear' ? (
         <Animated.View key="crear" entering={entrada} style={styles.root}>
