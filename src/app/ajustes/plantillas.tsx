@@ -1,6 +1,3 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { PlantillasScreen } from '@/features/hoy/plantillas-screen';
 
-/** Stub: lo implementa el módulo `hoy`. */
-export default function PlantillasRoute() {
-  return <PlaceholderScreen title="Plantillas de mensajes" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
-}
+export default PlantillasScreen;
