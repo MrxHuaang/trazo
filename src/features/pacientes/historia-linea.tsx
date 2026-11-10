@@ -1,36 +1,48 @@
 import { LockSimpleIcon } from 'phosphor-react-native/src/icons/LockSimple';
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
-import { color, radius, space, type } from '@/theme';
-import { SolidarioMark, Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
+import { Aparecer, SolidarioMark, Text } from '@/ui';
 
 import type { ItemHistoria, NodoHistoria } from './historia';
 import { TrazoVertical } from './trazo-vertical';
 
-/** Ancho de la columna del Trazo. */
+/** Ancho de la columna del Trazo (clase `w-7`). */
 const CANAL = 28;
-const PADDING_ITEM = space.md;
 
 type HistoriaLineaProps = {
   items: ItemHistoria[];
   onPressItem: (item: ItemHistoria) => void;
   onAbrirNota: (item: ItemHistoria) => void;
+  /** Posición en la cascada de la pantalla a partir de la cual entran los ítems. */
+  ordenInicial?: number;
 };
 
 /** Historia vertical: el Trazo corre por la izquierda y cada evento es un punto sobre él. */
-export function HistoriaLinea({ items, onPressItem, onAbrirNota }: HistoriaLineaProps) {
+export function HistoriaLinea({ items, onPressItem, onAbrirNota, ordenInicial = 0 }: HistoriaLineaProps) {
   const [alto, setAlto] = useState(0);
 
   return (
     <View onLayout={(e) => setAlto(Math.round(e.nativeEvent.layout.height))}>
       {alto > 0 ? <TrazoVertical alto={alto} ancho={CANAL} /> : null}
-      {items.map((item) => (
-        <FilaHistoria key={item.clave} item={item} onPress={onPressItem} onAbrirNota={onAbrirNota} />
+      {items.map((item, i) => (
+        <Aparecer key={item.clave} orden={ordenInicial + i} reacomodar className="flex-row">
+          <FilaHistoria item={item} onPress={onPressItem} onAbrirNota={onAbrirNota} />
+        </Aparecer>
       ))}
     </View>
   );
 }
+
+const PISTA: Partial<Record<ItemHistoria['tipo'], string>> = {
+  cita: 'Abre el detalle de la cita',
+  nota: 'Pide huella o código',
+  seguimiento: 'Marca el seguimiento',
+  jornada: 'Abre la jornada',
+};
 
 function FilaHistoria({
   item,
@@ -41,30 +53,33 @@ function FilaHistoria({
   onPress: (item: ItemHistoria) => void;
   onAbrirNota: (item: ItemHistoria) => void;
 }) {
-  const tocable = item.tipo === 'cita' || item.tipo === 'nota' || (item.tipo === 'seguimiento' && item.seguimientoEstado === 'pendiente');
-  const pista =
-    item.tipo === 'cita' ? 'Abre el detalle de la cita' : item.tipo === 'nota' ? 'Pide huella o código' : 'Marca el seguimiento';
+  const tocable =
+    item.tipo === 'cita' ||
+    item.tipo === 'nota' ||
+    item.tipo === 'jornada' ||
+    (item.tipo === 'seguimiento' && item.seguimientoEstado === 'pendiente');
 
   return (
-    <View style={styles.fila}>
-      <View style={styles.canal}>
+    <>
+      {/* El centro del punto queda a la altura de la primera línea del título. */}
+      <View className="w-7 items-center pt-[12.5px]">
         <Nodo tipo={item.nodo} />
       </View>
-      <View style={styles.cuerpo}>
+      <View className="flex-1 pl-2">
         <Pressable
           disabled={!tocable}
           onPress={() => onPress(item)}
           accessibilityRole={tocable ? 'button' : undefined}
           accessibilityLabel={`${item.titulo}. ${item.detalle}`}
-          accessibilityHint={tocable ? pista : undefined}
-          style={({ pressed }) => [styles.principal, pressed && styles.pressed]}>
-          <View style={styles.tituloFila}>
-            <Text variant="bodyMedium" style={styles.titulo}>
+          accessibilityHint={tocable ? PISTA[item.tipo] : undefined}
+          className="min-h-[44px] gap-0.5 py-3 active:opacity-60">
+          <View className="flex-row items-center gap-2">
+            <Text variant="bodyMedium" className="shrink">
               {item.titulo}
             </Text>
             {item.solidaria ? <SolidarioMark /> : null}
           </View>
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             {item.detalle}
           </Text>
         </Pressable>
@@ -75,79 +90,51 @@ function FilaHistoria({
             accessibilityLabel="Nota privada de esta sesión"
             accessibilityHint="Pide huella o código"
             hitSlop={{ top: 6, bottom: 6 }}
-            style={({ pressed }) => [styles.nota, pressed && styles.pressed]}>
+            className="-mt-1 mb-3 min-h-[32px] flex-row items-center gap-1 self-start rounded-full border border-ink px-3 active:opacity-60">
             <LockSimpleIcon size={14} color={color.ink} />
             <Text variant="label">Nota privada</Text>
           </Pressable>
         ) : null}
       </View>
-    </View>
+    </>
   );
 }
-
-const TAM: Record<NodoHistoria, number> = {
-  proxima: 14,
-  agendada: 11,
-  solicitada: 11,
-  pendiente: 11,
-  pasada: 8,
-  falta: 10,
-  cancelada: 9,
-};
 
 /** Punto del evento: cobalto la próxima cita, tinta lo agendado, vacío lo pendiente, gris lo pasado. */
+const NODO: Record<NodoHistoria, string> = {
+  proxima: 'h-3.5 w-3.5 bg-accent',
+  agendada: 'h-[11px] w-[11px] bg-ink',
+  solicitada: 'h-[11px] w-[11px] border-[1.5px] border-ink bg-canvas',
+  pendiente: 'h-[11px] w-[11px] border-[1.5px] border-ink bg-canvas',
+  pasada: 'h-2 w-2 bg-ink-soft',
+  falta: 'h-2.5 w-2.5 border-[1.5px] border-danger bg-canvas',
+  cancelada: 'h-[9px] w-[9px] border-[1.5px] border-ink-soft bg-canvas',
+};
+
 function Nodo({ tipo }: { tipo: NodoHistoria }) {
-  const tam = TAM[tipo];
-  const relleno =
-    tipo === 'proxima' ? color.accent : tipo === 'agendada' ? color.ink : tipo === 'pasada' ? color.inkSoft : color.canvas;
-  const borde = tipo === 'falta' ? color.danger : tipo === 'cancelada' ? color.inkSoft : color.ink;
-  const hueco = tipo === 'solicitada' || tipo === 'pendiente' || tipo === 'falta' || tipo === 'cancelada';
   return (
-    <View style={styles.anillo}>
-      <View
-        style={{
-          width: tam,
-          height: tam,
-          borderRadius: radius.pill,
-          backgroundColor: relleno,
-          borderWidth: hueco ? 1.5 : 0,
-          borderColor: borde,
-        }}
-      />
+    <View className="h-5 w-5 items-center justify-center rounded-full bg-canvas">
+      {tipo === 'proxima' ? <Pulso /> : null}
+      <View className={cn('rounded-full', NODO[tipo])} />
     </View>
   );
 }
 
-/** Centro del punto alineado con la primera línea del título. */
-const ANILLO = 20;
+/** Onda que sale de la próxima cita cada 2,4 s: lo único que se repite en la pantalla. */
+function Pulso() {
+  const reducir = useReducedMotion();
+  const pulso = useSharedValue(0);
 
-const styles = StyleSheet.create({
-  fila: { flexDirection: 'row' },
-  canal: { width: CANAL, alignItems: 'center', paddingTop: PADDING_ITEM + type.bodyMedium.lineHeight / 2 - ANILLO / 2 },
-  anillo: {
-    width: ANILLO,
-    height: ANILLO,
-    borderRadius: radius.pill,
-    backgroundColor: color.canvas,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cuerpo: { flex: 1, paddingLeft: space.sm },
-  principal: { paddingVertical: PADDING_ITEM, gap: 2, minHeight: 44 },
-  tituloFila: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  titulo: { flexShrink: 1 },
-  pressed: { opacity: 0.6 },
-  nota: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: space.xs,
-    marginTop: -space.xs,
-    marginBottom: PADDING_ITEM,
-    paddingHorizontal: space.md,
-    minHeight: 32,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.ink,
-  },
-});
+  useEffect(() => {
+    if (reducir) return;
+    pulso.set(withRepeat(withTiming(1, { duration: 2400, easing: Easing.out(Easing.quad) }), -1, false));
+    return () => pulso.set(0);
+  }, [reducir, pulso]);
+
+  const onda = useAnimatedStyle(() => ({
+    opacity: 0.35 * (1 - pulso.get()),
+    transform: [{ scale: 1 + pulso.get() * 1.6 }],
+  }));
+
+  return <Animated.View className="absolute h-3.5 w-3.5 rounded-full bg-accent" style={onda} />;
+}
