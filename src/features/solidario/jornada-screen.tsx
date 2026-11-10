@@ -60,11 +60,12 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: () =>
-            eliminar.mutate(j.id, {
-              onSuccess: () => (router.canGoBack() ? router.back() : router.replace('/solidario')),
-              onError: avisarError('No se pudo eliminar la jornada'),
-            }),
+          // Se sale primero: al borrarse la jornada esta pantalla se queda sin datos y sus callbacks ya no corren.
+          onPress: () => {
+            eliminar.mutateAsync(j.id).catch(avisarError('No se pudo eliminar la jornada'));
+            if (router.canGoBack()) router.back();
+            else router.replace('/solidario');
+          },
         },
       ],
     );

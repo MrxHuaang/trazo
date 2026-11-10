@@ -73,7 +73,7 @@ export function frasesInforme(c: CifrasInforme): Frase[] {
     {
       clave: 'seguimientos',
       cifra: String(c.seguimientosHechos),
-      texto: plural(c.seguimientosHechos, 'seguimiento hecho a quienes lo necesitaban.', 'seguimientos hechos a quienes lo necesitaban.'),
+      texto: plural(c.seguimientosHechos, 'llamada de seguimiento hecha.', 'llamadas de seguimiento hechas.'),
     },
   ];
 }
