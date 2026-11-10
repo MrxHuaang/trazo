@@ -1,6 +1,14 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
-/** Stub: lo implementa el módulo `pacientes`. */
+import { PacienteFormScreen } from '@/features/pacientes/paciente-form-screen';
+
+/** Hoja para crear (`?nombre=`) o editar (`?id=`) un paciente. */
 export default function NuevoPacienteRoute() {
-  return <PlaceholderScreen title="Nuevo paciente" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  const { id, nombre } = useLocalSearchParams<{ id?: string; nombre?: string }>();
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.9, 1], sheetGrabberVisible: false }} />
+      <PacienteFormScreen key={id ?? 'nuevo'} id={id} nombre={nombre} />
+    </>
+  );
 }
