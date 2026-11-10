@@ -143,6 +143,46 @@ export function HoraChips({ horas, valor, onChange }: HoraChipsProps) {
   );
 }
 
+const ANCHO_HORA = 72;
+const PASO_HORA = ANCHO_HORA + space.sm;
+
+/** Tira horizontal de horas ('08:00') para elegir el inicio o el fin de una franja. */
+export function HoraTira({ horas, valor, onChange, etiqueta }: { horas: string[]; valor: string; onChange: (h: string) => void; etiqueta: string }) {
+  const lista = useRef<FlatList<string>>(null);
+  const indice = horas.indexOf(valor);
+
+  useEffect(() => {
+    if (indice > 0) lista.current?.scrollToIndex({ index: indice, animated: true, viewPosition: 0.5 });
+  }, [indice]);
+
+  return (
+    <FlatList
+      ref={lista}
+      horizontal
+      data={horas}
+      keyExtractor={(h) => h}
+      showsHorizontalScrollIndicator={false}
+      style={styles.tira}
+      contentContainerStyle={styles.tiraContenido}
+      getItemLayout={(_, i) => ({ length: PASO_HORA, offset: PASO_HORA * i, index: i })}
+      initialScrollIndex={indice > 1 ? indice - 1 : undefined}
+      onScrollToIndexFailed={() => undefined}
+      keyboardShouldPersistTaps="handled"
+      accessibilityLabel={etiqueta}
+      renderItem={({ item }) => (
+        <Opcion
+          mono
+          etiqueta={item}
+          accessibilityLabel={`${etiqueta} ${item}`}
+          seleccionada={item === valor}
+          onPress={() => onChange(item)}
+          style={styles.horaTira}
+        />
+      )}
+    />
+  );
+}
+
 /** Grupo de opciones en fila que se parte en varias líneas. */
 export function Opciones<T extends string | number>({
   opciones,
@@ -192,4 +232,5 @@ const styles = StyleSheet.create({
   },
   cuadricula: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   hora: { minWidth: 76, paddingHorizontal: space.md },
+  horaTira: { width: ANCHO_HORA, marginRight: space.sm, paddingHorizontal: 0 },
 });
