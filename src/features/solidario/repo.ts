@@ -13,7 +13,8 @@ import { mesSiguiente } from './rules';
 
 type FilaJornada = {
   id: string; titulo: string; tipo: Jornada['tipo']; lugar: string; barrio: string | null; inicio: string; fin: string;
-  cupos: number; descripcion: string | null; creado_en: string; inscritos: number;
+  cupos: number; descripcion: string | null; latitud: number | null; longitud: number | null; creado_en: string;
+  inscritos: number;
 };
 
 /** Jornada con el número de asistentes registrados. */
@@ -24,7 +25,8 @@ const SELECT_JORNADA = `SELECT j.*, (SELECT COUNT(*) FROM asistentes a WHERE a.j
 
 const mapearJornada = (f: FilaJornada): JornadaConInscritos => ({
   id: f.id, titulo: f.titulo, tipo: f.tipo, lugar: f.lugar, barrio: f.barrio, inicio: f.inicio, fin: f.fin,
-  cupos: f.cupos, descripcion: f.descripcion, creadoEn: f.creado_en, inscritos: f.inscritos,
+  cupos: f.cupos, descripcion: f.descripcion, latitud: f.latitud, longitud: f.longitud, creadoEn: f.creado_en,
+  inscritos: f.inscritos,
 });
 
 /** Jornadas que aún no terminan, de la más cercana a la más lejana. */
@@ -42,6 +44,12 @@ export async function listarJornadasAnteriores(limite = 5) {
   return filas.map(mapearJornada);
 }
 
+/** Todas las jornadas (para el mapa), de la más reciente a la más antigua. */
+export async function listarJornadas() {
+  const filas = await consultar<FilaJornada>(`${SELECT_JORNADA} ORDER BY j.inicio DESC`);
+  return filas.map(mapearJornada);
+}
+
 export async function obtenerJornada(id: string) {
   const f = await consultarUno<FilaJornada>(`${SELECT_JORNADA} WHERE j.id = ?`, [id]);
   return f ? mapearJornada(f) : null;
@@ -56,6 +64,9 @@ export type NuevaJornada = {
   fin: string;
   cupos: number;
   descripcion?: string | null;
+  /** Punto elegido en el mapa (grados decimales). */
+  latitud?: number | null;
+  longitud?: number | null;
 };
 
 const textoOpcional = (v?: string | null) => (v?.trim() ? v.trim() : null);
@@ -63,19 +74,20 @@ const textoOpcional = (v?: string | null) => (v?.trim() ? v.trim() : null);
 export async function crearJornada(d: NuevaJornada) {
   const id = nuevoId();
   await ejecutar(
-    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en)
-     VALUES (?,?,?,?,?,?,?,?,?,?)`,
+    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en, latitud, longitud)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [id, d.titulo.trim(), d.tipo, d.lugar.trim(), textoOpcional(d.barrio), d.inicio, d.fin, d.cupos,
-      textoOpcional(d.descripcion), ahoraIso()],
+      textoOpcional(d.descripcion), ahoraIso(), d.latitud ?? null, d.longitud ?? null],
   );
   return (await obtenerJornada(id))!;
 }
 
 export async function actualizarJornada(id: string, d: NuevaJornada) {
   await ejecutar(
-    `UPDATE jornadas SET titulo=?, tipo=?, lugar=?, barrio=?, inicio=?, fin=?, cupos=?, descripcion=? WHERE id=?`,
+    `UPDATE jornadas SET titulo=?, tipo=?, lugar=?, barrio=?, inicio=?, fin=?, cupos=?, descripcion=?, latitud=?, longitud=?
+      WHERE id=?`,
     [d.titulo.trim(), d.tipo, d.lugar.trim(), textoOpcional(d.barrio), d.inicio, d.fin, d.cupos,
-      textoOpcional(d.descripcion), id],
+      textoOpcional(d.descripcion), d.latitud ?? null, d.longitud ?? null, id],
   );
   return (await obtenerJornada(id))!;
 }

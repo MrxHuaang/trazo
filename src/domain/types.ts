@@ -139,6 +139,9 @@ export type Jornada = {
   fin: string;
   cupos: number;
   descripcion: string | null;
+  /** Punto en el mapa (opcional): grados decimales. */
+  latitud?: number | null;
+  longitud?: number | null;
   creadoEn: string;
 };
 

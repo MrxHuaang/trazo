@@ -124,9 +124,10 @@ export async function cargarDemo() {
   const pasada = nuevoId();
   const jPasadaDia = sumarDias(hoy, -9);
   await base.runAsync(
-    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en, latitud, longitud)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [pasada, 'Primeros auxilios emocionales', 'charla', 'Parque Olaya Herrera', 'Centro', isoDesde(jPasadaDia, '14:00'),
-      isoDesde(jPasadaDia, '16:00'), 30, 'Charla abierta para familias afectadas por el sismo.', t],
+      isoDesde(jPasadaDia, '16:00'), 30, 'Charla abierta para familias afectadas por el sismo.', t, 4.8166, -75.6898],
   );
   const asistentes = [
     { nombre: 'Marta Giraldo', tel: '3000000106', seg: true, pacienteId: ids[5]! },
@@ -151,9 +152,10 @@ export async function cargarDemo() {
     }
   }
   await base.runAsync(
-    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+    `INSERT INTO jornadas (id, titulo, tipo, lugar, barrio, inicio, fin, cupos, descripcion, creado_en, latitud, longitud)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     [nuevoId(), 'Manejo de la ansiedad tras el sismo', 'taller', 'Salón comunal', 'Cuba', isoDesde(sumarDias(hoy, 5), '09:00'),
-      isoDesde(sumarDias(hoy, 5), '11:00'), 25, 'Taller práctico de respiración y regulación emocional.', t],
+      isoDesde(sumarDias(hoy, 5), '11:00'), 25, 'Taller práctico de respiración y regulación emocional.', t, 4.7936, -75.7352],
   );
 
   // Líneas de ayuda (verificar vigencia antes de publicar).
