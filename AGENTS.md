@@ -51,9 +51,9 @@ The interface should feel alive but calm (the audience includes people affected 
 |---|---|---|
 | agenda | `(tabs)/agenda`, `cita/nueva`, `cita/[id]`, `ajustes/disponibilidad` | `src/features/agenda` |
 | pacientes | `(tabs)/pacientes`, `paciente/nuevo`, `paciente/[id]`, `nota/[id]` | `src/features/pacientes` |
-| hoy | `(tabs)/index`, `por-confirmar`, `pagos`, `ajustes/plantillas` | `src/features/hoy`, `src/features/pagos` |
-| solidario | `(tabs)/solidario`, `jornada/nueva`, `jornada/[id]`, `seguimientos`, `informe`, `ajustes/cupos` | `src/features/solidario` |
-| acceso | `onboarding`, `ajustes/index`, `AccessGate` | `src/features/acceso` |
+| hoy | `(tabs)/index`, `por-confirmar`, `pagos`, `ajustes/plantillas`, `resumen` | `src/features/hoy`, `src/features/pagos` |
+| solidario | `(tabs)/solidario`, `jornada/nueva`, `jornada/[id]`, `seguimientos`, `informe`, `ajustes/cupos`, `mapa` | `src/features/solidario` |
+| acceso | `onboarding`, `ajustes/index`, `calma`, `AccessGate` | `src/features/acceso`, `src/features/calma` |
 
 Edit only your module's routes and folder. Shared files (`src/data/*`, `src/domain/*`, `src/lib/*`, `src/ui/*`, `src/theme/*`, `src/app/_layout.tsx`, `package.json`) are read-only for modules; if you truly need a change there, keep it minimal and additive and say so in your report.
 
