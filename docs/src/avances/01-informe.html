@@ -1,0 +1,166 @@
+<!-- ===================== PORTADA ===================== -->
+<section class="cover">
+  <div class="top">
+    <span class="brand">Trazo</span>
+    <span>Proyecto de Desarrollo Móvil · 2026-2</span>
+  </div>
+  {{WAVE}}
+  <div class="titles">
+    <div class="kicker">Informe de avances · corte 10 de noviembre de 2026</div>
+    <h1>Trazo: avances del proyecto final</h1>
+    <div class="subtitle">Bitácora día a día, estado frente al plan, repositorio, código por fecha y capturas de la aplicación móvil de consulta psicológica con programa solidario post-sismo.</div>
+  </div>
+  <div class="meta">
+    <div><b>Estudiante</b>Juan José Pantoja Ordoñez<br>Ingeniería de Software, 8.º semestre<br>Universidad Visión de las Américas</div>
+    <div><b>Asignatura</b>Desarrollo Móvil 2<br>Avances del proyecto final<br>Aliada: Angela Sophia Córdoba, psicóloga</div>
+    <div><b>Repositorio</b>github.com/MrxHuaang/trazo<br>Rama activa: feat/mvp-sprints<br>Pull request n.º 1 abierto</div>
+  </div>
+</section>
+
+<!-- ===================== 1. RESUMEN ===================== -->
+<section>
+  <h2 class="chapter">Resumen del avance</h2>
+  <p class="lead">Trazo es una app móvil en React Native + Expo para organizar la consulta de una psicóloga independiente (agenda, pacientes, recordatorios, pagos, notas) con un módulo solidario para atender a personas afectadas por el sismo del 10 de agosto de 2026 en Pereira. A la fecha están listos el documento maestro, el sistema visual, la capa de datos y la pantalla principal funcionando en el emulador; los módulos restantes están en desarrollo en ramas separadas.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n">3 días</div><div class="l">de trabajo registrados (8, 9 y 10 de noviembre)</div></div>
+    <div class="kpi"><div class="n">9</div><div class="l">commits en el repositorio público, más 3 en rama de módulo</div></div>
+    <div class="kpi"><div class="n">126</div><div class="l">archivos cambiados frente a la plantilla inicial (+10.796 líneas)</div></div>
+    <div class="kpi"><div class="n">46 págs.</div><div class="l">documento maestro v0.2 con requerimientos, diseño y arquitectura</div></div>
+  </div>
+
+  <h3>Enlaces</h3>
+  <table class="compact">
+    <tbody>
+      <tr><td class="k">Repositorio (público)</td><td>https://github.com/MrxHuaang/trazo</td></tr>
+      <tr><td class="k">Pull request de la base</td><td>https://github.com/MrxHuaang/trazo/pull/1</td></tr>
+      <tr><td class="k">Rama con el trabajo más reciente</td><td><code>feat/mvp-sprints</code></td></tr>
+      <tr><td class="k">Documento maestro</td><td><code>01_Documentacion_y_repositorio/Trazo_Documento_Maestro_v0.2.pdf</code> (en esta carpeta)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Qué hay en esta carpeta</h3>
+  <table class="tight">
+    <thead><tr><th style="width:38%">Carpeta o archivo</th><th>Contenido</th></tr></thead>
+    <tbody>
+      <tr><td><strong>00_Informe_de_avances_Trazo.pdf</strong></td><td>Este informe.</td></tr>
+      <tr><td><strong>01_Documentacion_y_repositorio</strong></td><td>Documento maestro v0.2 (PDF), enlace al repositorio y copia completa del código fuente en ZIP.</td></tr>
+      <tr><td><strong>02_Dia1_2026-11-08_Planeacion_y_diseno</strong></td><td>Fuentes del documento maestro y del sistema de generación de PDF.</td></tr>
+      <tr><td><strong>03_Dia2_2026-11-09_Base_y_sistema_visual</strong></td><td>Código del sistema visual Trazo suave, componentes, navegación y primera pantalla.</td></tr>
+      <tr><td><strong>04_Dia2_2026-11-09_Capa_de_datos</strong></td><td>Base de datos local, dominio, repositorios, hooks y datos de demostración.</td></tr>
+      <tr><td><strong>05_Dia2_2026-11-09_Modulo_Hoy_y_pagos</strong></td><td>Pantalla Hoy con datos reales, recordatorios por WhatsApp y pagos (rama de módulo).</td></tr>
+      <tr><td><strong>06_Dia3_2026-11-10_Modulos_en_desarrollo</strong></td><td>Corte del código en curso de agenda, pacientes, solidario y acceso.</td></tr>
+      <tr><td><strong>07_Capturas</strong></td><td>Capturas de la app corriendo en el emulador Pixel 8.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Cada carpeta de código trae un archivo <code>LEEME.md</code> con la ruta original de cada archivo en el repositorio, el commit del que se tomó y qué hace. Los nombres usan <code>__</code> en lugar de <code>/</code> (por ejemplo, <code>theme__tokens.ts</code> es <code>src/theme/tokens.ts</code>).</p>
+</section>
+
+<!-- ===================== 2. BITÁCORA ===================== -->
+<section>
+  <h2 class="chapter">Bitácora día a día</h2>
+  <p class="lead">Registro de lo que se hizo cada día, con el resultado y la evidencia (commit o documento). Las horas son de Colombia y corresponden a las marcas de tiempo de Git.</p>
+
+  <h3>Día 1 · domingo 8 de noviembre · Planeación y diseño</h3>
+  <table class="tight">
+    <thead><tr><th style="width:27%">Actividad</th><th>Qué se hizo</th><th style="width:25%">Resultado o evidencia</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Contexto y problema</strong></td><td>Lectura de la carta de aceptación. Investigación del sismo del 10 de agosto (cifras de afectados, respuesta en salud mental, líneas de ayuda de Risaralda) y de cómo trabaja una psicóloga independiente.</td><td>Capítulos 2 y 3 del documento maestro.</td></tr>
+      <tr><td><strong>Definición del producto</strong></td><td>Se evaluaron cinco alternativas (agenda, seguimiento psicosocial, jornadas, app para pacientes, agendador para negocios). Se eligió consulta como núcleo y programa solidario como módulo.</td><td>Capítulo 4, tabla de alternativas.</td></tr>
+      <tr><td><strong>Requerimientos</strong></td><td>27 historias de usuario con prioridad MoSCoW, criterios de aceptación de las historias clave, 10 reglas de negocio y 9 requisitos no funcionales.</td><td>Capítulos 5 y 6.</td></tr>
+      <tr><td><strong>Stack</strong></td><td>Comparación Flutter vs. React Native. Se eligió React Native + Expo SDK 58 porque es lo del curso y permite probar en iPhone sin Mac y sin costo (Expo Go). Verificación de versiones y planes gratuitos.</td><td>Capítulos 8 y 10; ADR-001 y ADR-002.</td></tr>
+      <tr><td><strong>Diseño visual</strong></td><td>Se descartaron neumorphism, glassmorphism y una primera paleta cálida por genérica. Se exploraron cuatro direcciones y se definió <em>Trazo suave</em>: bloques pastel por tipo de información y una línea de sismógrafo que se calma como firma. Tokens de color, tipografía y formas.</td><td>Capítulo 7 con wireframes de cuatro pantallas.</td></tr>
+      <tr><td><strong>Arquitectura y datos</strong></td><td>Arquitectura por funcionalidades, modelo entidad-relación, reglas de seguridad y privacidad (Ley 1581 de 2012, Ley 1090 de 2006).</td><td>Capítulos 8, 9 y 14.</td></tr>
+      <tr><td><strong>Plan</strong></td><td>Plan de trabajo por sprints, riesgos, costos (cero) y diferencias entre Pixel 8 (pruebas) e iPhone (destino).</td><td>Capítulos 10 a 15.</td></tr>
+      <tr><td><strong>Documento</strong></td><td>Sistema propio para generar el PDF desde HTML con Edge sin interfaz (<code>docs/build.py</code>).</td><td>Documento maestro v0.2, 46 páginas.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Día 2 · lunes 9 de noviembre · Base, sistema visual y datos</h3>
+  <table class="tight">
+    <thead><tr><th style="width:9%">Hora</th><th style="width:22%">Actividad</th><th>Qué se hizo</th><th style="width:16%">Commit</th></tr></thead>
+    <tbody>
+      <tr><td>00:17</td><td><strong>Proyecto</strong></td><td>Creación del proyecto con <code>create-expo-app</code> (Expo SDK 58, React Native 0.88, Expo Router, TypeScript estricto).</td><td><code>da07a45</code></td></tr>
+      <tr><td>01:14</td><td><strong>Sistema visual</strong></td><td>Tokens (<code>src/theme</code>), fuentes Bricolage Grotesque, Geist y Geist Mono, componentes reutilizables (<code>TraceLine</code>, <code>Tile</code>, <code>HatchOverlay</code>, <code>Fab</code>, <code>ListRow</code>, <code>Chip</code>, <code>EmptyState</code>, <code>Screen</code>), pestañas nativas, pantalla Hoy, ícono y pantalla de carga. ESLint y reglas del proyecto.</td><td><code>c381b24</code></td></tr>
+      <tr><td>Mañana</td><td><strong>Pruebas en emulador</strong></td><td>Puesta en marcha en el emulador Pixel 8 con Expo Go 58. Se resolvió un fallo de descarga del paquete por red local usando <code>adb reverse</code>.</td><td>Capturas en 07_Capturas</td></tr>
+      <tr><td>12:57</td><td><strong>Correcciones Android</strong></td><td>La textura solidaria no cubría el bloque y las pestañas solo mostraban la etiqueta activa. Se rehízo la textura con líneas medidas y se activaron las etiquetas.</td><td><code>723dd9e</code></td></tr>
+      <tr><td>12:58</td><td><strong>Nombre</strong></td><td>La app pasó de llamarse Sostén a Trazo (nombre visible, identificadores, textos).</td><td><code>8242443</code></td></tr>
+      <tr><td>13:06</td><td><strong>Repositorio</strong></td><td>Revisión de secretos, repositorio público en GitHub, documento maestro dentro del repo y pull request n.º 1.</td><td><code>b26481e</code></td></tr>
+      <tr><td>13:21</td><td><strong>Capa de datos</strong></td><td>Base de datos local SQLite con migraciones, tipos de dominio, repositorios (consultorio, pacientes, citas, pagos, seguimientos), hooks de TanStack Query, datos ficticios de demostración, utilidades de fechas en hora de Colombia, formato de moneda y WhatsApp, componentes de formulario y rutas de cada módulo.</td><td><code>9ec7ccd</code></td></tr>
+      <tr><td>13:35</td><td><strong>Módulo Hoy</strong></td><td>Pantalla Hoy conectada a la base de datos (próxima cita, pendientes, solicitudes, seguimientos) y hoja “Por confirmar” con recordatorio por WhatsApp.</td><td><code>b75311b</code>, <code>79270e5</code> (rama de módulo)</td></tr>
+      <tr><td>13:38</td><td><strong>Módulo Pagos</strong></td><td>Resumen mensual (cobrado, pendiente, donado), registro de pagos por método y exportación del mes a PDF.</td><td><code>c95d2ff</code> (rama de módulo)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Día 3 · martes 10 de noviembre · Módulos en desarrollo</h3>
+  <table class="tight">
+    <thead><tr><th style="width:24%">Módulo</th><th>Alcance</th><th style="width:24%">Estado al corte</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Agenda</strong></td><td>Línea de tiempo del día, crear cita tocando un hueco, detalle con cambio de estado, avisos locales, disponibilidad y bloqueos.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>Pacientes</strong></td><td>Buscador con creación en contexto, ficha con historia, autorización de datos, notas privadas bajo bloqueo, exportar a PDF.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>Solidario</strong></td><td>Cupos solidarios, jornadas con asistentes, seguimientos, líneas de ayuda, informe de impacto.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>Acceso y ajustes</strong></td><td>Bienvenida (crear consultorio o cargar demostración), bloqueo al abrir, ajustes.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>Hoy y pagos</strong></td><td>Plantillas de mensajes de WhatsApp editables, con variables y vista previa (commit <code>1ec6bb3</code>). Módulo completo en su rama; tipos y lint en verde.</td><td><span class="tag low">Listo para integrar</span></td></tr>
+      <tr><td><strong>Informe de avances</strong></td><td>Este informe y el paquete de código por día.</td><td><span class="tag low">Hecho</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Cada módulo se trabaja en su propia rama a partir de <code>feat/mvp-sprints</code> y solo toca sus archivos (tabla de propiedad en <code>AGENTS.md</code>), para integrarlos sin conflictos. La carpeta 06 contiene el corte del código en curso; todavía no está integrado ni probado en el emulador.</p>
+</section>
+
+<!-- ===================== 3. ESTADO ===================== -->
+<section>
+  <h2 class="chapter">Estado frente al plan</h2>
+  <table class="tight">
+    <thead><tr><th style="width:9%">Sprint</th><th style="width:24%">Objetivo</th><th>Entregables</th><th style="width:19%">Estado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>S0</strong></td><td>Diseño y preparación</td><td>Documento maestro, sistema visual, repositorio, emulador configurado.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S1</strong></td><td>Fundaciones</td><td>Tokens y componentes, navegación, capa de datos, datos de demostración. Bienvenida, bloqueo y pacientes en curso.</td><td><span class="tag mid">Parcial</span></td></tr>
+      <tr><td><strong>S2</strong></td><td>Agenda</td><td>Línea de tiempo, citas, disponibilidad, avisos. Regla anti-solapes ya implementada en la capa de datos.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>S3</strong></td><td>Consultorio completo</td><td>Hoy, recordatorios y pagos listos en rama de módulo. Ficha y notas en curso.</td><td><span class="tag mid">Parcial</span></td></tr>
+      <tr><td><strong>S4</strong></td><td>Programa solidario</td><td>Cupos, jornadas, seguimientos, líneas de ayuda.</td><td><span class="tag mid">En desarrollo</span></td></tr>
+      <tr><td><strong>S5</strong></td><td>Cierre</td><td>Integración, pruebas de usabilidad, prueba en iPhone real, video.</td><td><span class="tag">Pendiente</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cambios frente al documento maestro</h3>
+  <table class="tight">
+    <thead><tr><th style="width:26%">Tema</th><th>Cambio</th><th style="width:34%">Motivo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Nombre</strong></td><td>De Sostén a Trazo.</td><td>Trazo ya era la firma visual de la app (la línea de sismógrafo).</td></tr>
+      <tr><td><strong>Persistencia</strong></td><td>Base de datos local SQLite en el teléfono en lugar de Supabase en la nube. Supabase queda como adaptador futuro.</td><td>Funciona en Expo Go sin cuentas ni costo, y los datos de salud no salen del dispositivo.</td></tr>
+      <tr><td><strong>Página web de reservas</strong></td><td>Se aplaza.</td><td>Necesita un servidor; depende de conectar Supabase.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cómo ejecutar el proyecto</h3>
+<pre><code>git clone https://github.com/MrxHuaang/trazo.git
+cd trazo
+git switch feat/mvp-sprints
+npm install
+npx expo start            <span class="c"># tecla "a": abre el emulador Android con Expo Go 58</span>
+
+<span class="c"># Si Expo Go se queda en "Downloading 100%" en el emulador:</span>
+adb reverse tcp:8081 tcp:8081      <span class="c"># y abrir exp://127.0.0.1:8081</span>
+
+npx tsc --noEmit          <span class="c"># tipos</span>
+npx expo lint             <span class="c"># estilo</span></code></pre>
+  <p class="small">La app carga datos ficticios de demostración la primera vez (12 pacientes, citas de dos semanas atrás a dos adelante, pagos, jornadas y líneas de ayuda). Ningún dato corresponde a personas reales.</p>
+
+  <h3>Próximos pasos</h3>
+  <ol>
+    <li>Terminar e integrar los módulos de agenda, pacientes, solidario y acceso en <code>feat/mvp-sprints</code>.</li>
+    <li>Probar todos los flujos en el emulador Pixel 8 y revisar la lista de diferencias con iPhone.</li>
+    <li>Prueba en un iPhone real con Expo Go y prueba de usabilidad (SUS) con 3 a 5 personas.</li>
+    <li>Actualizar el documento maestro a la versión 1.0 y grabar el video de demostración.</li>
+  </ol>
+</section>
+
+<!-- ===================== 4. CAPTURAS ===================== -->
+<section>
+  <h2 class="chapter">Capturas</h2>
+  <p class="lead">La app corriendo en el emulador Pixel 8 (Android) con Expo Go 58, el 9 de noviembre de 2026.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10mm;padding:0 12mm">
+    <figure style="margin:0"><img src="../img/hoy.png" style="width:100%;border:1.2px solid #17171C;border-radius:5mm"><figcaption><b>Hoy.</b> Línea del día con las citas como puntos, próxima cita, pendientes por confirmar, cupos solidarios (con textura) y valor por cobrar.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/solidario.png" style="width:100%;border:1.2px solid #17171C;border-radius:5mm"><figcaption><b>Solidario.</b> Estado vacío provisional con el Trazo en calma; el módulo completo está en desarrollo.</figcaption></figure>
+  </div>
+</section>

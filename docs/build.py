@@ -43,6 +43,12 @@ DOCS = {
         "parts": sorted((SRC / "maestro").glob("*.html")),
         "pdf": "Trazo_Documento_Maestro_v0.2.pdf",
     },
+    "avances": {
+        "title": "Trazo — Informe de avances",
+        "footer": "Trazo · Informe de avances · 10 de noviembre de 2026",
+        "parts": sorted((SRC / "avances").glob("*.html")),
+        "pdf": "Trazo_Informe_de_avances_2026-11-10.pdf",
+    },
 }
 
 

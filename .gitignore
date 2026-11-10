@@ -47,3 +47,7 @@ docs/out/
 
 # Caché de herramientas de diseño
 .impeccable/
+
+# Copias de trabajo de agentes y paquete de avances
+.claude/worktrees/
+entregables/avances/
