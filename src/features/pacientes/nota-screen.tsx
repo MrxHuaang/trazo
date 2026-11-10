@@ -42,7 +42,8 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
 
   const candado = useCandado(() => {
     // Antes de bloquear: el borrador no se pierde y el contenido sale de la memoria.
-    if (texto !== null && texto.trim() && texto !== original) persistir(texto).catch(() => undefined);
+    const guardado = notaId ? (qc.getQueryData<string>([...llaveContenidoNota, notaId]) ?? '') : '';
+    if (texto !== null && texto.trim() && texto !== guardado) persistir(texto).catch(() => undefined);
     setTexto(null);
     qc.removeQueries({ queryKey: llaveContenidoNota });
   });
