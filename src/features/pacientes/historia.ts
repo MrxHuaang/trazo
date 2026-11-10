@@ -1,5 +1,5 @@
 /**
- * Historia del paciente (HU-09): une citas, pagos, notas, seguimientos y consentimientos
+ * Historia del paciente (HU-09): une citas, pagos, notas, seguimientos, jornadas y consentimientos
  * en una sola línea de tiempo, de lo más reciente a lo más antiguo. Función pura.
  * Las notas nunca aportan contenido: solo "Nota privada" y la fecha (HU-12, RN-10).
  */
@@ -9,6 +9,7 @@ import {
   type CitaConPaciente,
   type Consentimiento,
   type EstadoSeguimiento,
+  type Jornada,
   type PagoConCita,
   type Seguimiento,
 } from '@/domain/types';
@@ -22,7 +23,7 @@ export type NodoHistoria = 'proxima' | 'agendada' | 'solicitada' | 'pasada' | 'f
 
 export type ItemHistoria = {
   clave: string;
-  tipo: 'cita' | 'nota' | 'pago' | 'seguimiento' | 'consentimiento';
+  tipo: 'cita' | 'nota' | 'pago' | 'seguimiento' | 'jornada' | 'consentimiento';
   /** ISO para ordenar. */
   fecha: string;
   titulo: string;
@@ -34,6 +35,7 @@ export type ItemHistoria = {
   notaId?: string | null;
   seguimientoId?: string;
   seguimientoEstado?: EstadoSeguimiento;
+  jornadaId?: string;
 };
 
 type Fuentes = {
@@ -42,6 +44,8 @@ type Fuentes = {
   notas: NotaResumen[];
   seguimientos: Seguimiento[];
   consentimientos: Consentimiento[];
+  /** Jornadas del programa solidario a las que asistió. */
+  jornadas?: Jornada[];
   ahora?: Date;
 };
 
@@ -71,7 +75,13 @@ const ESTADO_SEGUIMIENTO: Record<EstadoSeguimiento, string> = {
   descartado: 'descartado',
 };
 
-export function construirHistoria({ citas, pagos, notas, seguimientos, consentimientos, ahora = new Date() }: Fuentes) {
+const TIPO_JORNADA: Record<Jornada['tipo'], string> = {
+  taller: 'Taller',
+  charla: 'Charla',
+  atencion_grupal: 'Atención grupal',
+};
+
+export function construirHistoria({ citas, pagos, notas, seguimientos, consentimientos, jornadas = [], ahora = new Date() }: Fuentes) {
   const ahoraMs = ahora.getTime();
   const pagoPorCita = new Map(pagos.map((p) => [p.citaId, p]));
   const idsCitas = new Set(citas.map((c) => c.id));
@@ -159,6 +169,20 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
     });
   }
 
+  for (const j of jornadas) {
+    const porVenir = new Date(j.inicio).getTime() > ahoraMs;
+    items.push({
+      clave: `jornada-${j.id}`,
+      tipo: 'jornada',
+      fecha: j.inicio,
+      titulo: `${fechaHistoria(j.inicio, porVenir)} · ${TIPO_JORNADA[j.tipo]}`,
+      detalle: `${j.titulo} · ${j.lugar}`,
+      nodo: porVenir ? 'agendada' : 'pasada',
+      solidaria: true,
+      jornadaId: j.id,
+    });
+  }
+
   for (const c of consentimientos) {
     const datos = c.tipo === 'datos_personales';
     const revocada = c.revocadoEn ? ` · revocada el ${fechaHistoria(c.revocadoEn)}` : '';
@@ -173,4 +197,47 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
   }
 
   return items.sort((a, b) => b.fecha.localeCompare(a.fecha));
+}
+
+/* ---------- Asistencia de un vistazo ---------- */
+
+export type PuntoAsistencia = {
+  id: string;
+  /** sin-marcar: la cita ya pasó y nadie registró si asistió. */
+  tipo: 'asistio' | 'falta' | 'cancelada' | 'futura' | 'sin-marcar';
+};
+
+export type Asistencia = {
+  /** Últimas citas en orden cronológico (la más reciente al final). */
+  puntos: PuntoAsistencia[];
+  asistidas: number;
+  faltas: number;
+  canceladas: number;
+  futuras: number;
+  /** Asistió / (asistió + no asistió) dentro de la tira; null si aún no hay citas cumplidas. */
+  porcentaje: number | null;
+};
+
+export function resumirAsistencia(citas: CitaConPaciente[], ahora = new Date(), maximo = 12): Asistencia {
+  const ahoraMs = ahora.getTime();
+  const puntos = [...citas]
+    .sort((a, b) => a.inicio.localeCompare(b.inicio))
+    .slice(-maximo)
+    .map((c): PuntoAsistencia => {
+      if (c.estado === 'asistio') return { id: c.id, tipo: 'asistio' };
+      if (c.estado === 'no_asistio') return { id: c.id, tipo: 'falta' };
+      if (c.estado === 'cancelada') return { id: c.id, tipo: 'cancelada' };
+      return { id: c.id, tipo: new Date(c.fin).getTime() > ahoraMs ? 'futura' : 'sin-marcar' };
+    });
+  const contar = (tipo: PuntoAsistencia['tipo']) => puntos.filter((p) => p.tipo === tipo).length;
+  const asistidas = contar('asistio');
+  const faltas = contar('falta');
+  return {
+    puntos,
+    asistidas,
+    faltas,
+    canceladas: contar('cancelada'),
+    futuras: contar('futura'),
+    porcentaje: asistidas + faltas > 0 ? Math.round((asistidas / (asistidas + faltas)) * 100) : null,
+  };
 }
