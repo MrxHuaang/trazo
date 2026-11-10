@@ -1,6 +1,13 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack } from 'expo-router';
 
-/** Stub: lo implementa el módulo `agenda`. */
+import { CitaDetalleSheet } from '@/features/agenda/cita-detalle-sheet';
+
+/** Hoja con el detalle y las acciones de una cita. */
 export default function CitaRoute() {
-  return <PlaceholderScreen title="Cita" emptyTitle="En construcción" emptyBody="Esta pantalla llega en el próximo sprint." />;
+  return (
+    <>
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
+      <CitaDetalleSheet />
+    </>
+  );
 }
