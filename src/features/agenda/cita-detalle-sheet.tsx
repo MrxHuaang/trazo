@@ -5,6 +5,7 @@ import { NotePencilIcon } from 'phosphor-react-native/src/icons/NotePencil';
 import { WhatsappLogoIcon } from 'phosphor-react-native/src/icons/WhatsappLogo';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCambiarEstadoCita, useCita, useConsultorio, useMarcarRecordada } from '@/data/hooks';
 import { ErrorSolape, type CitaConPaciente, type EstadoCita } from '@/domain/types';
@@ -45,6 +46,7 @@ export function CitaDetalleSheet() {
 }
 
 function Detalle({ cita }: { cita: CitaConPaciente }) {
+  const insets = useSafeAreaInsets();
   const consultorio = useConsultorio().data;
   const ahoraMs = useAhoraMs();
   const cambiarEstado = useCambiarEstadoCita();
@@ -336,6 +338,9 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
           accessibilityHint="Abre la nota privada de esta sesión"
         />
       ) : null}
+      {/* La hoja no tiene pie fijo: deja libre el indicador de inicio del iPhone. */}
+      <View style={{ height: insets.bottom }} />
+
     </Sheet>
   );
 }

@@ -28,11 +28,22 @@ const horasEntre = (desde: number, hasta: number) => {
   return res;
 };
 
-/** Primer tramo libre razonable para una franja nueva: después de la última, o 8:00 a 12:00. */
+/** Tramo sugerido para una franja nueva: 8:00 a 12:00 en un día vacío; si no, el último espacio libre de al menos una hora. */
 function sugerir(otras: Disponibilidad[]) {
-  const ultimoFin = Math.max(0, ...otras.map((f) => aMinutos(f.horaFin)));
-  const ini = otras.length && ultimoFin + 120 <= VENTANA_FIN - 60 ? ultimoFin + 120 : otras.length ? VENTANA_INICIO : 8 * 60;
-  return { ini, fin: Math.min(VENTANA_FIN, ini + 240) };
+  if (otras.length === 0) return { ini: 8 * 60, fin: 12 * 60 };
+  const ocupadas = otras
+    .map((f) => ({ ini: aMinutos(f.horaInicio), fin: aMinutos(f.horaFin) }))
+    .sort((a, b) => a.ini - b.ini);
+  const libres: { ini: number; fin: number }[] = [];
+  let cursor = VENTANA_INICIO;
+  for (const f of ocupadas) {
+    if (f.ini - cursor >= 60) libres.push({ ini: cursor, fin: f.ini });
+    cursor = Math.max(cursor, f.fin);
+  }
+  if (VENTANA_FIN - cursor >= 60) libres.push({ ini: cursor, fin: VENTANA_FIN });
+  const libre = libres[libres.length - 1];
+  if (!libre) return { ini: VENTANA_INICIO, fin: VENTANA_INICIO + 60 };
+  return { ini: libre.ini, fin: Math.min(libre.fin, libre.ini + 240) };
 }
 
 /** Editor en el sitio de una franja: inicio, fin y modalidad. */

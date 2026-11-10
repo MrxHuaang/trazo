@@ -42,15 +42,17 @@ export function AgendaScreen() {
   const [dia, setDia] = useState(hoy);
 
   // Deslizar la tira cambia de semana (el gesto le gana al toque solo si es horizontal).
-  const [deslizar] = useState(() =>
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+  const [deslizar] = useState(() => {
+    const esHorizontal = (dx: number, dy: number) => Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.5;
+    return PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => esHorizontal(g.dx, g.dy),
+      onMoveShouldSetPanResponderCapture: (_, g) => esHorizontal(g.dx, g.dy),
       onPanResponderTerminationRequest: () => true,
       onPanResponderRelease: (_, g) => {
         if (Math.abs(g.dx) >= 40) setDia((d) => sumarDias(d, g.dx < 0 ? 7 : -7));
       },
-    }),
-  );
+    });
+  });
 
   const lunes = inicioSemana(dia);
   const semana = diasDesde(lunes, 7);
