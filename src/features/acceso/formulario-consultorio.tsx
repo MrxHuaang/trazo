@@ -1,9 +1,9 @@
 import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { color, radius, space } from '@/theme';
-import { Button, Field, Sheet, Text, ToggleRow, TraceLine } from '@/ui';
+import { color } from '@/theme';
+import { Aparecer, Button, Field, Presionable, Sheet, Text, ToggleRow, TraceLine } from '@/ui';
 
 import { useCrearConsultorio } from './hooks';
 import { pesosEnEdicion, validarConsultorio } from './validacion';
@@ -50,72 +50,79 @@ export function FormularioConsultorio({ onVolver, onCreado }: FormularioConsulto
   return (
     <Sheet
       header={
-        <View style={styles.encabezado}>
-          <Pressable
+        <View className="px-4 pb-1 pt-2">
+          <Presionable
             accessibilityRole="button"
             accessibilityLabel="Volver a la bienvenida"
             onPress={onVolver}
             disabled={crear.isPending}
-            style={({ pressed }) => [styles.volver, pressed && styles.presionado]}>
+            className="self-start"
+            contentClassName="h-11 w-11 items-center justify-center rounded-full bg-quiet">
             <CaretLeftIcon size={22} color={color.ink} />
-          </Pressable>
+          </Presionable>
         </View>
       }
       footer={
         <>
           {crear.isError ? (
-            <Text variant="label" tone={color.danger} accessibilityLiveRegion="polite">
+            <Text variant="label" className="text-danger" accessibilityLiveRegion="polite">
               No pudimos guardar el consultorio. Intenta de nuevo.
             </Text>
           ) : null}
           <Button label="Crear consultorio" onPress={enviar} loading={crear.isPending} />
         </>
       }>
-      <View style={styles.intro}>
+      <Aparecer orden={0} className="gap-2 pt-2">
         <TraceLine height={28} agitation={0.6} calmFrom={0.3} />
         <Text variant="title" accessibilityRole="header">
           Crea tu consultorio
         </Text>
-        <Text variant="body" tone={color.inkSoft}>
+        <Text variant="body" className="text-ink-soft">
           Con estos datos Trazo arma tu agenda y tus cobros. Puedes cambiarlos después en Ajustes.
         </Text>
-      </View>
+      </Aparecer>
 
-      <Field
-        label="Nombre del consultorio"
-        value={valores.nombre}
-        onChangeText={cambiar('nombre')}
-        error={errores.nombre}
-        autoCapitalize="words"
-        textContentType="organizationName"
-        maxLength={80}
-      />
-      <Field
-        label="Tu nombre"
-        value={valores.profesional}
-        onChangeText={cambiar('profesional')}
-        error={errores.profesional}
-        autoCapitalize="words"
-        autoComplete="name"
-        textContentType="name"
-        maxLength={80}
-      />
-      <Field
-        label="Correo (opcional)"
-        value={valores.correo}
-        onChangeText={cambiar('correo')}
-        error={errores.correo}
-        helper="Se guarda solo en este teléfono."
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete="email"
-        textContentType="emailAddress"
-        maxLength={120}
-      />
+      <Aparecer orden={1}>
+        <Field
+          label="Nombre del consultorio"
+          value={valores.nombre}
+          onChangeText={cambiar('nombre')}
+          error={errores.nombre}
+          autoCapitalize="words"
+          textContentType="organizationName"
+          maxLength={80}
+        />
+      </Aparecer>
+      <Aparecer orden={2}>
+        <Field
+          label="Tu nombre"
+          value={valores.profesional}
+          onChangeText={cambiar('profesional')}
+          error={errores.profesional}
+          autoCapitalize="words"
+          autoComplete="name"
+          textContentType="name"
+          maxLength={80}
+        />
+      </Aparecer>
+      <Aparecer orden={3}>
+        <Field
+          label="Correo (opcional)"
+          value={valores.correo}
+          onChangeText={cambiar('correo')}
+          error={errores.correo}
+          helper="Se guarda solo en este teléfono."
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          textContentType="emailAddress"
+          maxLength={120}
+        />
+      </Aparecer>
 
-      <View style={styles.par}>
-        <View style={styles.mitad}>
+      <Aparecer orden={4} className="flex-row gap-3">
+        <View className="flex-1">
           <Field
             label="Tarifa base"
             value={valores.tarifaBase}
@@ -123,10 +130,11 @@ export function FormularioConsultorio({ onVolver, onCreado }: FormularioConsulto
             error={errores.tarifaBase}
             helper="COP por sesión"
             keyboardType="number-pad"
+            className="font-mono"
             accessibilityHint="Valor en pesos colombianos por sesión"
           />
         </View>
-        <View style={styles.mitad}>
+        <View className="flex-1">
           <Field
             label="Tarifa social"
             value={valores.tarifaSocial}
@@ -134,33 +142,20 @@ export function FormularioConsultorio({ onVolver, onCreado }: FormularioConsulto
             error={errores.tarifaSocial}
             helper="COP, cupos solidarios"
             keyboardType="number-pad"
+            className="font-mono"
             accessibilityHint="Valor en pesos colombianos para pacientes con tarifa social"
           />
         </View>
-      </View>
+      </Aparecer>
 
-      <ToggleRow
-        label="Bloqueo al abrir"
-        description="Pide tu huella, tu rostro o el código del teléfono al abrir Trazo."
-        value={bloqueo}
-        onChange={setBloqueo}
-      />
+      <Aparecer orden={5}>
+        <ToggleRow
+          label="Bloqueo al abrir"
+          description="Pide tu huella, tu rostro o el código del teléfono al abrir Trazo."
+          value={bloqueo}
+          onChange={setBloqueo}
+        />
+      </Aparecer>
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  encabezado: { paddingHorizontal: space.lg, paddingTop: space.sm, paddingBottom: space.xs },
-  volver: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  presionado: { opacity: 0.6 },
-  intro: { gap: space.sm, paddingTop: space.sm },
-  par: { flexDirection: 'row', gap: space.md },
-  mitad: { flex: 1 },
-});

@@ -1,6 +1,13 @@
-import { PlaceholderScreen } from '@/features/placeholder/placeholder-screen';
+import { Stack } from 'expo-router';
 
-/** Stub: lo implementa el módulo `acceso`. */
+import { CalmaScreen } from '@/features/calma/calma-screen';
+
 export default function CalmaRoute() {
-  return <PlaceholderScreen title="Calma" emptyTitle="En construcción" emptyBody="Esta pantalla llega en la segunda ola." />;
+  return (
+    <>
+      {/* Pantalla completa sin gesto de cierre: el paciente sostiene el teléfono sin cerrarla por accidente. */}
+      <Stack.Screen options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+      <CalmaScreen />
+    </>
+  );
 }

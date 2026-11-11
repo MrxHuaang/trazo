@@ -1,31 +1,63 @@
 /**
  * Piezas de la pantalla de ajustes. Solo las usa este módulo, por eso no viven en src/ui.
+ * Movimiento: las filas que crecen (edición en línea, confirmaciones) cambian de tamaño con una
+ * transición de layout y lo que sigue se reacomoda con el mismo resorte.
  */
+import * as Haptics from 'expo-haptics';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 import { useState, type ComponentProps, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  LayoutAnimationConfig,
+  LinearTransition,
+  ReduceMotion,
+} from 'react-native-reanimated';
 
-import { color, radius, space, type TextVariant } from '@/theme';
-import { Button, Field, Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color, type TextVariant } from '@/theme';
+import { Aparecer, Button, Field, Presionable, Text } from '@/ui';
+
+/** Mismo resorte que `Aparecer reacomodar`, para que filas y secciones se muevan juntas. */
+export const ACOMODO = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
+const ENTRA = FadeIn.duration(200).reduceMotion(ReduceMotion.System);
+const SALE = FadeOut.duration(120).reduceMotion(ReduceMotion.System);
+const DESPLIEGA = FadeInDown.duration(220).reduceMotion(ReduceMotion.System);
+
+const DIVISOR = 'border-b border-line';
 
 /* ---------- Sección ---------- */
 
-export function Seccion({ titulo, nota, children }: { titulo: string; nota?: string; children: ReactNode }) {
+type SeccionProps = { titulo: string; nota?: string; orden: number; children: ReactNode };
+
+export function Seccion({ titulo, nota, orden, children }: SeccionProps) {
   return (
-    <View style={styles.seccion}>
-      <View style={styles.seccionTitulo}>
+    <Aparecer orden={orden} reacomodar className="mt-6 gap-1">
+      <View className="mb-1 gap-0.5">
         <Text variant="heading" accessibilityRole="header">
           {titulo}
         </Text>
         {nota ? (
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             {nota}
           </Text>
         ) : null}
       </View>
+      {/* La sección ya entra en cascada: sus filas solo se animan cuando cambian después. */}
+      <LayoutAnimationConfig skipEntering>{children}</LayoutAnimationConfig>
+    </Aparecer>
+  );
+}
+
+/** Bloque dentro de una sección que debe correrse cuando una fila vecina crece. */
+export function Acomodable({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <Animated.View layout={ACOMODO} className={className}>
       {children}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -44,33 +76,37 @@ type ValorEditableProps = {
   editor: Omit<EditorEnLineaProps, 'etiqueta'>;
 };
 
-/** Fila que muestra un dato y, al tocarla, se convierte en un campo con Guardar y Cancelar. */
+/** Fila que muestra un dato y, al tocarla, se expande en un campo con Guardar y Cancelar. */
 export function ValorEditable({ etiqueta, valor, vacio, variante = 'bodyMedium', abierto, onAbrir, ultimo, editor }: ValorEditableProps) {
-  if (abierto) {
-    return (
-      <View style={[styles.fila, !ultimo && styles.divisor]}>
-        <EditorEnLinea etiqueta={etiqueta} {...editor} />
-      </View>
-    );
-  }
   const texto = valor || vacio || '';
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${etiqueta}: ${texto}`}
-      accessibilityHint="Toca para editar"
-      onPress={onAbrir}
-      style={({ pressed }) => [styles.fila, styles.filaFila, !ultimo && styles.divisor, pressed && styles.presionado]}>
-      <View style={styles.cuerpo}>
-        <Text variant="caption" tone={color.inkSoft}>
-          {etiqueta}
-        </Text>
-        <Text variant={variante} tone={valor ? color.ink : color.inkSoft}>
-          {texto}
-        </Text>
-      </View>
-      <PencilSimpleIcon size={18} color={color.inkSoft} />
-    </Pressable>
+    <Animated.View layout={ACOMODO} className={cn('overflow-hidden', !ultimo && DIVISOR)}>
+      {abierto ? (
+        <Animated.View key="editor" entering={ENTRA} className="py-3">
+          <EditorEnLinea etiqueta={etiqueta} {...editor} />
+        </Animated.View>
+      ) : (
+        <Animated.View key="valor" entering={ENTRA}>
+          <Presionable
+            accessibilityRole="button"
+            accessibilityLabel={`${etiqueta}: ${texto}`}
+            accessibilityHint="Toca para editar"
+            onPress={onAbrir}
+            hundir={0.985}
+            contentClassName="min-h-[56px] flex-row items-center gap-3 py-3">
+            <View className="flex-1 gap-0.5">
+              <Text variant="caption" className="text-ink-soft">
+                {etiqueta}
+              </Text>
+              <Text variant={variante} className={valor ? 'text-ink' : 'text-ink-soft'}>
+                {texto}
+              </Text>
+            </View>
+            <PencilSimpleIcon size={18} color={color.inkSoft} />
+          </Presionable>
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 }
 
@@ -103,6 +139,7 @@ export function EditorEnLinea({ etiqueta, inicial, formatear, validar, guardar, 
     setGuardando(true);
     try {
       await guardar(texto);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onCerrar();
     } catch {
       setError('No pudimos guardar el cambio. Intenta de nuevo.');
@@ -111,7 +148,7 @@ export function EditorEnLinea({ etiqueta, inicial, formatear, validar, guardar, 
   };
 
   return (
-    <View style={styles.editor}>
+    <View className="gap-2">
       <Field
         label={etiqueta}
         value={texto}
@@ -126,16 +163,9 @@ export function EditorEnLinea({ etiqueta, inicial, formatear, validar, guardar, 
         onSubmitEditing={() => void confirmar()}
         {...campo}
       />
-      <View style={styles.editorAcciones}>
-        <Button label="Cancelar" variant="ghost" size="sm" onPress={onCerrar} style={styles.botonCompacto} />
-        <Button
-          label="Guardar"
-          variant="accent"
-          size="sm"
-          loading={guardando}
-          onPress={() => void confirmar()}
-          style={styles.botonCompacto}
-        />
+      <View className="flex-row justify-end gap-2">
+        <Button label="Cancelar" variant="ghost" size="sm" onPress={onCerrar} />
+        <Button label="Guardar" variant="accent" size="sm" loading={guardando} onPress={() => void confirmar()} />
       </View>
     </View>
   );
@@ -154,25 +184,28 @@ type FilaEnlaceProps = {
 
 export function FilaEnlace({ icono, titulo, detalle, marca, onPress, ultimo }: FilaEnlaceProps) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={detalle ? `${titulo}. ${detalle}` : titulo}
-      onPress={onPress}
-      style={({ pressed }) => [styles.fila, styles.filaFila, !ultimo && styles.divisor, pressed && styles.presionado]}>
-      <View style={styles.icono}>{icono}</View>
-      <View style={styles.cuerpo}>
-        <View style={styles.tituloFila}>
-          <Text variant="bodyMedium">{titulo}</Text>
-          {marca}
+    <Animated.View layout={ACOMODO} className={cn(!ultimo && DIVISOR)}>
+      <Presionable
+        accessibilityRole="button"
+        accessibilityLabel={detalle ? `${titulo}. ${detalle}` : titulo}
+        onPress={onPress}
+        hundir={0.985}
+        contentClassName="min-h-[56px] flex-row items-center gap-3 py-3">
+        <View className="h-10 w-10 items-center justify-center rounded-full bg-quiet">{icono}</View>
+        <View className="flex-1 gap-0.5">
+          <View className="flex-row items-center gap-2">
+            <Text variant="bodyMedium">{titulo}</Text>
+            {marca}
+          </View>
+          {detalle ? (
+            <Text variant="caption" className="text-ink-soft" numberOfLines={1}>
+              {detalle}
+            </Text>
+          ) : null}
         </View>
-        {detalle ? (
-          <Text variant="caption" tone={color.inkSoft} numberOfLines={1}>
-            {detalle}
-          </Text>
-        ) : null}
-      </View>
-      <CaretRightIcon size={18} color={color.inkSoft} />
-    </Pressable>
+        <CaretRightIcon size={18} color={color.inkSoft} />
+      </Presionable>
+    </Animated.View>
   );
 }
 
@@ -196,90 +229,64 @@ type AccionConfirmadaProps = {
 };
 
 /**
- * Fila de acción que, al tocarla, muestra la confirmación justo debajo (sin diálogos del sistema,
+ * Fila de acción que, al tocarla, despliega la confirmación justo debajo (sin diálogos del sistema,
  * que en web no existen). Las acciones destructivas usan el tono de error.
  */
 export function AccionConfirmada({
   icono, titulo, detalle, aviso, confirmar, destructiva, abierta, onAbrir, onCerrar, onConfirmar, cargando, error, ultimo,
 }: AccionConfirmadaProps) {
-  const tono = destructiva ? color.danger : color.ink;
   return (
-    <View style={!ultimo && styles.divisor}>
-      <Pressable
+    <Animated.View layout={ACOMODO} className={cn('overflow-hidden', !ultimo && DIVISOR)}>
+      <Presionable
         accessibilityRole="button"
         accessibilityLabel={titulo}
         accessibilityHint={detalle}
         accessibilityState={{ expanded: abierta }}
         disabled={abierta}
         onPress={onAbrir}
-        style={({ pressed }) => [styles.fila, styles.filaFila, pressed && styles.presionado]}>
-        <View style={[styles.icono, destructiva && styles.iconoPeligro]}>{icono}</View>
-        <View style={styles.cuerpo}>
-          <Text variant="bodyMedium" tone={tono}>
+        hundir={0.985}
+        contentClassName="min-h-[56px] flex-row items-center gap-3 py-3">
+        <View className={cn('h-10 w-10 items-center justify-center rounded-full', destructiva ? 'bg-danger-bg' : 'bg-quiet')}>
+          {icono}
+        </View>
+        <View className="flex-1 gap-0.5">
+          <Text variant="bodyMedium" className={destructiva ? 'text-danger' : 'text-ink'}>
             {titulo}
           </Text>
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             {detalle}
           </Text>
         </View>
-      </Pressable>
+      </Presionable>
       {abierta ? (
-        <View style={[styles.confirmacion, destructiva && styles.confirmacionPeligro]} accessibilityLiveRegion="polite">
-          <Text variant="body" tone={destructiva ? color.danger : color.ink}>
+        <Animated.View
+          entering={DESPLIEGA}
+          exiting={SALE}
+          accessibilityLiveRegion="polite"
+          className={cn(
+            'mb-3 gap-3 rounded-field border p-4',
+            'bg-surface', destructiva ? 'border-danger' : 'border-line',
+          )}>
+          <Text variant="body" className={destructiva ? 'text-danger' : 'text-ink'}>
             {aviso}
           </Text>
           {error ? (
-            <Text variant="label" tone={color.danger}>
+            <Text variant="label" className="text-danger">
               {error}
             </Text>
           ) : null}
-          <View style={styles.confirmacionAcciones}>
-            <Button label="Cancelar" variant="secondary" onPress={onCerrar} disabled={cargando} style={styles.flex} />
+          <View className="flex-row gap-2">
+            <Button label="Cancelar" variant="secondary" onPress={onCerrar} disabled={cargando} className="flex-1" />
             <Button
               label={confirmar}
               variant={destructiva ? 'danger' : 'primary'}
               onPress={onConfirmar}
               loading={cargando}
-              style={styles.flex}
+              className="flex-1"
             />
           </View>
-        </View>
+        </Animated.View>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  seccion: { gap: space.xs, marginTop: space.xl },
-  seccionTitulo: { gap: 2, marginBottom: space.xs },
-  fila: { paddingVertical: space.md, minHeight: 56 },
-  filaFila: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  divisor: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.line },
-  presionado: { opacity: 0.6 },
-  cuerpo: { flex: 1, gap: 2 },
-  tituloFila: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  icono: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconoPeligro: { backgroundColor: color.dangerBg },
-  editor: { gap: space.sm },
-  editorAcciones: { flexDirection: 'row', justifyContent: 'flex-end', gap: space.sm },
-  botonCompacto: { minHeight: 44 },
-  confirmacion: {
-    gap: space.md,
-    padding: space.lg,
-    marginBottom: space.md,
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-  },
-  confirmacionPeligro: { borderColor: color.danger, backgroundColor: color.dangerBg },
-  confirmacionAcciones: { flexDirection: 'row', gap: space.sm },
-  flex: { flex: 1 },
-});

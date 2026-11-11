@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { FullWindowOverlay } from 'react-native-screens';
-
-import { color } from '@/theme';
 
 type CapaSuperiorProps = {
   children: ReactNode;
@@ -20,18 +18,13 @@ export function CapaSuperior({ children, modal = false }: CapaSuperiorProps) {
   if (Platform.OS === 'ios') {
     return (
       <FullWindowOverlay unstable_accessibilityContainerViewIsModal={modal}>
-        <View style={styles.capa}>{children}</View>
+        <View className="absolute inset-0 bg-canvas">{children}</View>
       </FullWindowOverlay>
     );
   }
   return (
-    <View style={[styles.capa, styles.encima]} accessibilityViewIsModal={modal}>
+    <View className="absolute inset-0 z-[1000] bg-canvas" accessibilityViewIsModal={modal}>
       {children}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  capa: { ...StyleSheet.absoluteFill, backgroundColor: color.canvas },
-  encima: { zIndex: 1000, elevation: 1000 },
-});
