@@ -76,7 +76,7 @@ export function PantallaBloqueo() {
         </Aparecer>
 
         {/* Sismógrafo vivo de borde a borde: se agita si mueves el teléfono y se calma al dejarlo quieto. */}
-        <Aparecer orden={1}>
+        <Aparecer orden={1} className="w-full">
           {reducir ? (
             <TraceLine height={96} agitation={0.8} calmFrom={0.5} strokeWidth={2} animate={false} />
           ) : (

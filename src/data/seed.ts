@@ -3,7 +3,7 @@
  * Ningún dato corresponde a personas reales; los teléfonos son números de prueba.
  */
 import type { Afectacion, EstadoCita, Tarifa } from '@/domain/types';
-import { diaSemana, hoyClave, inicioSemana, isoDesde, sumarDias } from '@/lib/dates';
+import { diaSemana, fechaClave, hoyClave, inicioSemana, isoDesde, sumarDias } from '@/lib/dates';
 import { nuevoId } from '@/lib/id';
 
 import { ahoraIso, borrarTodo, db } from './db';
@@ -27,6 +27,20 @@ const PACIENTES: P[] = [
 ];
 
 const HORAS = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
+const MINUTO = 60_000;
+
+/**
+ * Citas de hoy relativas a la hora en que se carga la demostración: tres ya atendidas y tres por venir,
+ * la primera en unos 12 minutos. Así la demo siempre tiene una próxima cita con su cuenta regresiva,
+ * sin importar a qué hora se presente.
+ */
+function iniciosDeHoy(ahora: number) {
+  const enPunto = Math.floor(ahora / (60 * MINUTO)) * 60 * MINUTO;
+  const proxima = Math.ceil((ahora + 12 * MINUTO) / (5 * MINUTO)) * 5 * MINUTO;
+  return [enPunto - 3 * 60 * MINUTO, enPunto - 2 * 60 * MINUTO, enPunto - 60 * MINUTO, proxima, proxima + 70 * MINUTO, proxima + 150 * MINUTO].map(
+    (t) => new Date(t).toISOString(),
+  ).filter((iso) => fechaClave(iso) === hoyClave()); // si se presenta de noche, no pasa al día siguiente
+}
 
 export async function cargarDemo() {
   await borrarTodo();
@@ -60,21 +74,24 @@ export async function cargarDemo() {
   const ahora = Date.now();
   let n = 0;
   const solidariasPorSemana = new Map<string, number>();
-  // Citas de 14 días atrás a 14 días adelante, entre semana, 3 por día.
+  // Citas de 14 días atrás a 14 días adelante, entre semana, 3 por día. Hoy siempre tiene citas (ver iniciosDeHoy).
   for (let d = -14; d <= 14; d++) {
     const dia = sumarDias(hoy, d);
-    if (diaSemana(dia) > 5) continue;
-    const horasDelDia = d === 0 ? ['09:00', '10:00', '11:00', '14:30', '16:00'] : [HORAS[(n + d + 14) % 8]!, HORAS[(n + d + 17) % 8]!, HORAS[(n + d + 20) % 8]!];
-    for (const hora of [...new Set(horasDelDia)]) {
+    if (d !== 0 && diaSemana(dia) > 5) continue;
+    const inicios =
+      d === 0
+        ? iniciosDeHoy(ahora)
+        : [...new Set([HORAS[(n + d + 14) % 8]!, HORAS[(n + d + 17) % 8]!, HORAS[(n + d + 20) % 8]!])].map((h) => isoDesde(dia, h));
+    for (const [k, inicio] of inicios.entries()) {
       const idx = n % PACIENTES.length;
       const p = PACIENTES[idx]!;
-      const inicio = isoDesde(dia, hora);
       const fin = new Date(new Date(inicio).getTime() + 50 * 60000).toISOString();
       const pasada = new Date(fin).getTime() < ahora;
       let estado: EstadoCita = pasada ? 'asistio' : 'confirmada';
       if (pasada && n % 9 === 4) estado = 'no_asistio';
       if (pasada && n % 13 === 6) estado = 'cancelada';
-      if (!pasada && (n % 7 === 3 || (d === 0 && hora === '16:00'))) estado = 'solicitada';
+      // Hoy: la próxima cita queda confirmada (para la cuenta regresiva) y la última, solicitada.
+      if (!pasada && (d === 0 ? k === inicios.length - 1 : n % 7 === 3)) estado = 'solicitada';
       // Cupos solidarios (RN-03): máximo 3 por semana; en la semana actual quedan 2 usados y 1 libre.
       const semana = inicioSemana(dia);
       const tope = semana === inicioSemana(hoy) ? 2 : 3;

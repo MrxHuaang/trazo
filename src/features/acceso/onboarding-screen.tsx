@@ -64,7 +64,7 @@ export function OnboardingScreen() {
             </Aparecer>
 
             {/* Sismógrafo vivo de borde a borde: entra agitado, se calma y responde al movimiento del teléfono. */}
-            <Aparecer orden={1}>
+            <Aparecer orden={1} className="w-full">
               {reducir ? (
                 <TraceLine height={104} agitation={0.85} calmFrom={0.55} strokeWidth={2.4} animate={false} />
               ) : (
