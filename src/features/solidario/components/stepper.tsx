@@ -1,10 +1,11 @@
 import * as Haptics from 'expo-haptics';
 import { MinusIcon } from 'phosphor-react-native/src/icons/Minus';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { color, radius, space } from '@/theme';
-import { Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color, tile } from '@/theme';
+import { Presionable, Text } from '@/ui';
 
 type StepperProps = {
   label: string;
@@ -16,12 +17,16 @@ type StepperProps = {
   pasoLargo?: number;
   /** Texto bajo el número (p. ej. "por semana"). */
   unidad?: string;
-  /** Color del número y de los botones (el tono oscuro del bloque donde va). */
-  tone?: string;
+  /** ink: sobre el lienzo · durazno: dentro del bloque solidario. */
+  tono?: 'ink' | 'durazno';
 };
 
 /** Contador − / + con el número grande en el centro. Ajustable con lectores de pantalla. */
-export function Stepper({ label, value, onChange, min = 0, max = 99, pasoLargo, unidad, tone = color.ink }: StepperProps) {
+export function Stepper({ label, value, onChange, min = 0, max = 99, pasoLargo, unidad, tono = 'ink' }: StepperProps) {
+  const texto = tono === 'durazno' ? 'text-durazno-ink' : 'text-ink';
+  const borde = tono === 'durazno' ? 'border-durazno-ink' : 'border-ink';
+  const icono = tono === 'durazno' ? tile.solidario.fg : color.ink;
+
   const cambiar = (delta: number) => {
     const siguiente = Math.min(max, Math.max(min, value + delta));
     if (siguiente === value) return;
@@ -29,54 +34,45 @@ export function Stepper({ label, value, onChange, min = 0, max = 99, pasoLargo, 
     onChange(siguiente);
   };
 
+  const boton = (inactivo: boolean) => cn('h-12 w-12 items-center justify-center rounded-full border', borde, inactivo && 'opacity-30');
+
   return (
     <View
-      style={styles.fila}
+      className="flex-row items-center gap-4"
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={label}
       accessibilityValue={{ min, max, now: value, text: unidad ? `${value} ${unidad}` : String(value) }}
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => cambiar(e.nativeEvent.actionName === 'increment' ? 1 : -1)}>
-      <Pressable
+      <Presionable
+        haptico={false}
+        hundir={0.9}
+        disabled={value <= min}
         onPress={() => cambiar(-1)}
         onLongPress={pasoLargo ? () => cambiar(-pasoLargo) : undefined}
-        disabled={value <= min}
-        style={({ pressed }) => [styles.boton, { borderColor: tone }, pressed && styles.pressed, value <= min && styles.inactivo]}>
-        <MinusIcon size={20} color={tone} weight="bold" />
-      </Pressable>
-      <View style={styles.valor}>
-        <Text variant="number" tone={tone}>
+        contentClassName={boton(value <= min)}>
+        <MinusIcon size={20} color={icono} weight="bold" />
+      </Presionable>
+      <View className="flex-1 items-center">
+        <Text variant="number" className={texto}>
           {value}
         </Text>
         {unidad ? (
-          <Text variant="caption" tone={tone}>
+          <Text variant="caption" className={texto}>
             {unidad}
           </Text>
         ) : null}
       </View>
-      <Pressable
+      <Presionable
+        haptico={false}
+        hundir={0.9}
+        disabled={value >= max}
         onPress={() => cambiar(1)}
         onLongPress={pasoLargo ? () => cambiar(pasoLargo) : undefined}
-        disabled={value >= max}
-        style={({ pressed }) => [styles.boton, { borderColor: tone }, pressed && styles.pressed, value >= max && styles.inactivo]}>
-        <PlusIcon size={20} color={tone} weight="bold" />
-      </Pressable>
+        contentClassName={boton(value >= max)}>
+        <PlusIcon size={20} color={icono} weight="bold" />
+      </Presionable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fila: { flexDirection: 'row', alignItems: 'center', gap: space.lg },
-  boton: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    borderWidth: 1.2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  valor: { flex: 1, alignItems: 'center' },
-  pressed: { opacity: 0.6 },
-  inactivo: { opacity: 0.35 },
-});

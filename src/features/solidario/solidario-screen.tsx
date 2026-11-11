@@ -1,14 +1,15 @@
 import { router } from 'expo-router';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+import { MapTrifoldIcon } from 'phosphor-react-native/src/icons/MapTrifold';
 import { ShareNetworkIcon } from 'phosphor-react-native/src/icons/ShareNetwork';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useConsultorio, useCuposSolidariosSemana, usePacientes, useSeguimientos } from '@/data/hooks';
 import { AFECTACIONES, type Paciente } from '@/domain/types';
 import { fechaClave, hoyClave, mesClave, mesTexto } from '@/lib/dates';
-import { formatoCOP } from '@/lib/format';
-import { color, space, tile } from '@/theme';
-import { EmptyState, ListRow, Screen, SolidarioMark, Text, Tile } from '@/ui';
+import { color, tile } from '@/theme';
+import { Aparecer, EmptyState, ListRow, NumeroAnimado, Screen, SolidarioMark, Text, Tile } from '@/ui';
 
 import { Accion } from './components/accion';
 import { JornadaTile, TarjetaFantasma } from './components/jornada-tile';
@@ -16,36 +17,55 @@ import { MedidorCupos } from './components/medidor-cupos';
 import { RecursoItem } from './components/recurso-item';
 import { Seccion } from './components/seccion';
 import { SeguimientoItem } from './components/seguimiento-item';
+import { SismosRecientes } from './components/sismos-recientes';
 import { compartirTexto } from './dispositivo';
-import { useJornadasAnteriores, useJornadasProximas, useRecursos } from './hooks';
+import { useJornadas, useJornadasAnteriores, useJornadasProximas, useRecursos } from './hooks';
 import type { JornadaConInscritos } from './repo';
-import { diaMes, estadoCupos, masUrgentes, plural, textoDirectorio } from './rules';
+import { capitalizar, diaMes, estadoCupos, masUrgentes, plural, textoDirectorio } from './rules';
 
 const MAX_JORNADAS = 4;
 const MAX_AFECTADOS = 4;
 
-/** Pestaña Solidario: cupos de la semana, jornadas, seguimientos, personas afectadas y líneas de ayuda. */
+/** Pestaña Solidario: cupos de la semana, jornadas y su mapa, sismos, seguimientos, personas afectadas y líneas de ayuda. */
 export function SolidarioScreen() {
   const hoy = hoyClave();
 
   return (
-    <Screen>
-      <View>
-        <Text variant="display" accessibilityRole="header">
-          Solidario
-        </Text>
-        <Text variant="body" tone={color.inkSoft}>
-          Programa post-sismo
-        </Text>
-      </View>
+    // Raíz de gestos para las filas de seguimiento que se deslizan.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Screen>
+        <Aparecer orden={0}>
+          <Text variant="display" accessibilityRole="header">
+            Solidario
+          </Text>
+          <Text variant="body" className="text-ink-soft">
+            Programa post-sismo
+          </Text>
+        </Aparecer>
 
-      <CuposHero />
-      <Jornadas />
-      <Seguimientos hoy={hoy} />
-      <Afectados />
-      <LineasDeAyuda />
-      <InformeEnlace />
-    </Screen>
+        <Aparecer orden={1}>
+          <CuposHero />
+        </Aparecer>
+        <Aparecer orden={2} className="gap-3">
+          <Jornadas />
+        </Aparecer>
+        <Aparecer orden={3} className="gap-3">
+          <Seguimientos hoy={hoy} />
+        </Aparecer>
+        <Aparecer orden={4} className="gap-3">
+          <SismosRecientes />
+        </Aparecer>
+        <Aparecer orden={5} className="gap-3">
+          <Afectados />
+        </Aparecer>
+        <Aparecer orden={6} className="gap-3">
+          <LineasDeAyuda />
+        </Aparecer>
+        <Aparecer orden={7}>
+          <InformeEnlace />
+        </Aparecer>
+      </Screen>
+    </GestureHandlerRootView>
   );
 }
 
@@ -57,33 +77,34 @@ function CuposHero() {
   const total = consultorio.data?.cuposSolidariosSemana ?? 0;
   const usados = usadosQ.data ?? 0;
   const estado = estadoCupos(usados, total);
-  const fg = tile.solidario.fg;
 
   return (
     <Tile
       tone="solidario"
-      contentStyle={styles.hero}
+      contentClassName="gap-2"
       onPress={() => router.push('/ajustes/cupos')}
       accessibilityLabel={`${usados} de ${total} cupos solidarios esta semana. ${estado.detalle} Toca para ajustar cupos y tarifa social.`}>
-      <View style={styles.heroCabecera}>
-        <Text variant="number" tone={fg}>
-          {usados} de {total}
-        </Text>
-        <CaretRightIcon size={20} color={fg} />
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-baseline gap-2">
+          <NumeroAnimado valor={usados} variant="number" className="text-durazno-ink" />
+          <Text variant="title" className="text-durazno-ink">
+            de {total}
+          </Text>
+        </View>
+        <CaretRightIcon size={20} color={tile.solidario.fg} />
       </View>
-      <Text variant="bodyMedium" tone={fg}>
+      <Text variant="bodyMedium" className="text-durazno-ink">
         cupos solidarios esta semana
       </Text>
-      <MedidorCupos usados={usados} total={total} tone={fg} />
-      <Text variant="caption" tone={fg}>
+      <MedidorCupos usados={usados} total={total} />
+      <Text variant="body" className="text-durazno-ink">
         {estado.detalle}
-        {consultorio.data ? ` Tarifa social ${formatoCOP(consultorio.data.tarifaSocial)}.` : ''}
       </Text>
     </Tile>
   );
 }
 
-/* ---------- Jornadas (HU-20) ---------- */
+/* ---------- Jornadas (HU-20) y su mapa ---------- */
 
 type Celda = { tipo: 'jornada'; jornada: JornadaConInscritos } | { tipo: 'nueva' };
 
@@ -109,26 +130,28 @@ function Jornadas() {
         detalle={restantes > 0 ? plural(restantes, 'Y 1 más programada', `Y ${restantes} más programadas`) : undefined}
       />
       {enFilas(lista).map((fila, i) => (
-        <View key={i} style={styles.par}>
+        <View key={i} className="flex-row gap-3">
           {fila.map((celda) =>
             celda.tipo === 'jornada' ? (
-              <JornadaTile key={celda.jornada.id} jornada={celda.jornada} style={styles.mitad} />
+              <JornadaTile key={celda.jornada.id} jornada={celda.jornada} className="flex-1" />
             ) : (
               <TarjetaFantasma
                 key="nueva"
                 label="Programar jornada"
                 detalle={vacio ? 'Taller, charla o atención grupal, con lugar y cupos.' : undefined}
                 onPress={() => router.push('/jornada/nueva')}
-                style={styles.mitad}
+                className="flex-1"
               />
             ),
           )}
         </View>
       ))}
 
+      <MapaEntrada />
+
       {anteriores.data?.length ? (
         <View>
-          <Text variant="label" tone={color.inkSoft} style={styles.subtitulo}>
+          <Text variant="label" className="mt-2 text-ink-soft">
             Anteriores
           </Text>
           {anteriores.data.map((j, i, arr) => (
@@ -147,6 +170,28 @@ function Jornadas() {
   );
 }
 
+/** Entrada al mapa solidario: cuántas jornadas están ubicadas en Pereira. */
+function MapaEntrada() {
+  const todas = useJornadas();
+  const ubicadas = (todas.data ?? []).filter((j) => typeof j.latitud === 'number' && typeof j.longitud === 'number').length;
+  const detalle = ubicadas ? `${plural(ubicadas, '1 jornada', `${ubicadas} jornadas`)} y sismos recientes` : 'Jornadas y sismos recientes';
+
+  return (
+    <Tile tone="neutral" contentClassName="flex-row items-center gap-3" onPress={() => router.push('/mapa')} accessibilityLabel={`Mapa de jornadas. ${detalle}`}>
+      <View className="h-11 w-11 items-center justify-center rounded-full bg-menta">
+        <MapTrifoldIcon size={22} color={tile.confirmar.fg} />
+      </View>
+      <View className="flex-1 gap-0.5">
+        <Text variant="bodyMedium">Mapa de jornadas</Text>
+        <Text variant="caption" className="text-ink-soft">
+          {detalle}
+        </Text>
+      </View>
+      <CaretRightIcon size={20} color={color.ink} />
+    </Tile>
+  );
+}
+
 /* ---------- Seguimientos (HU-22) ---------- */
 
 function Seguimientos({ hoy }: { hoy: string }) {
@@ -158,7 +203,7 @@ function Seguimientos({ hoy }: { hoy: string }) {
     <>
       <Seccion
         titulo="Seguimientos"
-        detalle={lista.length ? plural(lista.length, '1 pendiente', `${lista.length} pendientes`) : undefined}
+        detalle={lista.length ? `${plural(lista.length, '1 pendiente', `${lista.length} pendientes`)} · desliza para resolver` : undefined}
         accion={<Accion label="Ver todos" variante="texto" onPress={() => router.push('/seguimientos')} accessibilityLabel="Ver todos los seguimientos" />}
       />
       {pendientes.data && urgentes.length === 0 ? (
@@ -233,7 +278,6 @@ function LineasDeAyuda() {
     <>
       <Seccion
         titulo="Líneas de ayuda"
-        detalle="Para orientar a quien lo necesite en el momento."
         accion={
           lista.length > 1 ? (
             <Accion
@@ -262,28 +306,17 @@ function InformeEnlace() {
   return (
     <Tile
       tone="neutral"
-      style={styles.informe}
-      contentStyle={styles.informeContenido}
+      className="mt-4"
+      contentClassName="flex-row items-center gap-3"
       onPress={() => router.push('/informe')}
       accessibilityLabel={`Informe del mes, ${mesTexto(mes)}`}>
-      <View style={styles.informeTextos}>
+      <View className="flex-1 gap-0.5">
         <Text variant="bodyMedium">Informe del mes</Text>
-        <Text variant="caption" tone={color.inkSoft}>
-          Personas, sesiones y horas donadas en {mesTexto(mes)}
+        <Text variant="caption" className="text-ink-soft">
+          {capitalizar(mesTexto(mes))}
         </Text>
       </View>
       <CaretRightIcon size={20} color={color.ink} />
     </Tile>
   );
 }
-
-const styles = StyleSheet.create({
-  hero: { gap: space.sm },
-  heroCabecera: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  par: { flexDirection: 'row', gap: space.md },
-  mitad: { flex: 1 },
-  subtitulo: { marginTop: space.sm },
-  informe: { marginTop: space.lg },
-  informeContenido: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  informeTextos: { flex: 1, gap: 2 },
-});

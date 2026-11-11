@@ -1,18 +1,25 @@
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useRef, useState, type ComponentRef } from 'react';
-import { StyleSheet, View, type TextInput } from 'react-native';
+import { MapPinIcon } from 'phosphor-react-native/src/icons/MapPin';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
+import { View, type TextInput } from 'react-native';
+import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
 import type { Jornada } from '@/domain/types';
 import { fechaClave, horaTexto, hoyClave, isoDesde } from '@/lib/dates';
 import { color } from '@/theme';
 import { Button, EmptyState, Field, Segmented, Sheet, SheetHeader, Text } from '@/ui';
 
+import { Accion } from './components/accion';
+import { TarjetaFantasma } from './components/jornada-tile';
 import { SelectorDia, SelectorHora } from './components/selectores';
 import { Stepper } from './components/stepper';
 import { avisarError } from './dispositivo';
 import { useActualizarJornada, useCrearJornada, useJornada } from './hooks';
+import { textoCoordenadas } from './mapa/elegir-punto-screen';
 import type { JornadaConInscritos } from './repo';
 import { diasParaElegir, finConservandoDuracion, HORAS_INICIO, horasFin, plural, TIPOS_JORNADA } from './rules';
+import { useUbicacionStore } from './store/use-ubicacion-store';
 
 const MAX_CUPOS = 300;
 
@@ -44,6 +51,15 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
   const [descripcion, setDescripcion] = useState(inicial?.descripcion ?? '');
   const [intentado, setIntentado] = useState(false);
 
+  // El punto en el mapa vive en el store: el mapa en modo selección lo fija y este formulario lo lee.
+  const punto = useUbicacionStore((s) => s.puntoJornada);
+  const fijarPunto = useUbicacionStore((s) => s.fijarPuntoJornada);
+  const latInicial = inicial?.latitud ?? null;
+  const lngInicial = inicial?.longitud ?? null;
+  useEffect(() => {
+    fijarPunto(latInicial !== null && lngInicial !== null ? { latitud: latInicial, longitud: lngInicial } : null);
+  }, [fijarPunto, latInicial, lngInicial]);
+
   const lugarRef = useRef<ComponentRef<typeof TextInput>>(null);
   const barrioRef = useRef<ComponentRef<typeof TextInput>>(null);
 
@@ -63,6 +79,8 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
     setHoraInicio(hora);
   };
 
+  const elegirEnMapa = () => router.push({ pathname: '/mapa', params: { elegir: '1' } });
+
   const guardar = () => {
     setIntentado(true);
     if (!valido) return;
@@ -75,8 +93,14 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
       fin: isoDesde(fecha, horaFin),
       cupos,
       descripcion,
+      latitud: punto?.latitud ?? null,
+      longitud: punto?.longitud ?? null,
     };
-    const opciones = { onSuccess: () => router.back(), onError: avisarError('No se pudo guardar la jornada') };
+    const listo = () => {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.back();
+    };
+    const opciones = { onSuccess: listo, onError: avisarError('No se pudo guardar la jornada') };
     if (inicial) actualizar.mutate({ id: inicial.id, datos }, opciones);
     else crear.mutate(datos, opciones);
   };
@@ -97,7 +121,7 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
         error={intentado ? errores.titulo : undefined}
       />
 
-      <View style={styles.bloque}>
+      <View className="gap-1.5">
         <Text variant="label">Tipo</Text>
         <Segmented options={TIPOS_JORNADA} value={tipo} onChange={setTipo} accessibilityLabel="Tipo de jornada" />
       </View>
@@ -115,11 +139,41 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
       />
       <Field ref={barrioRef} label="Barrio (opcional)" value={barrio} onChangeText={setBarrio} placeholder="Ej.: Cuba" returnKeyType="done" />
 
+      <View className="gap-1.5">
+        <Text variant="label">Punto en el mapa (opcional)</Text>
+        {punto ? (
+          <Animated.View
+            entering={FadeIn.duration(220).reduceMotion(ReduceMotion.System)}
+            className="flex-row items-center gap-3 rounded-field border border-line bg-surface p-3">
+            <View className="h-10 w-10 items-center justify-center rounded-full bg-menta">
+              <MapPinIcon size={20} color={color.ink} weight="fill" />
+            </View>
+            <View className="flex-1 gap-0.5">
+              <Text variant="bodyMedium">Ubicada en el mapa</Text>
+              <Text variant="mono" className="text-ink-soft">
+                {textoCoordenadas(punto)}
+              </Text>
+            </View>
+            <Accion label="Cambiar" variante="texto" onPress={elegirEnMapa} accessibilityLabel="Cambiar el punto en el mapa" />
+          </Animated.View>
+        ) : (
+          <TarjetaFantasma
+            compacta
+            label="Elegir en el mapa"
+            detalle="Para mostrar cómo llegar."
+            onPress={elegirEnMapa}
+          />
+        )}
+        {punto ? (
+          <Accion label="Quitar el punto" variante="texto" onPress={() => fijarPunto(null)} className="self-start" />
+        ) : null}
+      </View>
+
       <SelectorDia label="Fecha" dias={dias} valor={fecha} hoy={hoy} onChange={setFecha} />
       <SelectorHora label="Empieza" horas={HORAS_INICIO} valor={horaInicio} onChange={cambiarInicio} />
       <SelectorHora label="Termina" horas={horasFin(horaInicio)} valor={horaFin} onChange={setHoraFin} />
 
-      <View style={styles.bloque}>
+      <View className="gap-1.5">
         <Text variant="label">Cupos</Text>
         <Stepper
           label="Cupos de la jornada"
@@ -130,7 +184,7 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
           pasoLargo={5}
           unidad={plural(cupos, 'persona', 'personas')}
         />
-        <Text variant="caption" tone={color.inkSoft}>
+        <Text variant="caption" className="text-ink-soft">
           {inicial && inicial.inscritos > cupos
             ? `Ya hay ${inicial.inscritos} inscritos; puedes dejar menos cupos si así lo decides.`
             : 'Mantén presionado − o + para cambiar de a 5.'}
@@ -148,6 +202,3 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
   );
 }
 
-const styles = StyleSheet.create({
-  bloque: { gap: 6 },
-});

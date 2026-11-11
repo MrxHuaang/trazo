@@ -1,11 +1,11 @@
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useActualizarConsultorio, useConsultorio, useCuposSolidariosSemana } from '@/data/hooks';
 import type { Consultorio } from '@/domain/types';
 import { formatoCOP } from '@/lib/format';
-import { color, space, tile } from '@/theme';
 import { Button, EmptyState, Field, Sheet, SheetHeader, Text, Tile } from '@/ui';
 
 import { MedidorCupos } from './components/medidor-cupos';
@@ -44,13 +44,18 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
       ? `Debe ser menor o igual a la tarifa normal (${formatoCOP(consultorio.tarifaBase)}).`
       : undefined;
   const estado = estadoCupos(usados, cupos);
-  const fg = tile.solidario.fg;
 
   const guardar = () => {
     if (errorTarifa) return;
     actualizar.mutate(
       { cuposSolidariosSemana: cupos, tarifaSocial: valorTarifa },
-      { onSuccess: () => router.back(), onError: avisarError('No se pudo guardar') },
+      {
+        onSuccess: () => {
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          router.back();
+        },
+        onError: avisarError('No se pudo guardar'),
+      },
     );
   };
 
@@ -58,22 +63,19 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
     <Sheet
       header={<SheetHeader title="Cupos solidarios" subtitle="Programa post-sismo" />}
       footer={<Button label="Guardar" onPress={guardar} loading={actualizar.isPending} disabled={!!errorTarifa} />}>
-      <Text variant="body" tone={color.inkSoft}>
-        Define cuánto tiempo puedes donar sin desbordarte. La semana va de lunes a domingo.
-      </Text>
 
-      <Tile tone="solidario" contentStyle={styles.bloque}>
-        <Text variant="label" tone={fg}>
+      <Tile tone="solidario" contentClassName="gap-3">
+        <Text variant="label" className="text-durazno-ink">
           Cupos por semana
         </Text>
-        <Stepper label="Cupos solidarios por semana" value={cupos} onChange={setCupos} min={0} max={MAX_CUPOS} unidad="por semana" tone={fg} />
-        <MedidorCupos usados={usados} total={cupos} tone={fg} />
-        <Text variant="caption" tone={fg}>
-          Esta semana llevas {usados} de {cupos}. {estado.detalle}
+        <Stepper label="Cupos solidarios por semana" value={cupos} onChange={setCupos} min={0} max={MAX_CUPOS} unidad="por semana" tono="durazno" />
+        <MedidorCupos usados={usados} total={cupos} />
+        <Text variant="body" className="text-durazno-ink">
+          Esta semana llevas {usados}. {estado.detalle}
         </Text>
       </Tile>
 
-      <View style={styles.bloque}>
+      <View className="gap-3">
         <Field
           label="Tarifa social (COP)"
           value={tarifa}
@@ -84,15 +86,7 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
           error={errorTarifa}
           helper={`${formatoCOP(valorTarifa)} por sesión. La tarifa normal es ${formatoCOP(consultorio.tarifaBase)}.`}
         />
-        <Text variant="caption" tone={color.inkSoft}>
-          Los pacientes con tarifa gratuita no pagan: sus sesiones cuentan como donadas en el informe del mes. Si agendas más
-          citas solidarias que los cupos, la agenda te pedirá confirmarlo.
-        </Text>
       </View>
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  bloque: { gap: space.md },
-});

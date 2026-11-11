@@ -17,7 +17,8 @@ export type CifrasInforme = {
   seguimientosHechos: number;
 };
 
-export type Frase = { clave: string; cifra: string; texto: string };
+/** `valor` es la cifra como número (para animarla); `cifra`, el mismo valor ya escrito. */
+export type Frase = { clave: string; valor: number; cifra: string; texto: string };
 
 export const horasDonadas = (c: CifrasInforme) => (c.sesionesDonadas * c.minutosPorSesion) / 60;
 
@@ -32,6 +33,7 @@ export function fraseHoras(c: CifrasInforme): Frase {
   const horas = horasDonadas(c);
   return {
     clave: 'horas',
+    valor: horas,
     cifra: formatoHoras(horas),
     texto: `${plural(horas, 'hora donada', 'horas donadas')} en ${c.sesionesDonadas} ${plural(
       c.sesionesDonadas,
@@ -53,6 +55,7 @@ export function frasesInforme(c: CifrasInforme): Frase[] {
   return [
     {
       clave: 'afectadas',
+      valor: c.personasAfectadas,
       cifra: String(c.personasAfectadas),
       texto: plural(
         c.personasAfectadas,
@@ -62,6 +65,7 @@ export function frasesInforme(c: CifrasInforme): Frase[] {
     },
     {
       clave: 'solidarias',
+      valor: c.sesionesSolidarias,
       cifra: String(c.sesionesSolidarias),
       texto: plural(
         c.sesionesSolidarias,
@@ -69,9 +73,10 @@ export function frasesInforme(c: CifrasInforme): Frase[] {
         'sesiones solidarias atendidas, con tarifa social o gratuita.',
       ),
     },
-    { clave: 'asistentes', cifra: String(c.asistentes), texto: asistentes },
+    { clave: 'asistentes', valor: c.asistentes, cifra: String(c.asistentes), texto: asistentes },
     {
       clave: 'seguimientos',
+      valor: c.seguimientosHechos,
       cifra: String(c.seguimientosHechos),
       texto: plural(c.seguimientosHechos, 'llamada de seguimiento hecha.', 'llamadas de seguimiento hechas.'),
     },

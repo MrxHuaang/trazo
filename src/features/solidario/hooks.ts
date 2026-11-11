@@ -3,7 +3,7 @@
  * las cifras del informe se guardan bajo la llave de la entidad que cuentan, para que las mutaciones
  * de otros módulos (citas, pagos, seguimientos) las actualicen solas.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useConsultorio, useCrearPaciente, useCrearSeguimiento } from '@/data/hooks';
 import { qk } from '@/data/keys';
@@ -22,6 +22,9 @@ export const useJornadasProximas = () =>
 
 export const useJornadasAnteriores = (limite = 3) =>
   useQuery({ queryKey: [...qk.jornadas, 'anteriores', limite], queryFn: () => repo.listarJornadasAnteriores(limite) });
+
+/** Todas las jornadas, próximas y pasadas (mapa solidario). */
+export const useJornadas = () => useQuery({ queryKey: [...qk.jornadas, 'todas'], queryFn: repo.listarJornadas });
 
 export const useJornada = (id?: string) =>
   useQuery({ queryKey: [...qk.jornadas, 'una', id], queryFn: () => repo.obtenerJornada(id!), enabled: !!id });
@@ -191,10 +194,10 @@ export const useRecursos = () => useQuery({ queryKey: qk.recursos, queryFn: repo
 
 export function useInformeMes(mes: string) {
   const consultorio = useConsultorio();
-  const citas = useQuery({ queryKey: [...qk.citas, 'informe', mes], queryFn: () => repo.cifrasCitasMes(mes) });
-  const donadas = useQuery({ queryKey: [...qk.pagos, 'informe', mes], queryFn: () => repo.sesionesDonadasMes(mes) });
-  const jornadas = useQuery({ queryKey: [...qk.jornadas, 'informe', mes], queryFn: () => repo.cifrasJornadasMes(mes) });
-  const hechos = useQuery({ queryKey: [...qk.seguimientos, 'informe', mes], queryFn: () => repo.seguimientosHechosMes(mes) });
+  const citas = useQuery({ queryKey: [...qk.citas, 'informe', mes], queryFn: () => repo.cifrasCitasMes(mes), placeholderData: keepPreviousData });
+  const donadas = useQuery({ queryKey: [...qk.pagos, 'informe', mes], queryFn: () => repo.sesionesDonadasMes(mes), placeholderData: keepPreviousData });
+  const jornadas = useQuery({ queryKey: [...qk.jornadas, 'informe', mes], queryFn: () => repo.cifrasJornadasMes(mes), placeholderData: keepPreviousData });
+  const hechos = useQuery({ queryKey: [...qk.seguimientos, 'informe', mes], queryFn: () => repo.seguimientosHechosMes(mes), placeholderData: keepPreviousData });
 
   const cifras: CifrasInforme | undefined =
     citas.data && donadas.data !== undefined && jornadas.data && hechos.data !== undefined && consultorio.data !== undefined

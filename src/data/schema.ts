@@ -145,4 +145,8 @@ export const MIGRACIONES: string[] = [
     orden INTEGER NOT NULL DEFAULT 0
   );
   `,
+  /* v2: coordenadas de la jornada para el mapa solidario */ `
+  ALTER TABLE jornadas ADD COLUMN latitud REAL;
+  ALTER TABLE jornadas ADD COLUMN longitud REAL;
+  `,
 ];

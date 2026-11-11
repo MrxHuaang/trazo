@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import { CaretLeftIcon } from 'phosphor-react-native/src/icons/CaretLeft';
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { color, space } from '@/theme';
 
 import { BotonIcono } from './accion';
 
@@ -14,40 +13,33 @@ type PantallaDetalleProps = {
   acciones?: ReactNode;
 };
 
+export const volverASolidario = () => (router.canGoBack() ? router.back() : router.replace('/solidario'));
+
 /**
  * Pantalla apilada (fuera de las pestañas): barra con Volver respetando la zona segura,
  * contenido con scroll y espacio inferior para el indicador de inicio y el teclado.
+ * Incluye la raíz de gestos para las filas que se deslizan.
  */
 export function PantallaDetalle({ children, acciones }: PantallaDetalleProps) {
   const insets = useSafeAreaInsets();
-  const volver = () => (router.canGoBack() ? router.back() : router.replace('/solidario'));
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[styles.barra, { paddingTop: insets.top + space.xs }]}>
-        <BotonIcono icon={CaretLeftIcon} label="Volver" onPress={volver} />
-        <View style={styles.acciones}>{acciones}</View>
-      </View>
-      <ScrollView
-        contentContainerStyle={[styles.contenido, { paddingBottom: insets.bottom + space.xxxl }]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        showsVerticalScrollIndicator={false}>
-        {children}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    // GestureHandlerRootView no recibe className: es un componente nativo de la librería de gestos.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardAvoidingView className="flex-1 bg-canvas" behavior="padding">
+        <View className="flex-row items-center justify-between px-4 pb-1" style={{ paddingTop: insets.top + 4 }}>
+          <BotonIcono icon={CaretLeftIcon} label="Volver" onPress={volverASolidario} />
+          <View className="flex-row gap-2">{acciones}</View>
+        </View>
+        <ScrollView
+          contentContainerClassName="gap-3 px-5 pt-2"
+          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          showsVerticalScrollIndicator={false}>
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: color.canvas },
-  barra: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: space.lg,
-    paddingBottom: space.xs,
-  },
-  acciones: { flexDirection: 'row', gap: space.sm },
-  contenido: { paddingHorizontal: space.xl, paddingTop: space.sm, gap: space.md },
-});
