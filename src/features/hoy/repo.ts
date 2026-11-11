@@ -2,9 +2,9 @@
  * Consultas propias del módulo "Hoy" sobre las tablas compartidas (solo lectura, salvo el contacto
  * que se registra con el repositorio compartido de seguimientos).
  */
-import { consultar } from '@/data/db';
+import { consultar, consultarUno } from '@/data/db';
 import { actualizarSeguimiento, crearSeguimiento } from '@/data/repos/seguimientos';
-import { hoyClave } from '@/lib/dates';
+import { hoyClave, isoDesde, sumarDias } from '@/lib/dates';
 
 import { pacientesParaContactar, type Asistencia } from './rules';
 
@@ -50,4 +50,42 @@ export async function registrarContacto(d: { pacienteId: string; nombre: string;
     motivo: MOTIVO_CONTACTO,
   });
   await actualizarSeguimiento(id, { estado: 'hecho' });
+}
+
+/* ---------- Resumen de la semana (lunes a domingo, hora de Colombia) ---------- */
+
+const rangoSemana = (lunes: string) => [isoDesde(lunes), isoDesde(sumarDias(lunes, 7))];
+
+/** Citas con resultado de la semana y personas afectadas atendidas. */
+export async function resumenCitasSemana(lunes: string) {
+  const f = await consultarUno<{ atendidas: number | null; inasistencias: number | null; afectadas: number | null }>(
+    `SELECT
+        SUM(CASE WHEN c.estado = 'asistio' THEN 1 ELSE 0 END) AS atendidas,
+        SUM(CASE WHEN c.estado = 'no_asistio' THEN 1 ELSE 0 END) AS inasistencias,
+        COUNT(DISTINCT CASE WHEN c.estado = 'asistio' AND p.afectado_sismo = 1 THEN c.paciente_id END) AS afectadas
+       FROM citas c JOIN pacientes p ON p.id = c.paciente_id
+      WHERE c.inicio >= ? AND c.inicio < ?`,
+    rangoSemana(lunes),
+  );
+  return { atendidas: f?.atendidas ?? 0, inasistencias: f?.inasistencias ?? 0, personasAfectadas: f?.afectadas ?? 0 };
+}
+
+/** Pagos de las citas de la semana: cobrado, por cobrar y tiempo donado. */
+export async function resumenPagosSemana(lunes: string) {
+  const f = await consultarUno<{ cobrado: number | null; por_cobrar: number | null; donadas: number | null; minutos: number | null }>(
+    `SELECT
+        SUM(CASE WHEN g.estado = 'pagado' THEN g.monto ELSE 0 END) AS cobrado,
+        SUM(CASE WHEN g.estado = 'pendiente' THEN g.monto ELSE 0 END) AS por_cobrar,
+        SUM(CASE WHEN g.estado = 'donado' THEN 1 ELSE 0 END) AS donadas,
+        SUM(CASE WHEN g.estado = 'donado' THEN (julianday(c.fin) - julianday(c.inicio)) * 1440 ELSE 0 END) AS minutos
+       FROM pagos g JOIN citas c ON c.id = g.cita_id
+      WHERE c.inicio >= ? AND c.inicio < ?`,
+    rangoSemana(lunes),
+  );
+  return {
+    cobrado: f?.cobrado ?? 0,
+    porCobrar: f?.por_cobrar ?? 0,
+    sesionesDonadas: f?.donadas ?? 0,
+    minutosDonados: Math.round(f?.minutos ?? 0),
+  };
 }

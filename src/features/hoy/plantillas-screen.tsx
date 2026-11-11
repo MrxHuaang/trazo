@@ -1,13 +1,12 @@
 import { useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useActualizarConsultorio, useConsultorio } from '@/data/hooks';
 import { PLANTILLA_CONFIRMACION, PLANTILLA_RECORDATORIO } from '@/data/repos/consultorio';
 import type { Consultorio } from '@/domain/types';
 import { hoyClave } from '@/lib/dates';
-import { color, radius, space } from '@/theme';
-import { Button, EmptyState, Field, Sheet, Text } from '@/ui';
+import { Aparecer, Button, EmptyState, Field, Presionable, Sheet, Text } from '@/ui';
 
 import { Cabecera, volver } from './cabecera';
 import { mensajeDesdePlantilla, VARIABLES, valoresEjemplo, variablesDesconocidas } from './mensajes';
@@ -17,9 +16,9 @@ export function PlantillasScreen() {
   const { data: consultorio, isPending } = useConsultorio();
   if (consultorio) return <FormularioPlantillas consultorio={consultorio} />;
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={styles.root}>
+    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-canvas">
       <Cabecera />
-      <View style={styles.vacio}>
+      <View className="px-5">
         {isPending ? null : (
           <EmptyState title="Aún no hay consultorio" body="Crea tu consultorio para poder editar los mensajes." />
         )}
@@ -58,7 +57,7 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={styles.root}>
+    <SafeAreaView edges={['top']} className="flex-1 bg-canvas">
       <Sheet
         header={<Cabecera />}
         footer={
@@ -69,35 +68,19 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
             disabled={!hayCambios || !!errorRecordatorio || !!errorConfirmacion}
           />
         }>
-        <View style={styles.intro}>
+        <Aparecer orden={0} className="gap-2">
           <Text variant="display" accessibilityRole="header">
             Plantillas
           </Text>
-          <Text variant="body" tone={color.inkSoft}>
-            Trazo prepara estos mensajes en WhatsApp con los datos de cada cita. Tú los revisas y los envías.
+          <Text variant="body" className="text-ink-soft">
+            Trazo los prepara en WhatsApp con los datos de cada cita.
           </Text>
-        </View>
-
-        <View style={styles.ayuda}>
-          <Text variant="label">Variables</Text>
-          {VARIABLES.map((v) => (
-            <View key={v.clave} style={styles.ayudaFila}>
-              <Text variant="mono" style={styles.ayudaClave}>
-                {`{${v.clave}}`}
-              </Text>
-              <Text variant="caption" tone={color.inkSoft} style={styles.ayudaTexto}>
-                {v.descripcion}
-              </Text>
-            </View>
-          ))}
-          <Text variant="caption" tone={color.inkSoft}>
-            Toca una variable debajo de cada mensaje para insertarla donde está el cursor.
-          </Text>
-        </View>
+        </Aparecer>
 
         <EditorPlantilla
+          orden={1}
           titulo="Recordatorio"
-          ayuda="Se envía desde Por confirmar, hasta 24 horas antes de la cita."
+          ayuda="Se envía un día antes de la cita."
           valor={recordatorio}
           onChange={setRecordatorio}
           original={PLANTILLA_RECORDATORIO}
@@ -105,8 +88,9 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
           error={errorRecordatorio}
         />
         <EditorPlantilla
+          orden={2}
           titulo="Confirmación"
-          ayuda="Se envía al confirmar una solicitud de cita."
+          ayuda="Se envía al confirmar una solicitud."
           valor={confirmacion}
           onChange={setConfirmacion}
           original={PLANTILLA_CONFIRMACION}
@@ -119,6 +103,7 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
 }
 
 type EditorPlantillaProps = {
+  orden: number;
   titulo: string;
   ayuda: string;
   valor: string;
@@ -128,7 +113,7 @@ type EditorPlantillaProps = {
   error?: string;
 };
 
-function EditorPlantilla({ titulo, ayuda, valor, onChange, original, ejemplo, error }: EditorPlantillaProps) {
+function EditorPlantilla({ orden, titulo, ayuda, valor, onChange, original, ejemplo, error }: EditorPlantillaProps) {
   // Posición del cursor; solo se lee al tocar una variable.
   const seleccion = useRef({ start: valor.length, end: valor.length });
 
@@ -146,7 +131,7 @@ function EditorPlantilla({ titulo, ayuda, valor, onChange, original, ejemplo, er
   const vistaPrevia = mensajeDesdePlantilla(valor, ejemplo);
 
   return (
-    <View style={styles.editor}>
+    <Aparecer orden={orden} className="mt-2 gap-3">
       <Field
         label={titulo}
         helper={ayuda}
@@ -159,70 +144,38 @@ function EditorPlantilla({ titulo, ayuda, valor, onChange, original, ejemplo, er
         }}
         autoCapitalize="sentences"
       />
-      <View style={styles.variables}>
+      <View className="flex-row flex-wrap gap-2">
         {VARIABLES.map((v) => (
-          <Pressable
+          <Presionable
             key={v.clave}
             accessibilityRole="button"
             accessibilityLabel={`Insertar ${v.clave} en ${titulo.toLowerCase()}`}
             accessibilityHint={v.descripcion}
             onPress={() => insertar(v.clave)}
-            style={({ pressed }) => [styles.variable, pressed && styles.variablePressed]}>
+            contentClassName="min-h-[44px] items-center justify-center rounded-full border border-line bg-surface px-3">
             <Text variant="mono">{`{${v.clave}}`}</Text>
-          </Pressable>
+          </Presionable>
         ))}
       </View>
-      <View style={styles.preview}>
-        <Text variant="label" tone={color.inkSoft}>
-          Vista previa con datos de ejemplo
+      <View className="gap-2">
+        <Text variant="label" className="text-ink-soft">
+          Vista previa
         </Text>
-        <View style={styles.burbuja}>
-          <Text variant="body" tone={vistaPrevia ? color.ink : color.inkSoft}>
+        <View className="rounded-field rounded-tl-[4px] bg-quiet p-4">
+          <Text variant="body" className={vistaPrevia ? 'text-ink' : 'text-ink-soft'}>
             {vistaPrevia || 'El mensaje está vacío.'}
           </Text>
         </View>
       </View>
       {valor !== original ? (
-        <Button label="Volver al mensaje original" variant="ghost" onPress={() => onChange(original)} style={styles.restaurar} />
+        <Button
+          label="Volver al mensaje original"
+          variant="ghost"
+          size="sm"
+          onPress={() => onChange(original)}
+          className="self-start"
+        />
       ) : null}
-    </View>
+    </Aparecer>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: color.canvas },
-  vacio: { paddingHorizontal: space.xl },
-  intro: { gap: space.sm },
-  ayuda: {
-    gap: space.sm,
-    padding: space.lg,
-    borderRadius: radius.field,
-    backgroundColor: color.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.line,
-  },
-  ayudaFila: { flexDirection: 'row', alignItems: 'baseline', gap: space.md },
-  ayudaClave: { width: 96 },
-  ayudaTexto: { flex: 1 },
-  editor: { gap: space.md, marginTop: space.sm },
-  variables: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  variable: {
-    minHeight: 44,
-    paddingHorizontal: space.md,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  variablePressed: { backgroundColor: color.quiet },
-  preview: { gap: space.sm },
-  burbuja: {
-    padding: space.lg,
-    borderRadius: radius.field,
-    borderTopLeftRadius: space.xs,
-    backgroundColor: color.quiet,
-  },
-  restaurar: { alignSelf: 'flex-start', paddingHorizontal: 0 },
-});

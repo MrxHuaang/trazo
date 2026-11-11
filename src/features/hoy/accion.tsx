@@ -1,8 +1,8 @@
-import * as Haptics from 'expo-haptics';
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
-import { color, radius, space } from '@/theme';
-import { Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
+import { Presionable, Text } from '@/ui';
 
 type AccionProps = {
   label: string;
@@ -15,42 +15,27 @@ type AccionProps = {
 };
 
 /**
- * Acción de texto en cobalto para el final de una fila. Igual que el Chip de `src/ui`,
- * pero con área táctil de 44 pt y estado desactivado/ocupado.
+ * Botón en píldora cobalto suave para el final de una fila, con área táctil de 44 pt
+ * y estado desactivado/ocupado. Es la alternativa visible a los gestos de deslizar.
  */
 export function Accion({ label, onPress, accessibilityLabel, accessibilityHint, disabled, loading }: AccionProps) {
   const inactiva = disabled || loading;
   return (
-    <Pressable
+    <Presionable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!inactiva, busy: !!loading }}
       disabled={inactiva}
-      onPress={() => {
-        void Haptics.selectionAsync();
-        onPress();
-      }}
-      style={({ pressed }) => [styles.base, pressed && styles.pressed]}>
+      onPress={onPress}
+      contentClassName={cn('min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-4', disabled ? 'bg-quiet' : 'bg-accent-soft')}>
       {loading ? (
         <ActivityIndicator size="small" color={color.accent} />
       ) : (
-        <Text variant="label" tone={disabled ? color.inkSoft : color.accent}>
+        <Text variant="label" className={disabled ? 'text-ink-soft' : 'text-accent'}>
           {label}
         </Text>
       )}
-    </Pressable>
+    </Presionable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    minHeight: 44,
-    minWidth: 44,
-    paddingHorizontal: space.sm,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pressed: { backgroundColor: color.quiet },
-});
