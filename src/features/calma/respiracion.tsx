@@ -76,6 +76,9 @@ export function Respiracion() {
     AccessibilityInfo.announceForAccessibility(NOMBRE_FASE[fase]);
   }, [estado, fase, ciclo]);
 
+  // Al cambiar de ejercicio o cerrar Calma, el reloj se detiene sin dar el ejercicio por terminado.
+  useEffect(() => () => cancelAnimation(tiempo), [tiempo]);
+
   // Si la app se va a segundo plano, el ejercicio vuelve al inicio en vez de seguir sin nadie.
   useEffect(() => {
     if (estado !== 'respirando') return;
@@ -148,7 +151,7 @@ export function Respiracion() {
             ))}
           </View>
           <Text variant="mono" className="text-ink-soft">
-            {completados} de {CICLOS} · {Math.round((TOTAL / 60) * 10) / 10} min en total, {CICLO} s cada una
+            {completados} de {CICLOS} respiraciones · {CICLO} s cada una
           </Text>
         </Aparecer>
       </View>
