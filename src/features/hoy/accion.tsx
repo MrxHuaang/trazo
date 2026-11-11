@@ -1,5 +1,6 @@
 import { ActivityIndicator } from 'react-native';
 
+import { cn } from '@/lib/cn';
 import { color } from '@/theme';
 import { Presionable, Text } from '@/ui';
 
@@ -14,7 +15,7 @@ type AccionProps = {
 };
 
 /**
- * Acción de texto en cobalto para el final de una fila, con área táctil de 44 pt
+ * Botón en píldora cobalto suave para el final de una fila, con área táctil de 44 pt
  * y estado desactivado/ocupado. Es la alternativa visible a los gestos de deslizar.
  */
 export function Accion({ label, onPress, accessibilityLabel, accessibilityHint, disabled, loading }: AccionProps) {
@@ -27,7 +28,7 @@ export function Accion({ label, onPress, accessibilityLabel, accessibilityHint, 
       accessibilityState={{ disabled: !!inactiva, busy: !!loading }}
       disabled={inactiva}
       onPress={onPress}
-      contentClassName="min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-2">
+      contentClassName={cn('min-h-[44px] min-w-[44px] items-center justify-center rounded-full px-4', disabled ? 'bg-quiet' : 'bg-accent-soft')}>
       {loading ? (
         <ActivityIndicator size="small" color={color.accent} />
       ) : (

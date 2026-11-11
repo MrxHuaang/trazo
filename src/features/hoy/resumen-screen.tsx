@@ -233,7 +233,7 @@ export function ResumenScreen() {
                 icono={<CaretLeftIcon size={22} color={color.ink} />}
               />
               <Text variant="caption" className="text-ink-soft">
-                {pausado ? 'En pausa' : 'Toca a los lados · mantén para pausar'}
+                {pausado ? 'En pausa' : `${indice + 1} de ${HISTORIAS.length}`}
               </Text>
               <BotonIcono
                 etiqueta="Historia siguiente"

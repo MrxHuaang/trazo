@@ -169,13 +169,10 @@ export function HoyScreen() {
                 tone="neutral"
                 contentClassName="flex-row items-center justify-between gap-3"
                 onPress={() => router.push('/resumen')}
-                accessibilityLabel="Tu semana: resumen de citas, cobros y tiempo donado">
-                <View className="flex-1">
-                  <Text variant="heading">Tu semana</Text>
-                  <Text variant="caption" className="text-ink-soft">
-                    Citas, cobros y tiempo donado, en historias
-                  </Text>
-                </View>
+                accessibilityLabel="Ver el resumen de tu semana">
+                <Text variant="heading" className="flex-1">
+                  Tu semana
+                </Text>
                 <CaretRightIcon size={20} color={color.ink} />
               </Tile>
             </Aparecer>
@@ -249,7 +246,7 @@ export function HoyScreen() {
                 </Text>
               </Animated.View>
             </View>
-            <View className="-mr-2 flex-row items-center">
+            <View className="-mr-2 flex-row items-center gap-2">
               <BotonIcono
                 etiqueta="Ejercicio de calma"
                 onPress={() => router.push('/calma')}

@@ -74,7 +74,7 @@ export function Historia({ clave, resumen: r, rango, activa }: HistoriaProps) {
         <Text variant="label" className={tinta}>
           {ETIQUETA[clave]}
         </Text>
-        <Text variant="caption" className={cn('opacity-70', tinta)}>
+        <Text variant="caption" className={tinta}>
           {rango}
         </Text>
       </View>
@@ -100,7 +100,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
           cifra={<Cifra valor={r.atendidas} activa={activa} className={tinta} />}
           titulo={r.atendidas === 1 ? 'cita atendida' : 'citas atendidas'}
           tinta={tinta}
-          pie={r.atendidas === 0 ? 'Todavía no hay sesiones registradas esta semana.' : 'Cada punto es una sesión que sostuviste.'}>
+          pie={r.atendidas === 0 ? 'Aún no hay sesiones esta semana.' : 'Cada punto es una sesión.'}>
           <Puntos cantidad={r.atendidas} className={tinta} />
         </Bloque>
       );
@@ -113,7 +113,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
           pie={
             r.inasistencias === 0
               ? 'Nadie faltó esta semana.'
-              : 'Quien falta dos veces seguidas aparece en Hoy, en Para contactar.'
+              : 'Quien falte dos veces seguidas aparece en Hoy.'
           }>
           <View className="flex-row items-baseline gap-2">
             <NumeroAnimado
@@ -134,7 +134,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
           cifra={<Cifra valor={r.cobrado} activa={activa} formato={formatoCOP} className={tinta} />}
           titulo="cobrado en sesiones de la semana"
           tinta={tinta}
-          pie={r.porCobrar > 0 ? 'Lo pendiente está en Pagos, listo para registrar.' : 'Todo lo de esta semana está al día.'}>
+          pie={r.porCobrar > 0 ? 'Lo pendiente está en Pagos.' : 'Todo lo de esta semana está al día.'}>
           <View className="flex-row items-baseline justify-between gap-3 border-t border-mantequilla-ink/20 pt-3">
             <Text variant="label" className={tinta}>
               Por cobrar
@@ -149,7 +149,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
           cifra={<Cifra valor={r.sesionesDonadas} activa={activa} className={tinta} />}
           titulo={r.sesionesDonadas === 1 ? 'sesión solidaria' : 'sesiones solidarias'}
           tinta={tinta}
-          pie="Atención sin costo dentro del programa solidario.">
+          pie="Sin costo, en el programa solidario.">
           <NumeroAnimado
             valor={activa ? r.minutosDonados : 0}
             formato={(min) => `${textoHoras(min)} de tu tiempo`}
@@ -168,7 +168,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
               : 'personas afectadas por el sismo recibieron atención'
           }
           tinta={tinta}
-          pie="Cada persona cuenta una vez, aunque haya venido varias veces."
+          pie="Cada persona cuenta una vez."
         />
       );
     case 'cierre':

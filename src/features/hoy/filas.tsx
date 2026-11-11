@@ -73,6 +73,15 @@ export function FilaCita({ cita: c, subtitulo, last }: FilaCitaProps) {
           badge={c.esSolidaria ? <SolidarioMark /> : null}
           last={last}
           onPress={() => abrirCita(c.id)}
+          accessibilityLabel={`${horaTexto(c.inicio)}, ${c.paciente.nombre}, ${subtitulo}. Abre el detalle de la cita`}
+          accessibilityActions={[
+            ...(puedeRecordar ? [{ name: 'recordar', label: 'Recordar por WhatsApp' }] : []),
+            { name: 'asistio', label: 'Marcar que asistió' },
+          ]}
+          onAccessibilityAction={(e) => {
+            if (e.nativeEvent.actionName === 'recordar') void recordar(c);
+            if (e.nativeEvent.actionName === 'asistio') void asistio(c);
+          }}
           trailing={
             c.recordadaEn ? (
               <Text variant="caption" className="text-ink-soft">
@@ -110,7 +119,7 @@ export function FilaSeguimiento({ seguimiento: s, hoy, last }: { seguimiento: Se
         subtitle={`${cuando} · ${s.motivo}`}
         last={last}
         trailing={
-          <View className="flex-row items-center">
+          <View className="flex-row items-center gap-2">
             <Accion
               label="Llamar"
               accessibilityLabel={telefono ? `Llamar a ${s.nombre}` : `${s.nombre} no tiene teléfono registrado`}

@@ -147,9 +147,6 @@ export function PagosScreen() {
               </Text>
             </Tile>
           </View>
-          <Text variant="caption" className="text-ink-soft">
-            El valor donado usa la tarifa base de {formatoCOP(tarifa)} por sesión como referencia.
-          </Text>
 
           <Button
             label={`Exportar ${nombre} en PDF`}

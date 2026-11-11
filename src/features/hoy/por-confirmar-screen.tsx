@@ -3,7 +3,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useCitasPorConfirmar } from '@/data/hooks';
 import { fechaClave } from '@/lib/dates';
-import { Aparecer, EmptyState, Sheet, SheetHeader, Text } from '@/ui';
+import { Aparecer, EmptyState, Sheet, SheetHeader } from '@/ui';
 
 import { FilaCita } from './filas';
 import { diaRelativo, plural } from './rules';
@@ -30,7 +30,7 @@ export function PorConfirmarScreen() {
           <Aparecer>
             <EmptyState
               title="Todo recordado"
-              body="No hay citas confirmadas en las próximas 24 horas sin recordatorio. Cuando las haya, aparecen aquí un día antes."
+              body="Las citas de mañana aparecen aquí un día antes."
             />
           </Aparecer>
         ) : (
@@ -42,21 +42,13 @@ export function PorConfirmarScreen() {
                 subtitulo={
                   c.paciente.telefono
                     ? `${diaRelativo(c.inicio, hoy)} · ${c.modalidad}`
-                    : `${diaRelativo(c.inicio, hoy)} · sin teléfono, agrégalo en su ficha`
+                    : `${diaRelativo(c.inicio, hoy)} · sin teléfono`
                 }
                 last={i === citas.length - 1}
               />
             ))}
           </View>
         )}
-        {citas.length > 0 ? (
-          <Aparecer reacomodar>
-            <Text variant="caption" className="text-ink-soft">
-              Desliza una fila a la derecha para recordar o a la izquierda para marcar que asistió. El mensaje usa tu plantilla de
-              recordatorio; puedes cambiarla en Ajustes, Plantillas de mensajes.
-            </Text>
-          </Aparecer>
-        ) : null}
       </Sheet>
     </GestureHandlerRootView>
   );

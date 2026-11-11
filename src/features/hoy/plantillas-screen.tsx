@@ -73,31 +73,14 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
             Plantillas
           </Text>
           <Text variant="body" className="text-ink-soft">
-            Trazo prepara estos mensajes en WhatsApp con los datos de cada cita. Tú los revisas y los envías.
-          </Text>
-        </Aparecer>
-
-        <Aparecer orden={1} className="gap-2 rounded-field border border-line bg-surface p-4">
-          <Text variant="label">Variables</Text>
-          {VARIABLES.map((v) => (
-            <View key={v.clave} className="flex-row items-baseline gap-3">
-              <Text variant="mono" className="w-24">
-                {`{${v.clave}}`}
-              </Text>
-              <Text variant="caption" className="flex-1 text-ink-soft">
-                {v.descripcion}
-              </Text>
-            </View>
-          ))}
-          <Text variant="caption" className="text-ink-soft">
-            Toca una variable debajo de cada mensaje para insertarla donde está el cursor.
+            Trazo los prepara en WhatsApp con los datos de cada cita.
           </Text>
         </Aparecer>
 
         <EditorPlantilla
-          orden={2}
+          orden={1}
           titulo="Recordatorio"
-          ayuda="Se envía desde Por confirmar, hasta 24 horas antes de la cita."
+          ayuda="Se envía un día antes de la cita."
           valor={recordatorio}
           onChange={setRecordatorio}
           original={PLANTILLA_RECORDATORIO}
@@ -105,9 +88,9 @@ function FormularioPlantillas({ consultorio }: { consultorio: Consultorio }) {
           error={errorRecordatorio}
         />
         <EditorPlantilla
-          orden={3}
+          orden={2}
           titulo="Confirmación"
-          ayuda="Se envía al confirmar una solicitud de cita."
+          ayuda="Se envía al confirmar una solicitud."
           valor={confirmacion}
           onChange={setConfirmacion}
           original={PLANTILLA_CONFIRMACION}
@@ -176,7 +159,7 @@ function EditorPlantilla({ orden, titulo, ayuda, valor, onChange, original, ejem
       </View>
       <View className="gap-2">
         <Text variant="label" className="text-ink-soft">
-          Vista previa con datos de ejemplo
+          Vista previa
         </Text>
         <View className="rounded-field rounded-tl-[4px] bg-quiet p-4">
           <Text variant="body" className={vistaPrevia ? 'text-ink' : 'text-ink-soft'}>
