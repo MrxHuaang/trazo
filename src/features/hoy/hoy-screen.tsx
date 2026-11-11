@@ -1,11 +1,22 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
+import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { GearSixIcon } from 'phosphor-react-native/src/icons/GearSix';
+import { WindIcon } from 'phosphor-react-native/src/icons/Wind';
 import { useCallback, type ReactNode } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  useActualizarSeguimiento,
   useCitasDelDia,
   useCitasPorConfirmar,
   useCitasSolicitadas,
@@ -15,25 +26,35 @@ import {
   useSeguimientos,
 } from '@/data/hooks';
 import { qk } from '@/data/keys';
-import type { CitaConPaciente, Seguimiento } from '@/domain/types';
-import { fechaClave, fechaCorta, horaTexto, isoDesde } from '@/lib/dates';
+import { fechaClave, fechaCorta, horaTexto } from '@/lib/dates';
 import { formatoCOP } from '@/lib/format';
-import { abrirWhatsApp, llamar } from '@/lib/whatsapp';
-import { color, radius, space, tile } from '@/theme';
-import { Fab, ListRow, Screen, SolidarioMark, Text, Tile, TraceLine } from '@/ui';
+import { color, tabBarInset } from '@/theme';
+import { Aparecer, Fab, ListRow, NumeroAnimado, SolidarioMark, Text, Tile } from '@/ui';
 
 import { Accion } from './accion';
-import { useParaContactar, useRegistrarContacto } from './hooks';
-import { mensajeContacto } from './mensajes';
-import { diaRelativo, etiquetaProxima, nodosDelDia, plural, proximaCita, siguientesCitas, type ParaContactar } from './rules';
+import { BloqueProxima } from './bloque-proxima';
+import { BotonIcono } from './boton-icono';
+import { abrirCita, FilaAnimada, FilaCita, FilaContacto, FilaSeguimiento } from './filas';
+import { useParaContactar } from './hooks';
+import { diaRelativo, nodosDelDia, plural, proximaCita, siguientesCitas } from './rules';
 import { Segmentos } from './segmentos';
+import { ALTO_TRAZO, TrazoInteractivo } from './trazo-interactivo';
 import { useAhora } from './use-ahora';
-import { useRecordar } from './use-recordar';
 
-const abrirCita = (id: string) => router.push({ pathname: '/cita/[id]', params: { id } });
+/** Medidas del encabezado abierto: aire, fila del título, Trazo y aire. */
+const AIRE_ARRIBA = 4;
+const FILA_TITULO = 48;
+const AIRE_ABAJO = 8;
+const ALTO_ENCABEZADO = AIRE_ARRIBA + FILA_TITULO + ALTO_TRAZO + AIRE_ABAJO;
+/** Desplazamiento con el que el encabezado termina de encogerse. */
+const RECORRIDO = 72;
 
-/** "Hoy" (HU-02): la línea del día y un bloque por cada pendiente; debajo, lo que pide acción. */
+/**
+ * "Hoy" (HU-02): la línea del día y un bloque por cada pendiente; debajo, lo que pide acción.
+ * Al hacer scroll el título se encoge y el Trazo queda fijo arriba como barra fina.
+ */
 export function HoyScreen() {
+  const insets = useSafeAreaInsets();
   const ahora = useAhora();
   const ahoraMs = ahora.getTime();
   const hoy = fechaClave(ahora);
@@ -56,6 +77,18 @@ export function HoyScreen() {
     }, [qc]),
   );
 
+  const scrollY = useSharedValue(0);
+  const alDesplazar = useAnimatedScrollHandler((e) => {
+    scrollY.set(e.contentOffset.y);
+  });
+  const colapso = useDerivedValue(() => interpolate(scrollY.get(), [0, RECORRIDO], [0, 1], Extrapolation.CLAMP));
+  const tituloAnimado = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(colapso.get(), [0, 1], [1, 0.64]) }],
+    transformOrigin: 'left center',
+  }));
+  const fechaAnimada = useAnimatedStyle(() => ({ opacity: interpolate(colapso.get(), [0, 0.5], [1, 0], Extrapolation.CLAMP) }));
+  const bordeAnimado = useAnimatedStyle(() => ({ opacity: colapso.get() }));
+
   const citas = citasQ.data ?? [];
   const proxima = proximaCita(citas, ahoraMs);
   const siguientes = siguientesCitas(citas, ahoraMs);
@@ -69,282 +102,180 @@ export function HoyScreen() {
   const paraContactar = contactarQ.data ?? [];
 
   return (
-    <Screen overlay={<Fab label="Agendar" onPress={() => router.push('/cita/nueva')} />}>
-      <View style={styles.header}>
-        <View style={styles.titulo}>
-          <Text variant="display" accessibilityRole="header">
-            Hoy
-          </Text>
-          <Text variant="caption" tone={color.inkSoft}>
-            {fechaCorta(ahora.toISOString())}
-          </Text>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ajustes"
-          onPress={() => router.push('/ajustes')}
-          style={({ pressed }) => [styles.iconButton, pressed && styles.iconPressed]}>
-          <GearSixIcon size={24} color={color.ink} />
-        </Pressable>
-      </View>
+    <GestureHandlerRootView>
+      <View className="flex-1 bg-canvas">
+        <Animated.ScrollView
+          onScroll={alDesplazar}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingTop: insets.top + ALTO_ENCABEZADO + 8,
+            paddingBottom: tabBarInset + 96,
+          }}>
+          <View className="gap-3 px-5">
+            <Aparecer orden={0}>
+              <BloqueProxima cita={proxima} ahoraMs={ahoraMs} cargando={citasQ.isPending} onAbrir={abrirCita} />
+            </Aparecer>
 
-      <TraceLine height={44} nodes={nodosDelDia(citas, ahoraMs)} style={styles.trace} />
+            <Aparecer orden={1} className="flex-row gap-3">
+              <Tile
+                tone="confirmar"
+                className="flex-1"
+                onPress={() => router.push('/por-confirmar')}
+                accessibilityLabel={`${plural(porConfirmar, 'cita', 'citas')} por confirmar`}>
+                <NumeroAnimado valor={porConfirmar} variant="title" className="text-menta-ink" />
+                <Text variant="label" className="text-menta-ink">
+                  por confirmar
+                </Text>
+              </Tile>
+              <Tile
+                tone="solidario"
+                className="flex-1"
+                onPress={() => router.navigate('/solidario')}
+                accessibilityLabel={`${cuposUsados} de ${cuposTotal} cupos solidarios usados esta semana`}>
+                <View className="flex-row items-baseline">
+                  <NumeroAnimado valor={cuposUsados} variant="title" className="text-durazno-ink" />
+                  <Text variant="title" className="text-durazno-ink">
+                    /{cuposTotal}
+                  </Text>
+                </View>
+                <Text variant="label" className="text-durazno-ink">
+                  cupos solidarios
+                </Text>
+                <Segmentos usados={cuposUsados} total={cuposTotal} />
+              </Tile>
+            </Aparecer>
 
-      {proxima ? (
-        <Tile
-          tone="consulta"
-          onPress={() => abrirCita(proxima.id)}
-          accessibilityLabel={`${etiquetaProxima(proxima, ahoraMs)}. ${horaTexto(proxima.inicio)}, ${proxima.paciente.nombre}, ${proxima.modalidad}${proxima.esSolidaria ? ', cupo solidario' : ''}`}>
-          <Text variant="label" tone={tile.consulta.fg}>
-            {etiquetaProxima(proxima, ahoraMs)}
-          </Text>
-          <Text variant="number" tone={tile.consulta.fg} style={styles.number}>
-            {horaTexto(proxima.inicio)}
-          </Text>
-          <View style={styles.inline}>
-            <Text variant="bodyMedium" tone={tile.consulta.fg} numberOfLines={1} style={styles.shrink}>
-              {proxima.paciente.nombre} · {proxima.modalidad}
-            </Text>
-            {proxima.esSolidaria ? <SolidarioMark /> : null}
+            <Aparecer orden={2}>
+              <Tile
+                tone="pagos"
+                contentClassName="flex-row items-center justify-between gap-3"
+                onPress={() => router.push('/pagos')}
+                accessibilityLabel={`Por cobrar ${formatoCOP(porCobrar)}, ${plural(pendientes.length, 'sesión', 'sesiones')}`}>
+                <View>
+                  <Text variant="label" className="text-mantequilla-ink">
+                    Por cobrar
+                  </Text>
+                  <Text variant="caption" className="text-mantequilla-ink">
+                    {pendientes.length === 0 ? 'Todo al día' : plural(pendientes.length, 'sesión', 'sesiones')}
+                  </Text>
+                </View>
+                <NumeroAnimado valor={porCobrar} formato={formatoCOP} variant="heading" className="text-mantequilla-ink" />
+              </Tile>
+            </Aparecer>
+
+            <Aparecer orden={3}>
+              <Tile
+                tone="neutral"
+                contentClassName="flex-row items-center justify-between gap-3"
+                onPress={() => router.push('/resumen')}
+                accessibilityLabel="Tu semana: resumen de citas, cobros y tiempo donado">
+                <View className="flex-1">
+                  <Text variant="heading">Tu semana</Text>
+                  <Text variant="caption" className="text-ink-soft">
+                    Citas, cobros y tiempo donado, en historias
+                  </Text>
+                </View>
+                <CaretRightIcon size={20} color={color.ink} />
+              </Tile>
+            </Aparecer>
+
+            {solicitadas.length > 0 ? (
+              <Seccion titulo="Solicitudes" orden={4}>
+                {solicitadas.map((c, i) => (
+                  <FilaAnimada key={c.id}>
+                    <ListRow
+                      lead={horaTexto(c.inicio)}
+                      title={c.paciente.nombre}
+                      subtitle={`${diaRelativo(c.inicio, hoy)} · ${c.modalidad}${c.origen === 'web' ? ' · desde la web' : ''}`}
+                      badge={c.esSolidaria ? <SolidarioMark /> : null}
+                      last={i === solicitadas.length - 1}
+                      onPress={() => abrirCita(c.id)}
+                      trailing={
+                        <Accion
+                          label="Revisar"
+                          accessibilityLabel={`Revisar la solicitud de ${c.paciente.nombre}`}
+                          onPress={() => abrirCita(c.id)}
+                        />
+                      }
+                    />
+                  </FilaAnimada>
+                ))}
+              </Seccion>
+            ) : null}
+
+            {seguimientos.length > 0 ? (
+              <Seccion titulo="Seguimientos de hoy" orden={5}>
+                {seguimientos.map((s, i) => (
+                  <FilaSeguimiento key={s.id} seguimiento={s} hoy={hoy} last={i === seguimientos.length - 1} />
+                ))}
+              </Seccion>
+            ) : null}
+
+            {siguientes.length > 0 ? (
+              <Seccion titulo="Siguientes" orden={6}>
+                {siguientes.map((c, i) => (
+                  <FilaCita
+                    key={c.id}
+                    cita={c}
+                    subtitulo={c.paciente.telefono ? c.modalidad : `${c.modalidad} · sin teléfono`}
+                    last={i === siguientes.length - 1}
+                  />
+                ))}
+              </Seccion>
+            ) : null}
+
+            {paraContactar.length > 0 ? (
+              <Seccion titulo="Para contactar" orden={7}>
+                {paraContactar.map((p, i) => (
+                  <FilaContacto key={p.pacienteId} paciente={p} last={i === paraContactar.length - 1} />
+                ))}
+              </Seccion>
+            ) : null}
           </View>
-        </Tile>
-      ) : (
-        <Tile tone="consulta">
-          <Text variant="bodyMedium" tone={tile.consulta.fg}>
-            {citasQ.isPending ? 'Cargando citas' : 'No hay más citas hoy'}
-          </Text>
-        </Tile>
-      )}
+        </Animated.ScrollView>
 
-      <View style={styles.pair}>
-        <Tile
-          tone="confirmar"
-          style={styles.half}
-          onPress={() => router.push('/por-confirmar')}
-          accessibilityLabel={`${plural(porConfirmar, 'cita', 'citas')} por confirmar`}>
-          <Text variant="title" tone={tile.confirmar.fg}>
-            {porConfirmar}
-          </Text>
-          <Text variant="label" tone={tile.confirmar.fg}>
-            por confirmar
-          </Text>
-        </Tile>
-        <Tile
-          tone="solidario"
-          style={styles.half}
-          onPress={() => router.navigate('/solidario')}
-          accessibilityLabel={`${cuposUsados} de ${cuposTotal} cupos solidarios usados esta semana`}>
-          <Text variant="title" tone={tile.solidario.fg}>
-            {cuposUsados}/{cuposTotal}
-          </Text>
-          <Text variant="label" tone={tile.solidario.fg}>
-            cupos solidarios
-          </Text>
-          <Segmentos usados={cuposUsados} total={cuposTotal} tono={tile.solidario.fg} />
-        </Tile>
-      </View>
-
-      <Tile
-        tone="pagos"
-        contentStyle={styles.rowTile}
-        onPress={() => router.push('/pagos')}
-        accessibilityLabel={`Por cobrar ${formatoCOP(porCobrar)}, ${plural(pendientes.length, 'sesión', 'sesiones')}`}>
-        <View>
-          <Text variant="label" tone={tile.pagos.fg}>
-            Por cobrar
-          </Text>
-          <Text variant="caption" tone={tile.pagos.fg}>
-            {pendientes.length === 0 ? 'Todo al día' : plural(pendientes.length, 'sesión', 'sesiones')}
-          </Text>
+        <View className="absolute left-0 right-0 top-0 bg-canvas px-5" style={{ paddingTop: insets.top + AIRE_ARRIBA, paddingBottom: AIRE_ABAJO }}>
+          <View className="h-12 flex-row items-center justify-between">
+            <View className="flex-row items-baseline gap-2">
+              <Animated.View style={tituloAnimado}>
+                <Text variant="display" accessibilityRole="header">
+                  Hoy
+                </Text>
+              </Animated.View>
+              <Animated.View style={fechaAnimada}>
+                <Text variant="caption" className="text-ink-soft">
+                  {fechaCorta(ahora.toISOString())}
+                </Text>
+              </Animated.View>
+            </View>
+            <View className="-mr-2 flex-row items-center">
+              <BotonIcono
+                etiqueta="Ejercicio de calma"
+                onPress={() => router.push('/calma')}
+                icono={<WindIcon size={24} color={color.ink} />}
+              />
+              <BotonIcono etiqueta="Ajustes" onPress={() => router.push('/ajustes')} icono={<GearSixIcon size={24} color={color.ink} />} />
+            </View>
+          </View>
+          <TrazoInteractivo puntos={nodosDelDia(citas, ahoraMs)} colapso={colapso} onAbrir={abrirCita} />
+          <Animated.View style={bordeAnimado} className="absolute bottom-0 left-0 right-0 h-px bg-line" />
         </View>
-        <Text variant="heading" tone={tile.pagos.fg}>
-          {formatoCOP(porCobrar)}
-        </Text>
-      </Tile>
 
-      {solicitadas.length > 0 ? (
-        <Seccion titulo="Solicitudes">
-          {solicitadas.map((c, i) => (
-            <ListRow
-              key={c.id}
-              lead={horaTexto(c.inicio)}
-              title={c.paciente.nombre}
-              subtitle={`${diaRelativo(c.inicio, hoy)} · ${c.modalidad}${c.origen === 'web' ? ' · desde la web' : ''}`}
-              badge={c.esSolidaria ? <SolidarioMark /> : null}
-              last={i === solicitadas.length - 1}
-              onPress={() => abrirCita(c.id)}
-              trailing={
-                <Accion
-                  label="Revisar"
-                  accessibilityLabel={`Revisar la solicitud de ${c.paciente.nombre}`}
-                  onPress={() => abrirCita(c.id)}
-                />
-              }
-            />
-          ))}
-        </Seccion>
-      ) : null}
-
-      {seguimientos.length > 0 ? (
-        <Seccion titulo="Seguimientos de hoy">
-          {seguimientos.map((s, i) => (
-            <FilaSeguimiento key={s.id} seguimiento={s} hoy={hoy} last={i === seguimientos.length - 1} />
-          ))}
-        </Seccion>
-      ) : null}
-
-      {siguientes.length > 0 ? (
-        <Seccion titulo="Siguientes">
-          <FilasSiguientes citas={siguientes} />
-        </Seccion>
-      ) : null}
-
-      {paraContactar.length > 0 ? (
-        <Seccion titulo="Para contactar">
-          {paraContactar.map((p, i) => (
-            <FilaContacto key={p.pacienteId} paciente={p} last={i === paraContactar.length - 1} />
-          ))}
-        </Seccion>
-      ) : null}
-    </Screen>
+        <Fab label="Agendar" onPress={() => router.push('/cita/nueva')} />
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
-function Seccion({ titulo, children }: { titulo: string; children: ReactNode }) {
+/** Sección de lista: entra en cascada y se reacomoda cuando las de arriba pierden filas. */
+function Seccion({ titulo, orden, children }: { titulo: string; orden: number; children: ReactNode }) {
   return (
-    <View style={styles.section}>
+    <Aparecer orden={orden} reacomodar className="mt-3 gap-1">
       <Text variant="heading" accessibilityRole="header">
         {titulo}
       </Text>
       <View>{children}</View>
-    </View>
+    </Aparecer>
   );
 }
-
-/** Resto de citas del día, con "Recordar" (HU-06) mientras no se haya enviado el recordatorio. */
-function FilasSiguientes({ citas }: { citas: CitaConPaciente[] }) {
-  const { recordar, marcando, disponible } = useRecordar();
-  return citas.map((c, i) => (
-    <ListRow
-      key={c.id}
-      lead={horaTexto(c.inicio)}
-      title={c.paciente.nombre}
-      subtitle={c.modalidad}
-      badge={c.esSolidaria ? <SolidarioMark /> : null}
-      last={i === citas.length - 1}
-      onPress={() => abrirCita(c.id)}
-      trailing={
-        c.recordadaEn ? (
-          <Text variant="caption" tone={color.inkSoft}>
-            Recordada
-          </Text>
-        ) : !c.paciente.telefono ? (
-          <Text variant="caption" tone={color.inkSoft}>
-            Sin teléfono
-          </Text>
-        ) : (
-          <Accion
-            label="Recordar"
-            accessibilityLabel={`Recordar la cita a ${c.paciente.nombre} por WhatsApp`}
-            disabled={!disponible}
-            loading={marcando === c.id}
-            onPress={() => void recordar(c)}
-          />
-        )
-      }
-    />
-  ));
-}
-
-function FilaSeguimiento({ seguimiento: s, hoy, last }: { seguimiento: Seguimiento; hoy: string; last: boolean }) {
-  const actualizar = useActualizarSeguimiento();
-  const cuando = s.fechaObjetivo === hoy ? 'Hoy' : `Desde el ${fechaCorta(isoDesde(s.fechaObjetivo))}`;
-  const telefono = s.telefono;
-  return (
-    <ListRow
-      title={s.nombre}
-      subtitle={`${cuando} · ${s.motivo}`}
-      last={last}
-      trailing={
-        <View style={styles.acciones}>
-          <Accion
-            label="Llamar"
-            accessibilityLabel={telefono ? `Llamar a ${s.nombre}` : `${s.nombre} no tiene teléfono registrado`}
-            disabled={!telefono}
-            onPress={() => {
-              if (telefono) void llamar(telefono).catch(() => Alert.alert('No se pudo iniciar la llamada'));
-            }}
-          />
-          <Accion
-            label="Hecho"
-            accessibilityLabel={`Marcar como hecho el seguimiento de ${s.nombre}`}
-            loading={actualizar.isPending}
-            onPress={() => actualizar.mutate({ id: s.id, cambios: { estado: 'hecho' } })}
-          />
-        </View>
-      }
-    />
-  );
-}
-
-/** RN-06: dos inasistencias seguidas. El contacto queda como seguimiento hecho y la fila desaparece. */
-function FilaContacto({ paciente: p, last }: { paciente: ParaContactar; last: boolean }) {
-  const registrar = useRegistrarContacto();
-  const telefono = p.telefono;
-
-  async function escribir() {
-    if (!telefono) return;
-    try {
-      await abrirWhatsApp(telefono, mensajeContacto(p.nombre));
-    } catch {
-      Alert.alert('No se pudo abrir WhatsApp', 'Revisa que WhatsApp esté instalado en este teléfono.');
-      return;
-    }
-    registrar.mutate({ pacienteId: p.pacienteId, nombre: p.nombre, telefono });
-  }
-
-  return (
-    <ListRow
-      title={p.nombre}
-      subtitle={telefono ? 'Dos inasistencias seguidas' : 'Dos inasistencias seguidas · sin teléfono'}
-      last={last}
-      onPress={() => router.push({ pathname: '/paciente/[id]', params: { id: p.pacienteId } })}
-      trailing={
-        <Accion
-          label="WhatsApp"
-          accessibilityLabel={telefono ? `Escribir a ${p.nombre} por WhatsApp` : `${p.nombre} no tiene teléfono registrado`}
-          disabled={!telefono}
-          loading={registrar.isPending}
-          onPress={() => void escribir()}
-        />
-      }
-    />
-  );
-}
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  titulo: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm },
-  iconButton: {
-    width: 44,
-    height: 44,
-    marginRight: -space.sm,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconPressed: { backgroundColor: color.quiet },
-  trace: { marginBottom: space.xs },
-  number: { marginVertical: 2 },
-  inline: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  shrink: { flexShrink: 1 },
-  pair: { flexDirection: 'row', gap: space.md },
-  half: { flex: 1 },
-  rowTile: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.md },
-  section: { marginTop: space.md, gap: space.xs },
-  acciones: { flexDirection: 'row', alignItems: 'center' },
-});
