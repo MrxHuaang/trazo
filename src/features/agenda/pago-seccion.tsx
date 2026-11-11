@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
 import { usePagoDeCita, useRegistrarPago } from '@/data/hooks';
 import { METODOS_PAGO, type MetodoPago } from '@/domain/types';
 import { fechaCorta } from '@/lib/dates';
 import { formatoCOP } from '@/lib/format';
-import { color, space, tile } from '@/theme';
-import { Button, Text, Tile } from '@/ui';
+import { Button, NumeroAnimado, Text, Tile } from '@/ui';
 
 import { Opciones } from './selectores';
 
@@ -47,22 +46,27 @@ export function PagoSeccion({ citaId }: { citaId: string }) {
   };
 
   return (
-    <View style={styles.wrap}>
+    <Animated.View layout={LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System)} className="gap-2">
       <Text variant="heading">Pago</Text>
-      <Tile tone="pagos" contentStyle={styles.tile}>
-        <Text variant="label" tone={tile.pagos.fg} style={styles.estado}>
-          {estado}
-        </Text>
-        <Text variant="heading" tone={tile.pagos.fg}>
-          {pago.estado === 'donado' ? formatoCOP(0) : formatoCOP(pago.monto)}
-        </Text>
+      <Tile tone="pagos" contentClassName="flex-row items-center justify-between gap-3">
+        <Animated.View key={pago.estado} entering={FadeIn.duration(220).reduceMotion(ReduceMotion.System)} className="flex-1">
+          <Text variant="label" className="text-mantequilla-ink">
+            {estado}
+          </Text>
+        </Animated.View>
+        <NumeroAnimado
+          variant="heading"
+          valor={pago.estado === 'donado' ? 0 : pago.monto}
+          formato={formatoCOP}
+          className="font-mono text-mantequilla-ink"
+        />
       </Tile>
       {pago.estado === 'pendiente' ? (
         <>
           <Text variant="label">Método</Text>
           <Opciones opciones={METODOS_PAGO} valor={metodo} onChange={setMetodo} />
           {error ? (
-            <Text variant="caption" tone={color.danger}>
+            <Text variant="caption" className="text-danger">
               {error}
             </Text>
           ) : null}
@@ -76,12 +80,6 @@ export function PagoSeccion({ citaId }: { citaId: string }) {
           />
         </>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { gap: space.sm },
-  tile: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.md },
-  estado: { flex: 1 },
-});

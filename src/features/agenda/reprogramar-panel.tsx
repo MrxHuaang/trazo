@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated, { FadeInDown, FadeOutUp, ReduceMotion } from 'react-native-reanimated';
 
 import { useActualizarCita } from '@/data/hooks';
 import { ErrorSolape, type CitaConPaciente } from '@/domain/types';
 import { fechaClave, isoDesde, sumarMinutos } from '@/lib/dates';
-import { color, radius, space } from '@/theme';
 import { Button, Text } from '@/ui';
 
 import { cancelarAviso, programarAviso } from './notifications';
@@ -64,7 +64,10 @@ export function ReprogramarPanel({ cita, ahoraMs, onListo, onCerrar }: Props) {
   };
 
   return (
-    <View style={styles.panel}>
+    <Animated.View
+      entering={FadeInDown.springify().damping(18).reduceMotion(ReduceMotion.System)}
+      exiting={FadeOutUp.duration(160).reduceMotion(ReduceMotion.System)}
+      className="gap-4 overflow-hidden rounded-tile border border-line bg-surface p-4">
       <Text variant="heading">Nuevo horario</Text>
       <SelectorHorario
         dias={dias}
@@ -84,28 +87,14 @@ export function ReprogramarPanel({ cita, ahoraMs, onListo, onCerrar }: Props) {
         datos={datos}
       />
       {error ? (
-        <Text variant="label" tone={color.danger} accessibilityRole="alert">
+        <Text variant="label" className="text-danger" accessibilityRole="alert">
           {error}
         </Text>
       ) : null}
-      <View style={styles.acciones}>
-        <Button label="Volver" variant="ghost" onPress={onCerrar} style={styles.accion} />
-        <Button label="Mover cita" onPress={guardar} loading={guardando} disabled={!horaLista} style={styles.accion} />
+      <View className="flex-row gap-2">
+        <Button label="Volver" variant="ghost" onPress={onCerrar} className="flex-1" />
+        <Button label="Mover cita" onPress={guardar} loading={guardando} disabled={!horaLista} className="flex-1" />
       </View>
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  panel: {
-    gap: space.lg,
-    padding: space.lg,
-    borderRadius: radius.tile,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    overflow: 'hidden',
-  },
-  acciones: { flexDirection: 'row', gap: space.sm },
-  accion: { flex: 1 },
-});

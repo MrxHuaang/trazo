@@ -3,16 +3,19 @@ import { ArrowsClockwiseIcon } from 'phosphor-react-native/src/icons/ArrowsClock
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { NotePencilIcon } from 'phosphor-react-native/src/icons/NotePencil';
 import { WhatsappLogoIcon } from 'phosphor-react-native/src/icons/WhatsappLogo';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { Linking, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCambiarEstadoCita, useCita, useConsultorio, useMarcarRecordada } from '@/data/hooks';
 import { ErrorSolape, type CitaConPaciente, type EstadoCita } from '@/domain/types';
 import { fechaClave, fechaCorta, horaTexto } from '@/lib/dates';
 import { abrirWhatsApp } from '@/lib/whatsapp';
-import { color, radius, space, tile } from '@/theme';
-import { Button, EmptyState, HatchOverlay, ListRow, Sheet, SheetHeader, SolidarioMark, Text, TraceLine } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color, tile } from '@/theme';
+import { Aparecer, Button, EmptyState, HatchOverlay, ListRow, Sheet, SheetHeader, SolidarioMark, Text, TraceLine } from '@/ui';
 
 import { confirmar } from './confirmar';
 import { cancelarAviso, programarAviso } from './notifications';
@@ -21,6 +24,10 @@ import { PagoSeccion } from './pago-seccion';
 import { ReprogramarPanel } from './reprogramar-panel';
 import { duracionMin, ETIQUETA_ESTADO, ETIQUETA_MODALIDAD, fechaTitulo, mensajeCita, rangoHoras } from './rules';
 import { useAhoraMs } from './use-ahora-ms';
+
+const REACOMODO = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
+const CAMBIO = FadeIn.duration(220).reduceMotion(ReduceMotion.System);
+const LLEGA = FadeInDown.springify().damping(18).reduceMotion(ReduceMotion.System);
 
 /** Detalle de una cita (HU-05): estado, recordatorio por WhatsApp, reprogramar, pago y nota. */
 export function CitaDetalleSheet() {
@@ -62,14 +69,14 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
   const activa = solicitada || confirmada;
   const yaEmpezo = new Date(cita.inicio).getTime() <= ahoraMs;
   const telefono = cita.paciente.telefono;
-  const tono = cita.esSolidaria ? tile.solidario : tile.consulta;
-  const fg = solicitada ? color.accent : tono.fg;
+  const tinta = solicitada ? 'text-accent' : cita.esSolidaria ? 'text-durazno-ink' : 'text-lavanda-ink';
 
   const cambiar = async (estado: EstadoCita) => {
     setError(null);
     setEnCurso(estado);
     try {
       const nueva = await cambiarEstado.mutateAsync({ id: cita.id, estado });
+      if (estado !== 'cancelada') void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (estado === 'confirmada') {
         await programarAviso(nueva.id, nueva.inicio);
         setRecienConfirmada(true);
@@ -126,14 +133,14 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
   const whatsapp = (tinta: string) => <WhatsappLogoIcon size={20} color={tinta} />;
 
   const botonesAsistencia = (
-    <View style={styles.par}>
+    <View className="flex-row gap-2">
       <Button
         label="Asistió"
         variant={yaEmpezo ? 'primary' : 'secondary'}
         onPress={() => cambiar('asistio')}
         loading={enCurso === 'asistio'}
         disabled={ocupado}
-        style={styles.mitad}
+        className="flex-1"
       />
       <Button
         label="No asistió"
@@ -141,13 +148,13 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
         onPress={() => cambiar('no_asistio')}
         loading={enCurso === 'no_asistio'}
         disabled={ocupado}
-        style={styles.mitad}
+        className="flex-1"
       />
     </View>
   );
 
   const botonRecordar = (
-    <View style={styles.grupo}>
+    <View className="gap-1">
       <Button
         label={cita.recordadaEn ? 'Recordar de nuevo por WhatsApp' : 'Recordar por WhatsApp'}
         variant={yaEmpezo ? 'secondary' : 'accent'}
@@ -155,7 +162,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
         onPress={() => consultorio && enviar(consultorio.plantillaRecordatorio, true)}
         disabled={!telefono || !consultorio}
       />
-      <Text variant="caption" tone={color.inkSoft}>
+      <Text variant="caption" className="text-ink-soft">
         {!telefono
           ? 'Este paciente no tiene teléfono. Agrégalo en su ficha para escribirle por WhatsApp.'
           : cita.recordadaEn
@@ -170,36 +177,46 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
       header={
         <SheetHeader title={cita.paciente.nombre} subtitle={`${fechaCorta(cita.inicio)} · ${rangoHoras(cita)}`} />
       }>
-      <View
-        style={[
-          styles.resumen,
-          { backgroundColor: solicitada ? color.surface : tono.bg },
-          solicitada && styles.resumenSolicitada,
-          cita.estado === 'no_asistio' && styles.resumenNoAsistio,
-        ]}
-        accessible
-        accessibilityLabel={`${ETIQUETA_ESTADO[cita.estado]}. ${fechaTitulo(fechaClave(cita.inicio))}, ${rangoHoras(cita)}. ${ETIQUETA_MODALIDAD[cita.modalidad]}${cita.esSolidaria ? ', cupo solidario' : ''}.`}>
-        {cita.esSolidaria && !solicitada ? <HatchOverlay color={tile.solidario.fg} /> : null}
-        <View style={styles.resumenFila}>
-          <Text variant="label" tone={fg}>
-            {ETIQUETA_ESTADO[cita.estado]}
-            {cita.origen === 'web' ? ' · desde la web' : ''}
+      <Aparecer orden={0}>
+        <Animated.View
+          layout={REACOMODO}
+          className={cn(
+            'gap-0.5 overflow-hidden rounded-tile p-4',
+            solicitada
+              ? 'border-[1.5px] border-dashed border-accent bg-surface'
+              : cita.esSolidaria
+                ? 'bg-durazno'
+                : 'bg-lavanda',
+            cita.estado === 'no_asistio' && 'border-[1.5px] border-danger',
+          )}
+          accessible
+          accessibilityLabel={`${ETIQUETA_ESTADO[cita.estado]}. ${fechaTitulo(fechaClave(cita.inicio))}, ${rangoHoras(cita)}. ${ETIQUETA_MODALIDAD[cita.modalidad]}${cita.esSolidaria ? ', cupo solidario' : ''}.`}>
+          {cita.esSolidaria && !solicitada ? <HatchOverlay color={tile.solidario.fg} /> : null}
+          <View className="flex-row items-center justify-between gap-2">
+            <Animated.View key={cita.estado} entering={CAMBIO} className="shrink">
+              <Text variant="label" className={tinta}>
+                {ETIQUETA_ESTADO[cita.estado]}
+                {cita.origen === 'web' ? ' · desde la web' : ''}
+              </Text>
+            </Animated.View>
+            {cita.esSolidaria && solicitada ? <SolidarioMark /> : null}
+          </View>
+          <Animated.View key={cita.inicio} entering={CAMBIO}>
+            <Text variant="number" className={tinta}>
+              {horaTexto(cita.inicio)}
+            </Text>
+            <Text variant="bodyMedium" className={tinta}>
+              {fechaTitulo(fechaClave(cita.inicio))} · {duracionMin(cita)} min
+            </Text>
+          </Animated.View>
+          <Text variant="caption" className={tinta}>
+            {ETIQUETA_MODALIDAD[cita.modalidad]}
+            {cita.esSolidaria ? ' · Cupo solidario' : ''}
           </Text>
-          {cita.esSolidaria && solicitada ? <SolidarioMark /> : null}
-        </View>
-        <Text variant="number" tone={fg}>
-          {horaTexto(cita.inicio)}
-        </Text>
-        <Text variant="bodyMedium" tone={fg}>
-          {fechaTitulo(fechaClave(cita.inicio))} · {duracionMin(cita)} min
-        </Text>
-        <Text variant="caption" tone={fg}>
-          {ETIQUETA_MODALIDAD[cita.modalidad]}
-          {cita.esSolidaria ? ' · Cupo solidario' : ''}
-        </Text>
-      </View>
+        </Animated.View>
+      </Aparecer>
 
-      <View>
+      <Aparecer orden={1} reacomodar>
         <ListRow
           title={cita.paciente.nombre}
           subtitle={detallePaciente(cita.paciente)}
@@ -214,7 +231,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
             subtitle={cita.enlace ?? 'Sin enlace guardado'}
             trailing={
               cita.enlace ? (
-                <Text variant="label" tone={color.accent}>
+                <Text variant="label" className="text-accent">
                   Abrir
                 </Text>
               ) : null
@@ -224,27 +241,29 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
           />
         ) : null}
         {cita.motivo ? (
-          <View style={styles.motivo}>
-            <Text variant="label" tone={color.inkSoft}>
+          <View className="gap-0.5 py-3">
+            <Text variant="label" className="text-ink-soft">
               Motivo
             </Text>
             <Text variant="body">{cita.motivo}</Text>
           </View>
         ) : null}
-      </View>
+      </Aparecer>
 
       {error ? (
-        <Text variant="label" tone={color.danger} accessibilityRole="alert">
-          {error}
-        </Text>
+        <Animated.View entering={CAMBIO}>
+          <Text variant="label" className="text-danger" accessibilityRole="alert">
+            {error}
+          </Text>
+        </Animated.View>
       ) : null}
 
       {recienConfirmada && confirmada ? (
-        <View style={styles.aviso}>
-          <Text variant="bodyMedium" tone={tile.confirmar.fg}>
+        <Animated.View entering={LLEGA} layout={REACOMODO} className="gap-2 rounded-tile bg-menta p-4">
+          <Text variant="bodyMedium" className="text-menta-ink">
             Cita confirmada
           </Text>
-          <Text variant="caption" tone={tile.confirmar.fg}>
+          <Text variant="caption" className="text-menta-ink">
             {telefono
               ? 'Avísale al paciente con el mensaje de confirmación.'
               : 'Este paciente no tiene teléfono, así que no se le puede escribir por WhatsApp.'}
@@ -256,7 +275,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
             onPress={() => consultorio && enviar(consultorio.plantillaConfirmacion, false)}
             disabled={!telefono || !consultorio}
           />
-        </View>
+        </Animated.View>
       ) : null}
 
       {reprogramando && activa ? (
@@ -267,7 +286,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
           onListo={() => setReprogramando(false)}
         />
       ) : (
-        <View style={styles.acciones}>
+        <Aparecer orden={2} reacomodar className="gap-2">
           {solicitada ? (
             <Button
               label="Confirmar cita"
@@ -324,36 +343,26 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
           {cita.estado === 'cancelada' || cita.estado === 'no_asistio' ? (
             <Button label="Agendar de nuevo" variant={cita.estado === 'cancelada' ? 'primary' : 'ghost'} onPress={agendarDeNuevo} />
           ) : null}
-        </View>
+        </Aparecer>
       )}
 
-      <PagoSeccion citaId={cita.id} />
+      <Aparecer orden={3} reacomodar>
+        <PagoSeccion citaId={cita.id} />
+      </Aparecer>
 
       {confirmada || cita.estado === 'asistio' ? (
-        <Button
-          label="Nota de sesión"
-          variant="secondary"
-          icon={<NotePencilIcon size={20} color={color.ink} />}
-          onPress={abrirNota}
-          accessibilityHint="Abre la nota privada de esta sesión"
-        />
+        <Animated.View entering={CAMBIO} layout={REACOMODO}>
+          <Button
+            label="Nota de sesión"
+            variant="secondary"
+            icon={<NotePencilIcon size={20} color={color.ink} />}
+            onPress={abrirNota}
+            accessibilityHint="Abre la nota privada de esta sesión"
+          />
+        </Animated.View>
       ) : null}
       {/* La hoja no tiene pie fijo: deja libre el indicador de inicio del iPhone. */}
       <View style={{ height: insets.bottom }} />
-
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  resumen: { borderRadius: radius.tile, padding: space.lg, gap: 2, overflow: 'hidden' },
-  resumenSolicitada: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.accent },
-  resumenNoAsistio: { borderWidth: 1.5, borderColor: color.danger },
-  resumenFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
-  motivo: { paddingVertical: space.md, gap: 2 },
-  aviso: { backgroundColor: tile.confirmar.bg, borderRadius: radius.tile, padding: space.lg, gap: space.sm },
-  acciones: { gap: space.sm },
-  grupo: { gap: space.xs },
-  par: { flexDirection: 'row', gap: space.sm },
-  mitad: { flex: 1 },
-});
