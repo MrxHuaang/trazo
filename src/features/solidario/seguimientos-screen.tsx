@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 import { useConsultorio, useSeguimientos } from '@/data/hooks';
 import { hoyClave } from '@/lib/dates';
-import { color, space } from '@/theme';
-import { EmptyState, Text } from '@/ui';
+import { Aparecer, EmptyState, Text } from '@/ui';
 
 import { Accion } from './components/accion';
 import { PantallaDetalle } from './components/pantalla-detalle';
@@ -32,18 +30,23 @@ export function SeguimientosScreen() {
 
   return (
     <PantallaDetalle>
-      <View style={styles.cabecera}>
+      <Aparecer orden={0} className="gap-1">
         <Text variant="display" accessibilityRole="header">
           Seguimientos
         </Text>
-        <Text variant="body" tone={color.inkSoft}>
+        <Text variant="body" className="text-ink-soft">
           {seguimientos.data
             ? pendientes
               ? `${plural(pendientes, '1 persona', `${pendientes} personas`)} por volver a contactar.`
               : 'Nadie pendiente por ahora.'
             : ' '}
         </Text>
-      </View>
+        {pendientes ? (
+          <Text variant="caption" className="text-ink-soft">
+            Desliza una fila a la derecha para marcarla hecha o a la izquierda para posponerla 7 días.
+          </Text>
+        ) : null}
+      </Aparecer>
 
       {seguimientos.data && pendientes === 0 ? (
         <EmptyState
@@ -52,8 +55,8 @@ export function SeguimientosScreen() {
         />
       ) : null}
 
-      {GRUPOS.filter((g) => g.clave !== 'hechos' && grupos[g.clave].length > 0).map((g) => (
-        <View key={g.clave}>
+      {GRUPOS.filter((g) => g.clave !== 'hechos' && grupos[g.clave].length > 0).map((g, i) => (
+        <Aparecer key={g.clave} orden={i + 1} reacomodar>
           <Seccion titulo={g.titulo} detalle={DETALLE[g.clave] ?? plural(grupos[g.clave].length, '1 persona', `${grupos[g.clave].length} personas`)} />
           {grupos[g.clave].map((s, i, arr) => (
             <SeguimientoItem
@@ -66,11 +69,11 @@ export function SeguimientosScreen() {
               last={i === arr.length - 1}
             />
           ))}
-        </View>
+        </Aparecer>
       ))}
 
       {hechos > 0 ? (
-        <View>
+        <Aparecer orden={4} reacomodar>
           <Seccion
             titulo="Hechos"
             detalle={plural(hechos, '1 seguimiento completado', `${hechos} seguimientos completados`)}
@@ -86,12 +89,8 @@ export function SeguimientosScreen() {
           {verHechos
             ? grupos.hechos.map((s, i, arr) => <SeguimientoItem key={s.id} seguimiento={s} hoy={hoy} last={i === arr.length - 1} />)
             : null}
-        </View>
+        </Aparecer>
       ) : null}
     </PantallaDetalle>
   );
 }
-
-const styles = StyleSheet.create({
-  cabecera: { gap: space.xs },
-});

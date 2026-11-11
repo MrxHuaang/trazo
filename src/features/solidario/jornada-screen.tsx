@@ -1,24 +1,29 @@
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { ClockIcon } from 'phosphor-react-native/src/icons/Clock';
 import { IdentificationCardIcon } from 'phosphor-react-native/src/icons/IdentificationCard';
 import { MapPinIcon } from 'phosphor-react-native/src/icons/MapPin';
+import { MapTrifoldIcon } from 'phosphor-react-native/src/icons/MapTrifold';
+import { NavigationArrowIcon } from 'phosphor-react-native/src/icons/NavigationArrow';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
 import { PhoneIcon } from 'phosphor-react-native/src/icons/Phone';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { UserPlusIcon } from 'phosphor-react-native/src/icons/UserPlus';
 import { useRef, useState, type ComponentRef } from 'react';
-import { Alert, StyleSheet, View, type TextInput } from 'react-native';
+import { Alert, View, type TextInput } from 'react-native';
+import Animated, { FadeInDown, FadeOut, LayoutAnimationConfig, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
 import type { Asistente } from '@/domain/types';
 import { fechaLarga, horaTexto, hoyClave } from '@/lib/dates';
 import { formatoTelefono } from '@/lib/format';
-import { color, space, tile } from '@/theme';
-import { Button, EmptyState, Field, Text, Tile, ToggleRow } from '@/ui';
+import { cn } from '@/lib/cn';
+import { color, tile } from '@/theme';
+import { Aparecer, Button, EmptyState, Field, NumeroAnimado, Text, Tile, ToggleRow } from '@/ui';
 
 import { Accion, BotonIcono } from './components/accion';
 import { PantallaDetalle } from './components/pantalla-detalle';
 import { Seccion } from './components/seccion';
-import { avisarError, llamarA } from './dispositivo';
+import { avisarError, comoLlegar, llamarA } from './dispositivo';
 import {
   useAsistentes,
   useConvertirEnPaciente,
@@ -50,6 +55,7 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
   const lista = asistentes.data ?? [];
   const inscritos = asistentes.data ? lista.length : j.inscritos;
   const fg = tile.confirmar.fg;
+  const conPunto = typeof j.latitud === 'number' && typeof j.longitud === 'number';
 
   const confirmarEliminar = () => {
     Alert.alert(
@@ -83,56 +89,81 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
           <BotonIcono icon={TrashIcon} label="Eliminar jornada" tone={color.danger} onPress={confirmarEliminar} disabled={eliminar.isPending} />
         </>
       }>
-      <View style={styles.cabecera}>
-        <Text variant="label" tone={color.inkSoft}>
+      <Aparecer orden={0} className="gap-1">
+        <Text variant="label" className="text-ink-soft">
           {etiquetaTipo(j.tipo)} · {capitalizar(fechaLarga(j.inicio))}
         </Text>
         <Text variant="title" accessibilityRole="header">
           {j.titulo}
         </Text>
-      </View>
+      </Aparecer>
 
-      <Tile tone="confirmar" contentStyle={styles.datos}>
-        <View style={styles.cupos} accessible accessibilityLabel={`${inscritos} de ${j.cupos} inscritos`}>
-          <Text variant="number" tone={fg}>
-            {inscritos} de {j.cupos}
-          </Text>
-          <Text variant="bodyMedium" tone={fg}>
-            inscritos
-          </Text>
-        </View>
-        <View style={styles.dato}>
-          <ClockIcon size={18} color={fg} />
-          <Text variant="body" tone={fg}>
-            {horaTexto(j.inicio)} a {horaTexto(j.fin)}
-          </Text>
-        </View>
-        <View style={styles.dato}>
-          <MapPinIcon size={18} color={fg} />
-          <Text variant="body" tone={fg} style={styles.flex}>
-            {j.lugar}
-            {j.barrio ? ` · ${j.barrio}` : ''}
-          </Text>
-        </View>
-        {j.descripcion ? (
-          <Text variant="body" tone={fg}>
-            {j.descripcion}
-          </Text>
+      <Aparecer orden={1}>
+        <Tile tone="confirmar" contentClassName="gap-2">
+          <View className="mb-1 flex-row items-baseline gap-2" accessible accessibilityLabel={`${inscritos} de ${j.cupos} inscritos`}>
+            <NumeroAnimado valor={inscritos} variant="number" className="text-menta-ink" />
+            <Text variant="title" className="text-menta-ink">
+              de {j.cupos}
+            </Text>
+            <Text variant="bodyMedium" className="text-menta-ink">
+              inscritos
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <ClockIcon size={18} color={fg} />
+            <Text variant="body" className="text-menta-ink">
+              {horaTexto(j.inicio)} a {horaTexto(j.fin)}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-2">
+            <MapPinIcon size={18} color={fg} />
+            <Text variant="body" className="flex-1 text-menta-ink">
+              {j.lugar}
+              {j.barrio ? ` · ${j.barrio}` : ''}
+            </Text>
+          </View>
+          {j.descripcion ? (
+            <Text variant="body" className="text-menta-ink">
+              {j.descripcion}
+            </Text>
+          ) : null}
+          {conPunto ? (
+            <View className="mt-1 flex-row flex-wrap gap-2">
+              <Accion
+                label="Ver en el mapa"
+                icon={MapTrifoldIcon}
+                onPress={() => router.push({ pathname: '/mapa', params: { jornada: j.id } })}
+                accessibilityLabel={`Ver ${j.titulo} en el mapa`}
+              />
+              <Accion
+                label="Cómo llegar"
+                icon={NavigationArrowIcon}
+                onPress={() => comoLlegar({ latitud: j.latitud!, longitud: j.longitud! }, j.lugar)}
+                accessibilityHint="Abre la app de mapas del teléfono con la ruta"
+              />
+            </View>
+          ) : null}
+        </Tile>
+      </Aparecer>
+
+      <Aparecer orden={2} className="gap-3">
+        <RegistroRapido jornada={j} lleno={inscritos >= j.cupos} />
+      </Aparecer>
+
+      <Aparecer orden={3} className="gap-3">
+        <Seccion titulo="Asistentes" detalle={asistentes.data ? plural(lista.length, '1 registrado', `${lista.length} registrados`) : undefined} />
+        {asistentes.data && lista.length === 0 ? (
+          <EmptyState title="Aún no hay asistentes" body="Regístralos durante la jornada; cada nombre aparece aquí al instante." />
         ) : null}
-      </Tile>
-
-      <RegistroRapido jornada={j} lleno={inscritos >= j.cupos} />
-
-      <Seccion titulo="Asistentes" detalle={asistentes.data ? plural(lista.length, '1 registrado', `${lista.length} registrados`) : undefined} />
-      {asistentes.data && lista.length === 0 ? (
-        <EmptyState title="Aún no hay asistentes" body="Regístralos durante la jornada; cada nombre aparece aquí al instante." />
-      ) : (
-        <View>
-          {lista.map((a, i) => (
-            <AsistenteItem key={a.id} asistente={a} jornada={j} last={i === lista.length - 1} />
-          ))}
-        </View>
-      )}
+        {/* Los que ya estaban no se animan al abrir; solo los que se registran después. */}
+        <LayoutAnimationConfig skipEntering>
+          <View>
+            {lista.map((a, i) => (
+              <AsistenteItem key={a.id} asistente={a} jornada={j} last={i === lista.length - 1} />
+            ))}
+          </View>
+        </LayoutAnimationConfig>
+      </Aparecer>
     </PantallaDetalle>
   );
 }
@@ -157,7 +188,9 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
     if (errorNombre) return;
     const datos = { nombre, telefono, requiereSeguimiento: seguimiento, consentimientoDatos: autoriza };
     // La fila aparece al instante (actualización optimista); el formulario queda listo para el siguiente.
-    registrar(jornada, datos).catch(avisarError('No se pudo registrar el asistente'));
+    registrar(jornada, datos)
+      .then(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success))
+      .catch(avisarError('No se pudo registrar el asistente'));
     setNombre('');
     setTelefono('');
     setSeguimiento(false);
@@ -169,7 +202,7 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
   return (
     <>
       <Seccion titulo="Registrar asistente" detalle={lleno ? 'Cupos completos; puedes seguir registrando.' : 'Nombre y teléfono, en segundos.'} />
-      <View style={styles.formulario}>
+      <View className="gap-3">
         <Field
           ref={nombreRef}
           label="Nombre"
@@ -211,6 +244,10 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
 }
 
 /* ---------- Asistente ---------- */
+
+// Un asistente nuevo entra desde arriba; los demás bajan con resorte para hacerle sitio.
+const entrada = FadeInDown.springify().damping(18).stiffness(190).reduceMotion(ReduceMotion.System);
+const reacomodo = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
 
 function AsistenteItem({ asistente: a, jornada, last }: { asistente: Asistente; jornada: JornadaConInscritos; last: boolean }) {
   const { convertir, vincular, guardando } = useConvertirEnPaciente();
@@ -272,14 +309,18 @@ function AsistenteItem({ asistente: a, jornada, last }: { asistente: Asistente; 
   ].filter(Boolean);
 
   return (
-    <View style={[styles.asistente, !last && styles.divisor]}>
-      <View style={styles.flex}>
+    <Animated.View
+      entering={entrada}
+      exiting={FadeOut.duration(180).reduceMotion(ReduceMotion.System)}
+      layout={reacomodo}
+      className={cn('gap-2 py-3', !last && 'border-b border-line')}>
+      <View className="flex-1">
         <Text variant="bodyMedium">{a.nombre}</Text>
-        <Text variant="caption" tone={color.inkSoft}>
+        <Text variant="caption" className="text-ink-soft">
           {detalles.join(' · ')}
         </Text>
       </View>
-      <View style={styles.acciones}>
+      <View className="flex-row flex-wrap items-center gap-2">
         {a.telefono ? (
           <Accion label="Llamar" icon={PhoneIcon} onPress={() => llamarA(a.telefono)} accessibilityLabel={`Llamar a ${a.nombre}`} />
         ) : null}
@@ -298,18 +339,6 @@ function AsistenteItem({ asistente: a, jornada, last }: { asistente: Asistente; 
           disabled={eliminar.isPending}
         />
       </View>
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  cabecera: { gap: space.xs },
-  datos: { gap: space.sm },
-  cupos: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, marginBottom: space.xs },
-  dato: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  flex: { flex: 1 },
-  formulario: { gap: space.md },
-  asistente: { paddingVertical: space.md, gap: space.sm },
-  divisor: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.line },
-  acciones: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm },
-});
