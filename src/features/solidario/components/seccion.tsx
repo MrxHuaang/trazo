@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { color, space } from '@/theme';
+import { cn } from '@/lib/cn';
 import { Text } from '@/ui';
 
 type SeccionProps = {
@@ -9,18 +9,19 @@ type SeccionProps = {
   detalle?: string;
   /** Acción a la derecha del título (p. ej. "Ver todos"). */
   accion?: ReactNode;
+  className?: string;
 };
 
 /** Título de sección con una línea de contexto y una acción opcional. */
-export function Seccion({ titulo, detalle, accion }: SeccionProps) {
+export function Seccion({ titulo, detalle, accion, className }: SeccionProps) {
   return (
-    <View style={styles.fila}>
-      <View style={styles.textos}>
+    <View className={cn('mt-4 flex-row items-center gap-3', className)}>
+      <View className="flex-1 gap-0.5">
         <Text variant="heading" accessibilityRole="header">
           {titulo}
         </Text>
         {detalle ? (
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             {detalle}
           </Text>
         ) : null}
@@ -29,8 +30,3 @@ export function Seccion({ titulo, detalle, accion }: SeccionProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fila: { flexDirection: 'row', alignItems: 'center', gap: space.md, marginTop: space.lg },
-  textos: { flex: 1, gap: 2 },
-});

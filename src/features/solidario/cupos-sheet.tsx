@@ -66,8 +66,8 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
         <Text variant="label" tone={fg}>
           Cupos por semana
         </Text>
-        <Stepper label="Cupos solidarios por semana" value={cupos} onChange={setCupos} min={0} max={MAX_CUPOS} unidad="por semana" tone={fg} />
-        <MedidorCupos usados={usados} total={cupos} tone={fg} />
+        <Stepper label="Cupos solidarios por semana" value={cupos} onChange={setCupos} min={0} max={MAX_CUPOS} unidad="por semana" tono="durazno" />
+        <MedidorCupos usados={usados} total={cupos} />
         <Text variant="caption" tone={fg}>
           Esta semana llevas {usados} de {cupos}. {estado.detalle}
         </Text>

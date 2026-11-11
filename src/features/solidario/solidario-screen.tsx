@@ -74,7 +74,7 @@ function CuposHero() {
       <Text variant="bodyMedium" tone={fg}>
         cupos solidarios esta semana
       </Text>
-      <MedidorCupos usados={usados} total={total} tone={fg} />
+      <MedidorCupos usados={usados} total={total} />
       <Text variant="caption" tone={fg}>
         {estado.detalle}
         {consultorio.data ? ` Tarifa social ${formatoCOP(consultorio.data.tarifaSocial)}.` : ''}
@@ -112,14 +112,14 @@ function Jornadas() {
         <View key={i} style={styles.par}>
           {fila.map((celda) =>
             celda.tipo === 'jornada' ? (
-              <JornadaTile key={celda.jornada.id} jornada={celda.jornada} style={styles.mitad} />
+              <JornadaTile key={celda.jornada.id} jornada={celda.jornada} className="flex-1" />
             ) : (
               <TarjetaFantasma
                 key="nueva"
                 label="Programar jornada"
                 detalle={vacio ? 'Taller, charla o atención grupal, con lugar y cupos.' : undefined}
                 onPress={() => router.push('/jornada/nueva')}
-                style={styles.mitad}
+                className="flex-1"
               />
             ),
           )}
