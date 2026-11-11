@@ -195,6 +195,7 @@ export function AjustesScreen() {
               </Text>
               <Segmented
                 accessibilityLabel="Duración de cada cita"
+                completo
                 options={duraciones.map((m) => ({ valor: String(m), etiqueta: `${m} min` }))}
                 value={String(consultorio.duracionCita)}
                 onChange={(valor) => {
@@ -202,7 +203,7 @@ export function AjustesScreen() {
                 }}
               />
               <Text variant="caption" className="text-ink-soft">
-                Se usa en las citas nuevas; las que ya están agendadas no cambian.
+                Solo cambia las citas nuevas.
               </Text>
             </Acomodable>
           </Seccion>
@@ -210,7 +211,7 @@ export function AjustesScreen() {
           <Seccion orden={3} titulo="Seguridad">
             <ToggleRow
               label="Bloqueo al abrir"
-              description="Pide tu huella, tu rostro o el código del teléfono al abrir Trazo y al volver después de 2 minutos."
+              description="Pide huella, rostro o código al abrir Trazo."
               value={consultorio.bloqueoActivo}
               onChange={(valor) => void cambiarBloqueo(valor)}
             />
@@ -220,27 +221,9 @@ export function AjustesScreen() {
               </Text>
             ) : telefonoProtegido === false ? (
               <Text variant="caption" className="text-ink-soft">
-                Este teléfono no tiene código, huella ni rostro configurado. Hasta que lo configures en los ajustes del
-                teléfono, Trazo avisará pero dejará entrar sin verificar.
+                Configura un código en el teléfono para que el bloqueo funcione.
               </Text>
             ) : null}
-          </Seccion>
-
-          <Seccion orden={4} titulo="Calma" nota="Para pasarle el teléfono a un paciente.">
-            <Tile
-              tone="confirmar"
-              onPress={() => router.push('/calma')}
-              accessibilityLabel="Abrir Calma: respiración guiada y quietud"
-              className="mt-1"
-              contentClassName="gap-1">
-              <TraceLine height={28} agitation={0.9} calmFrom={0.6} animate={false} stroke={tile.confirmar.fg} />
-              <Text variant="heading" className="text-menta-ink">
-                Respiración guiada y quietud
-              </Text>
-              <Text variant="body" className="text-menta-ink">
-                Dos ejercicios breves a pantalla completa, sin datos del consultorio a la vista.
-              </Text>
-            </Tile>
           </Seccion>
 
           <Seccion orden={5} titulo="Agenda y programa">

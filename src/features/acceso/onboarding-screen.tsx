@@ -5,7 +5,7 @@ import Animated, { FadeIn, ReduceMotion, useReducedMotion } from 'react-native-r
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useConsultorio } from '@/data/hooks';
-import { useSismografo } from '@/features/calma/use-sismografo';
+import { useSismografo } from './use-sismografo';
 import { Aparecer, Button, Text, TraceLine } from '@/ui';
 
 import { FormularioConsultorio } from './formulario-consultorio';

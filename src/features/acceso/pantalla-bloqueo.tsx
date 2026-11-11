@@ -7,7 +7,7 @@ import { BackHandler, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useSismografo } from '@/features/calma/use-sismografo';
+import { useSismografo } from './use-sismografo';
 import { color } from '@/theme';
 import { Aparecer, Button, Text, TraceLine } from '@/ui';
 

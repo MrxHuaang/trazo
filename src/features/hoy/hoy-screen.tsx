@@ -2,7 +2,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { GearSixIcon } from 'phosphor-react-native/src/icons/GearSix';
-import { WindIcon } from 'phosphor-react-native/src/icons/Wind';
 import { useCallback, type ReactNode } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -247,11 +246,6 @@ export function HoyScreen() {
               </Animated.View>
             </View>
             <View className="-mr-2 flex-row items-center gap-2">
-              <BotonIcono
-                etiqueta="Ejercicio de calma"
-                onPress={() => router.push('/calma')}
-                icono={<WindIcon size={24} color={color.ink} />}
-              />
               <BotonIcono etiqueta="Ajustes" onPress={() => router.push('/ajustes')} icono={<GearSixIcon size={24} color={color.ink} />} />
             </View>
           </View>
