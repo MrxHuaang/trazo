@@ -31,7 +31,7 @@ export function Accion({ label, onPress, icon: Icon, variante = 'pill', disabled
       onPress={onPress}
       className={className}
       contentClassName={cn(
-        'min-h-[44px] flex-row items-center gap-1.5',
+        'min-h-[44px] min-w-[44px] flex-row items-center justify-center gap-1.5',
         variante === 'pill' && 'rounded-full border border-line bg-surface px-3',
         disabled && 'opacity-40',
       )}>

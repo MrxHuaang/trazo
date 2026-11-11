@@ -8,7 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useConsultorio, useCuposSolidariosSemana, usePacientes, useSeguimientos } from '@/data/hooks';
 import { AFECTACIONES, type Paciente } from '@/domain/types';
 import { fechaClave, hoyClave, mesClave, mesTexto } from '@/lib/dates';
-import { formatoCOP } from '@/lib/format';
 import { color, tile } from '@/theme';
 import { Aparecer, EmptyState, ListRow, NumeroAnimado, Screen, SolidarioMark, Text, Tile } from '@/ui';
 
@@ -22,7 +21,7 @@ import { SismosRecientes } from './components/sismos-recientes';
 import { compartirTexto } from './dispositivo';
 import { useJornadas, useJornadasAnteriores, useJornadasProximas, useRecursos } from './hooks';
 import type { JornadaConInscritos } from './repo';
-import { diaMes, estadoCupos, masUrgentes, plural, textoDirectorio } from './rules';
+import { capitalizar, diaMes, estadoCupos, masUrgentes, plural, textoDirectorio } from './rules';
 
 const MAX_JORNADAS = 4;
 const MAX_AFECTADOS = 4;
@@ -98,9 +97,8 @@ function CuposHero() {
         cupos solidarios esta semana
       </Text>
       <MedidorCupos usados={usados} total={total} />
-      <Text variant="caption" className="text-durazno-ink">
+      <Text variant="body" className="text-durazno-ink">
         {estado.detalle}
-        {consultorio.data ? ` Tarifa social ${formatoCOP(consultorio.data.tarifaSocial)}.` : ''}
       </Text>
     </Tile>
   );
@@ -176,11 +174,7 @@ function Jornadas() {
 function MapaEntrada() {
   const todas = useJornadas();
   const ubicadas = (todas.data ?? []).filter((j) => typeof j.latitud === 'number' && typeof j.longitud === 'number').length;
-  const detalle = todas.data
-    ? ubicadas
-      ? `${plural(ubicadas, '1 jornada ubicada', `${ubicadas} jornadas ubicadas`)} en Pereira, con los sismos recientes.`
-      : 'Ubica tus jornadas y mira cómo llegar.'
-    : 'Jornadas y sismos recientes en Pereira.';
+  const detalle = ubicadas ? `${plural(ubicadas, '1 jornada', `${ubicadas} jornadas`)} y sismos recientes` : 'Jornadas y sismos recientes';
 
   return (
     <Tile tone="neutral" contentClassName="flex-row items-center gap-3" onPress={() => router.push('/mapa')} accessibilityLabel={`Mapa de jornadas. ${detalle}`}>
@@ -284,7 +278,6 @@ function LineasDeAyuda() {
     <>
       <Seccion
         titulo="Líneas de ayuda"
-        detalle="Para orientar a quien lo necesite en el momento."
         accion={
           lista.length > 1 ? (
             <Accion
@@ -320,7 +313,7 @@ function InformeEnlace() {
       <View className="flex-1 gap-0.5">
         <Text variant="bodyMedium">Informe del mes</Text>
         <Text variant="caption" className="text-ink-soft">
-          Personas, sesiones y horas donadas en {mesTexto(mes)}
+          {capitalizar(mesTexto(mes))}
         </Text>
       </View>
       <CaretRightIcon size={20} color={color.ink} />

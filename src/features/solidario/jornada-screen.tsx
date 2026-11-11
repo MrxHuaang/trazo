@@ -16,7 +16,6 @@ import Animated, { FadeInDown, FadeOut, LayoutAnimationConfig, LinearTransition,
 import type { Asistente } from '@/domain/types';
 import { fechaLarga, horaTexto, hoyClave } from '@/lib/dates';
 import { formatoTelefono } from '@/lib/format';
-import { cn } from '@/lib/cn';
 import { color, tile } from '@/theme';
 import { Aparecer, Button, EmptyState, Field, NumeroAnimado, Text, Tile, ToggleRow } from '@/ui';
 
@@ -158,8 +157,8 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
         {/* Los que ya estaban no se animan al abrir; solo los que se registran después. */}
         <LayoutAnimationConfig skipEntering>
           <View>
-            {lista.map((a, i) => (
-              <AsistenteItem key={a.id} asistente={a} jornada={j} last={i === lista.length - 1} />
+            {lista.map((a) => (
+              <AsistenteItem key={a.id} asistente={a} jornada={j} />
             ))}
           </View>
         </LayoutAnimationConfig>
@@ -201,7 +200,7 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
 
   return (
     <>
-      <Seccion titulo="Registrar asistente" detalle={lleno ? 'Cupos completos; puedes seguir registrando.' : 'Nombre y teléfono, en segundos.'} />
+      <Seccion titulo="Registrar asistente" detalle={lleno ? 'Cupos completos; puedes seguir registrando.' : undefined} />
       <View className="gap-3">
         <Field
           ref={nombreRef}
@@ -249,7 +248,7 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
 const entrada = FadeInDown.springify().damping(18).stiffness(190).reduceMotion(ReduceMotion.System);
 const reacomodo = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
 
-function AsistenteItem({ asistente: a, jornada, last }: { asistente: Asistente; jornada: JornadaConInscritos; last: boolean }) {
+function AsistenteItem({ asistente: a, jornada }: { asistente: Asistente; jornada: JornadaConInscritos }) {
   const { convertir, vincular, guardando } = useConvertirEnPaciente();
   const eliminar = useEliminarAsistente();
 
@@ -313,7 +312,7 @@ function AsistenteItem({ asistente: a, jornada, last }: { asistente: Asistente; 
       entering={entrada}
       exiting={FadeOut.duration(180).reduceMotion(ReduceMotion.System)}
       layout={reacomodo}
-      className={cn('gap-2 py-3', !last && 'border-b border-line')}>
+      className="gap-2 py-3">
       <View className="flex-1">
         <Text variant="bodyMedium">{a.nombre}</Text>
         <Text variant="caption" className="text-ink-soft">

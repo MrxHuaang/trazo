@@ -57,17 +57,17 @@ export function TituloMapa({ titulo, detalle }: { titulo: string; detalle?: stri
 const TEXTO_PERMISO: Record<Exclude<EstadoPermiso, 'concedido' | 'comprobando'>, { titulo: string; cuerpo: string; boton: string }> = {
   sin_preguntar: {
     titulo: 'Mira dónde estás respecto a las jornadas',
-    cuerpo: 'Tu ubicación solo se usa en este mapa mientras lo tienes abierto. No se guarda ni se comparte.',
+    cuerpo: 'Solo se usa en este mapa. No se guarda ni se comparte.',
     boton: 'Permitir ubicación',
   },
   denegado: {
     titulo: 'El mapa funciona sin tu ubicación',
-    cuerpo: 'Puedes ver las jornadas y cómo llegar. Si quieres verte en el mapa, permite la ubicación.',
+    cuerpo: 'Permite la ubicación si quieres verte en el mapa.',
     boton: 'Permitir ubicación',
   },
   bloqueado: {
     titulo: 'El mapa funciona sin tu ubicación',
-    cuerpo: 'El permiso está desactivado para Trazo. Si quieres verte en el mapa, actívalo en los ajustes del teléfono.',
+    cuerpo: 'Actívala en los ajustes del teléfono si quieres verte en el mapa.',
     boton: 'Abrir ajustes',
   },
 };
@@ -115,7 +115,7 @@ export function SinMapa({ top, onReintentar }: SinMapaProps) {
       <TraceLine height={40} agitation={0.5} />
       <Text variant="title">El mapa necesita internet</Text>
       <Text variant="body" className="text-ink-soft">
-        No pudimos cargar las calles. Tus jornadas siguen en la pestaña Solidario; el mapa vuelve cuando haya conexión.
+        Tus jornadas siguen en la pestaña Solidario.
       </Text>
       <Button label="Intentar de nuevo" variant="secondary" onPress={onReintentar} className="mt-2 self-start" />
     </View>

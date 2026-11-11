@@ -160,7 +160,7 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
           <TarjetaFantasma
             compacta
             label="Elegir en el mapa"
-            detalle="Así aparece en el mapa solidario con «Cómo llegar»."
+            detalle="Para mostrar cómo llegar."
             onPress={elegirEnMapa}
           />
         )}

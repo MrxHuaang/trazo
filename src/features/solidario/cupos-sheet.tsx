@@ -63,9 +63,6 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
     <Sheet
       header={<SheetHeader title="Cupos solidarios" subtitle="Programa post-sismo" />}
       footer={<Button label="Guardar" onPress={guardar} loading={actualizar.isPending} disabled={!!errorTarifa} />}>
-      <Text variant="body" className="text-ink-soft">
-        Define cuánto tiempo puedes donar sin desbordarte. La semana va de lunes a domingo.
-      </Text>
 
       <Tile tone="solidario" contentClassName="gap-3">
         <Text variant="label" className="text-durazno-ink">
@@ -73,8 +70,8 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
         </Text>
         <Stepper label="Cupos solidarios por semana" value={cupos} onChange={setCupos} min={0} max={MAX_CUPOS} unidad="por semana" tono="durazno" />
         <MedidorCupos usados={usados} total={cupos} />
-        <Text variant="caption" className="text-durazno-ink">
-          Esta semana llevas {usados} de {cupos}. {estado.detalle}
+        <Text variant="body" className="text-durazno-ink">
+          Esta semana llevas {usados}. {estado.detalle}
         </Text>
       </Tile>
 
@@ -89,10 +86,6 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
           error={errorTarifa}
           helper={`${formatoCOP(valorTarifa)} por sesión. La tarifa normal es ${formatoCOP(consultorio.tarifaBase)}.`}
         />
-        <Text variant="caption" className="text-ink-soft">
-          Los pacientes con tarifa gratuita no pagan: sus sesiones cuentan como donadas en el informe del mes. Si agendas más
-          citas solidarias que los cupos, la agenda te pedirá confirmarlo.
-        </Text>
       </View>
     </Sheet>
   );

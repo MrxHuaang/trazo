@@ -50,7 +50,7 @@ export function SismosRecientes() {
         <View className="gap-2 py-2" accessibilityLabel="Consultando sismos recientes" accessibilityRole="progressbar">
           <TraceLine height={36} agitation={0.8} calmFrom={0.6} />
           <Text variant="caption" className="text-ink-soft">
-            Consultando el registro de sismos…
+            Consultando sismos…
           </Text>
         </View>
       ) : q.isError && !q.data ? (
@@ -63,20 +63,19 @@ export function SismosRecientes() {
             <View className="gap-2 py-2">
               <TraceLine height={28} agitation={0.25} calmFrom={0.2} />
               <Text variant="body" className="text-ink-soft">
-                No hay sismos registrados en la zona. La tierra está en calma.
+                Sin sismos recientes en la zona.
               </Text>
             </View>
           ) : (
             <View>
-              {sismos.slice(0, VISIBLES).map((s, i, arr) => (
-                <FilaSismo key={s.id} sismo={s} ahora={ahora} last={i === arr.length - 1} />
+              {sismos.slice(0, VISIBLES).map((s) => (
+                <FilaSismo key={s.id} sismo={s} ahora={ahora} />
               ))}
             </View>
           )}
 
           <Text variant="caption" className="text-ink-soft">
-            Fuente: Servicio Geológico de los Estados Unidos (USGS).
-            {q.isError ? ' No pudimos actualizar ahora; ves la última consulta.' : ''}
+            Fuente: USGS{q.isError ? ' · sin actualizar' : ''}
           </Text>
         </Animated.View>
       )}
@@ -84,11 +83,11 @@ export function SismosRecientes() {
   );
 }
 
-function FilaSismo({ sismo: s, ahora, last }: { sismo: Sismo; ahora: number; last: boolean }) {
+function FilaSismo({ sismo: s, ahora }: { sismo: Sismo; ahora: number }) {
   const fuerte = s.magnitud >= 4;
   return (
     <View
-      className={cn('min-h-[56px] flex-row items-center gap-4 py-3', !last && 'border-b border-line')}
+      className="min-h-[56px] flex-row items-center gap-4 py-2.5"
       accessible
       accessibilityLabel={`Magnitud ${formatoMagnitud(s.magnitud)}, ${s.lugar}, a ${s.distanciaKm} kilómetros de Pereira, ${haceCuanto(s.momento, ahora)}`}>
       <Text variant="title" className={cn('w-[52px]', fuerte ? 'text-ink' : 'text-ink-soft')}>
@@ -133,9 +132,7 @@ function SinDatos({ sinConexion, reintentando, onReintentar }: SinDatosProps) {
       <View className="flex-1 gap-2">
         <Text variant="bodyMedium">{sinConexion ? 'Sin conexión' : 'No pudimos consultar los sismos'}</Text>
         <Text variant="caption" className="text-ink-soft">
-          {sinConexion
-            ? 'Los sismos llegan de internet. Lo demás de Trazo funciona sin conexión.'
-            : 'El servicio no respondió. Intenta en unos minutos.'}
+          {sinConexion ? 'Lo demás de Trazo funciona sin internet.' : 'El servicio no respondió.'}
         </Text>
         <Accion
           label={reintentando ? 'Intentando…' : 'Intentar de nuevo'}

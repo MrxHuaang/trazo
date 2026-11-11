@@ -41,17 +41,12 @@ export function SeguimientosScreen() {
               : 'Nadie pendiente por ahora.'
             : ' '}
         </Text>
-        {pendientes ? (
-          <Text variant="caption" className="text-ink-soft">
-            Desliza una fila a la derecha para marcarla hecha o a la izquierda para posponerla 7 días.
-          </Text>
-        ) : null}
       </Aparecer>
 
       {seguimientos.data && pendientes === 0 ? (
         <EmptyState
           title="Todo al día"
-          body="Cuando marques a un asistente con «Requiere seguimiento», aparecerá aquí para llamarlo a los 7 días."
+          body="Los asistentes con «Requiere seguimiento» aparecen aquí."
         />
       ) : null}
 

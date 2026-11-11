@@ -27,6 +27,7 @@ type SeguimientoItemProps = {
   /** El botón "Hecho" abre un panel con nota opcional y la opción de programar otro (RN-08). */
   conNota?: boolean;
   profesional?: string | null;
+  /** Se conserva por compatibilidad: las filas se separan con aire, sin divisores. */
   last?: boolean;
 };
 
@@ -37,7 +38,7 @@ const exito = () => void Haptics.notificationAsync(Haptics.NotificationFeedbackT
  * La fila también se desliza: a la derecha marca Hecho, a la izquierda pospone. Al resolverse
  * sale hacia el lado del gesto y las demás filas se reacomodan.
  */
-export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, profesional, last }: SeguimientoItemProps) {
+export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, profesional }: SeguimientoItemProps) {
   const actualizar = useActualizarSeguimiento();
   const crear = useCrearSeguimiento();
   const deslizable = useRef<SwipeableMethods>(null);
@@ -93,7 +94,7 @@ export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, pro
   };
 
   const fila = (
-    <View className="gap-2 bg-canvas py-3">
+    <View className="gap-2 bg-canvas py-4">
       <View className="flex-row items-start gap-3">
         <Text variant="mono" className={cn('w-[52px] pt-0.5', vencido ? 'text-danger' : 'text-ink-soft')}>
           {hecho ? diaMes(s.fechaObjetivo) : etiquetaDia(s.fechaObjetivo, hoy)}
@@ -178,7 +179,6 @@ export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, pro
 
   return (
     <Animated.View
-      className={cn(!last && 'border-b border-line')}
       entering={FadeIn.duration(220).reduceMotion(ReduceMotion.System)}
       exiting={(salida === 'derecha' ? FadeOutRight : FadeOutLeft).duration(240).reduceMotion(ReduceMotion.System)}
       layout={LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System)}>
