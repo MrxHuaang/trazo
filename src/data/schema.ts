@@ -149,4 +149,14 @@ export const MIGRACIONES: string[] = [
   ALTER TABLE jornadas ADD COLUMN latitud REAL;
   ALTER TABLE jornadas ADD COLUMN longitud REAL;
   `,
+  /* v3: fechas guardadas con desfase '-05:00' pasan a UTC ('Z') para que las comparaciones de texto sean correctas */ `
+  UPDATE citas SET inicio = CASE WHEN inicio LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', inicio) ELSE inicio END, fin = CASE WHEN fin LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', fin) ELSE fin END, recordada_en = CASE WHEN recordada_en LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', recordada_en) ELSE recordada_en END
+    WHERE inicio LIKE '%-05:00' OR fin LIKE '%-05:00' OR recordada_en LIKE '%-05:00';
+  UPDATE bloqueos SET inicio = CASE WHEN inicio LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', inicio) ELSE inicio END, fin = CASE WHEN fin LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', fin) ELSE fin END
+    WHERE inicio LIKE '%-05:00' OR fin LIKE '%-05:00';
+  UPDATE jornadas SET inicio = CASE WHEN inicio LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', inicio) ELSE inicio END, fin = CASE WHEN fin LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', fin) ELSE fin END
+    WHERE inicio LIKE '%-05:00' OR fin LIKE '%-05:00';
+  UPDATE pagos SET pagado_en = CASE WHEN pagado_en LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', pagado_en) ELSE pagado_en END
+    WHERE pagado_en LIKE '%-05:00';
+  `,
 ];

@@ -13,11 +13,15 @@ export const ahora = () => new TZDate(Date.now(), ZONA);
 export const enZona = (valor: string | Date | number) =>
   new TZDate(typeof valor === 'string' ? new Date(valor).getTime() : new Date(valor).getTime(), ZONA);
 
-/** ISO UTC a partir de fecha 'yyyy-MM-dd' y hora 'HH:mm' de Colombia. */
+/**
+ * ISO UTC ('...Z') a partir de fecha 'yyyy-MM-dd' y hora 'HH:mm' de Colombia.
+ * Siempre en UTC: SQLite compara las fechas como texto (RN-01), así que todas deben tener el mismo formato.
+ * (TZDate.toISOString() devolvería el desfase '-05:00' y rompería esas comparaciones).
+ */
 export function isoDesde(fechaClave: string, hora = '00:00') {
   const [y, m, d] = fechaClave.split('-').map(Number);
   const [h, mi] = hora.split(':').map(Number);
-  return new TZDate(y ?? 1970, (m ?? 1) - 1, d ?? 1, h ?? 0, mi ?? 0, ZONA).toISOString();
+  return new Date(new TZDate(y ?? 1970, (m ?? 1) - 1, d ?? 1, h ?? 0, mi ?? 0, ZONA).getTime()).toISOString();
 }
 
 /** Acepta una clave 'yyyy-MM-dd' o un ISO completo y devuelve la fecha en la zona de Colombia. */
