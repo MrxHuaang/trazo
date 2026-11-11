@@ -45,6 +45,19 @@ The interface should feel alive but calm (the audience includes people affected 
 - Typography does the heavy lifting: big `font-display` numbers inside tiles, `font-mono` for hours and money in lists. Tiles are flat color, radius `rounded-tile`, no shadows (only the Fab has one).
 - Copy: Spanish (Colombia), concrete, warm, no em dashes, no "por favor", no emojis.
 
+## Clarity and accessibility (non-negotiable)
+
+Beautiful means calm and obvious, not busy. Before finishing any screen, cut until nothing is left that the user would not miss.
+
+- **Less text**: one short title, at most one line of support text per block. No paragraphs explaining the UI, no repeating what a number or icon already says, no labels like "Sección de...". Secondary info goes into the detail sheet, not the list.
+- **One primary action per screen**, clearly the biggest. Secondary actions are fewer and quieter; rare actions go into a menu or the detail sheet.
+- **Touch targets**: every tappable at least 44x44 pt (`min-h-[44px] min-w-[44px]`), primary buttons 52 pt tall, at least 8 pt between neighboring targets. Icon-only buttons are 44 pt circles with `accessibilityLabel`. Never tiny text links as the only way to act.
+- **Readable**: body text 15 pt or more, captions 12 pt only for metadata; contrast 4.5:1 minimum (`ink-soft` on `canvas` is the floor; never lighter grays). Support Dynamic Type: no fixed heights on text containers, let rows grow, use `numberOfLines` only on names in dense lists.
+- **Color is never the only signal**: states also change shape, icon or word (solidario = hatch, solicitada = dashed border, no asistió = distinct shape).
+- **Screen readers**: every tappable has `accessibilityRole` and a Spanish `accessibilityLabel` that says what happens ("Llamar a Marta Giraldo"); decorative SVG is hidden; gestures (swipe, drag) also exist as `accessibilityActions` or a visible button.
+- **Breathing room**: 20 pt side margins, 12 to 16 pt between blocks, generous padding inside tiles. Prefer white space over dividers and borders.
+- **Empty, loading and error states** are short and human: one line plus one action, with the Trazo.
+
 ## Module ownership (parallel work)
 
 | Module | Owns routes | Feature folder |

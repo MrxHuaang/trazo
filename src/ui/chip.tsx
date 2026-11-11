@@ -17,9 +17,9 @@ export function Chip({ label, kind = 'action', onPress, className }: ChipProps) 
     <Pressable
       disabled={!onPress}
       onPress={onPress}
-      hitSlop={10}
+      hitSlop={6}
       accessibilityRole={onPress ? 'button' : undefined}
-      className={cn('active:opacity-60', kind === 'outline' && 'rounded-full border border-ink px-3 py-[3px]', className)}>
+      className={cn('min-h-[44px] justify-center active:opacity-60', kind === 'outline' && 'self-start rounded-full border border-ink px-4', className)}>
       <Text variant="label" className={kind === 'action' ? 'text-accent' : 'text-ink'}>
         {label}
       </Text>
