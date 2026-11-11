@@ -200,6 +200,59 @@ export function horasParaCita(p: {
     });
 }
 
+/** Primer hueco libre para una cita de `duracion` minutos, buscando día por día desde `desde`. */
+export function primerHuecoLibre(p: {
+  desde: string;
+  dias: number;
+  franjas: Disponibilidad[];
+  bloqueos: Bloqueo[];
+  citas: CitaConPaciente[];
+  duracion: number;
+  ahoraMs: number;
+}): { dia: string; ini: number } | null {
+  const sinDisponibilidad = p.franjas.length === 0;
+  for (const dia of diasDesde(p.desde, p.dias)) {
+    const libre = horasParaCita({
+      dia,
+      franjas: franjasDelDia(p.franjas, dia),
+      sinDisponibilidad,
+      todas: false,
+      bloqueos: bloqueosDelDia(p.bloqueos, dia),
+      citas: citasEnDia(p.citas, dia),
+      duracion: p.duracion,
+      ahoraMs: p.ahoraMs,
+    }).find((h) => h.estado === 'libre');
+    if (libre) return { dia, ini: aMinutos(libre.hora) };
+  }
+  return null;
+}
+
+/** Paso del arrastre para reprogramar: 15 minutos. */
+export const PASO_ARRASTRE = 15;
+
+/**
+ * Valida soltar una cita en un nuevo rango del mismo día (RN-01 antes de tocar la base de datos).
+ * Devuelve el motivo en palabras cuando no se puede.
+ */
+export function validarMovimiento(p: {
+  dia: string;
+  rango: Rango;
+  citaId: string;
+  citas: CitaEnDia[];
+  bloqueos: BloqueoDia[];
+  ahoraMs: number;
+}): { ok: true } | { ok: false; motivo: string } {
+  const base = new Date(isoDesde(p.dia)).getTime();
+  if (base + p.rango.ini * MS_MIN < p.ahoraMs) return { ok: false, motivo: 'Esa hora ya pasó.' };
+  const choque = p.citas.find((c) => c.cita.id !== p.citaId && esActiva(c.cita) && seCruzan(c, p.rango));
+  if (choque) {
+    return { ok: false, motivo: `Se cruza con la cita de ${primerNombre(choque.cita.paciente.nombre)} a las ${aHora(choque.ini)}.` };
+  }
+  const bloqueo = p.bloqueos.find((b) => seCruzan(b, p.rango));
+  if (bloqueo) return { ok: false, motivo: bloqueo.motivo ? `Esa hora está bloqueada: ${bloqueo.motivo}.` : 'Esa hora está bloqueada.' };
+  return { ok: true };
+}
+
 /** Acomoda bloques que se cruzan en columnas (casi nunca pasa: RN-01 lo impide entre citas activas). */
 export function distribuirColumnas<T extends Rango>(items: T[]): (T & { col: number; cols: number })[] {
   const orden = [...items].sort((a, b) => a.ini - b.ini || b.fin - a.fin);
@@ -249,7 +302,9 @@ export const rangoHoras = (c: Pick<CitaConPaciente, 'inicio' | 'fin'>) => `${hor
 /** Paciente con tarifa social o gratuita, o afectado por el sismo: cupo solidario por defecto. */
 export const sugiereSolidaria = (p: { afectadoSismo: boolean; tarifa: string }) => p.afectadoSismo || p.tarifa !== 'normal';
 
-const primerNombre = (nombre: string) => nombre.trim().split(/\s+/)[0] ?? nombre;
+function primerNombre(nombre: string) {
+  return nombre.trim().split(/\s+/)[0] ?? nombre;
+}
 
 /** Mensaje de WhatsApp a partir de una plantilla del consultorio ({nombre}, {fecha}, {hora}, {modalidad}, {enlace}). */
 export function mensajeCita(plantilla: string, cita: CitaConPaciente) {

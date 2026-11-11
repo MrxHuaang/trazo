@@ -1,8 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useCitasEntre } from '@/data/hooks';
 import { isoDesde, sumarDias } from '@/lib/dates';
-import { color, space } from '@/theme';
 import { Text } from '@/ui';
 
 import { BotonTexto } from './boton-icono';
@@ -97,33 +96,33 @@ export function SelectorHorario({ dias, hoy, fecha, onFecha, hora, onHora, todas
   }
 
   return (
-    <>
-      <View style={styles.bloque}>
+    <View className="gap-4">
+      <View className="gap-2">
         <Text variant="label">Fecha · {fechaTitulo(fecha)}</Text>
         <FechaChips dias={dias} valor={fecha} onChange={onFecha} hoy={hoy} />
       </View>
 
-      <View style={styles.bloque}>
+      <View className="gap-2">
         <Text variant="label">Hora</Text>
         {horas.length ? <HoraChips horas={horas} valor={hora} onChange={onHora} /> : null}
         {vacio ? (
-          <Text variant="body" tone={color.inkSoft}>
+          <Text variant="body" className="text-ink-soft">
             {vacio}
           </Text>
         ) : null}
         {seleccion && seleccion.estado !== 'libre' ? (
-          <Text variant="caption" tone={color.danger}>
+          <Text variant="caption" className="text-danger">
             {seleccion.estado === 'ocupada'
               ? 'Esa hora se cruza con otra cita. Elige otra.'
               : 'Esa hora está bloqueada. Elige otra.'}
           </Text>
         ) : null}
         {sinDisponibilidad ? (
-          <Text variant="caption" tone={color.inkSoft}>
+          <Text variant="caption" className="text-ink-soft">
             Aún no defines tu horario: se muestran todas las horas.
           </Text>
         ) : (
-          <View style={styles.fila}>
+          <View className="flex-row">
             <BotonTexto
               etiqueta={todas ? 'Ver solo mi horario' : 'Ver horas fuera de mi horario'}
               onPress={() => onTodas(!todas)}
@@ -131,11 +130,6 @@ export function SelectorHorario({ dias, hoy, fecha, onFecha, hora, onHora, todas
           </View>
         )}
       </View>
-    </>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bloque: { gap: space.sm },
-  fila: { flexDirection: 'row' },
-});

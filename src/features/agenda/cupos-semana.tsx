@@ -1,7 +1,8 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { color, space, tile } from '@/theme';
-import { HatchOverlay, Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { tile } from '@/theme';
+import { HatchOverlay, NumeroAnimado, Text } from '@/ui';
 
 type Props = { usados: number; total: number };
 
@@ -9,42 +10,35 @@ type Props = { usados: number; total: number };
 export function CuposSemana({ usados, total }: Props) {
   const segmentos = Math.min(Math.max(total, usados), 10);
   const excedido = usados > total;
-  const texto = excedido
-    ? `${usados} de ${total} cupos solidarios esta semana, por encima de lo previsto`
-    : `${usados} de ${total} cupos solidarios esta semana`;
 
   return (
-    <View style={styles.fila} accessible accessibilityLabel={texto}>
-      <View style={styles.segmentos}>
+    <View
+      className="flex-row items-center gap-2"
+      accessible
+      accessibilityLabel={`${usados} de ${total} cupos solidarios esta semana${excedido ? ', por encima de lo previsto' : ''}`}>
+      <View className="flex-row gap-[3px]">
         {Array.from({ length: segmentos }, (_, i) => {
           const usado = i < usados;
-          const extra = i >= total;
           return (
-            <View key={i} style={[styles.segmento, usado && styles.usado, extra && styles.extra]}>
+            <View
+              key={i}
+              className={cn(
+                'h-2.5 w-3.5 overflow-hidden rounded-[3px] border',
+                i >= total ? 'border-danger' : 'border-durazno-ink',
+                usado && 'bg-durazno',
+              )}>
               {usado ? <HatchOverlay color={tile.solidario.fg} opacity={0.35} gap={4} /> : null}
             </View>
           );
         })}
       </View>
-      <Text variant="label" tone={tile.solidario.fg} style={styles.texto}>
-        {usados} de {total} cupos solidarios esta semana
-      </Text>
+      <View className="shrink flex-row items-baseline">
+        <NumeroAnimado valor={usados} variant="label" className="text-durazno-ink" duracionMs={400} />
+        <Text variant="label" className="shrink text-durazno-ink" numberOfLines={1}>
+          {' '}
+          de {total} cupos solidarios esta semana
+        </Text>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  fila: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  segmentos: { flexDirection: 'row', gap: 3 },
-  segmento: {
-    width: 14,
-    height: 10,
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: tile.solidario.fg,
-    overflow: 'hidden',
-  },
-  usado: { backgroundColor: tile.solidario.bg },
-  extra: { borderColor: color.danger },
-  texto: { flexShrink: 1 },
-});

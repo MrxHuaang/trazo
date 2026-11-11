@@ -16,6 +16,16 @@ import * as repo from './repo';
 export const useCitasParaAvisos = (desde: string, hasta: string) =>
   useQuery({ queryKey: [...qk.citas, 'avisos', desde, hasta], queryFn: () => listarCitasEntre(desde, hasta, true) });
 
+/**
+ * Lo necesario para buscar el próximo hueco libre en un rango largo, pasando por la caché
+ * de TanStack Query (mismas llaves que los hooks, así no se consulta dos veces).
+ */
+export const consultasDeHuecos = (desde: string, hasta: string) => ({
+  disponibilidad: { queryKey: [...qk.disponibilidad, 'lista'], queryFn: repo.listarDisponibilidad },
+  bloqueos: { queryKey: [...qk.bloqueos, 'rango', desde, hasta], queryFn: () => repo.listarBloqueosEntre(desde, hasta) },
+  citas: { queryKey: [...qk.citas, 'rango', desde, hasta], queryFn: () => listarCitasEntre(desde, hasta) },
+});
+
 /* ---------- Disponibilidad ---------- */
 
 export const useDisponibilidad = () =>

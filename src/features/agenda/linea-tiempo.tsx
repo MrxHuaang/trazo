@@ -1,10 +1,24 @@
+import * as Haptics from 'expo-haptics';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { Pressable, View } from 'react-native';
+import Animated, {
+  Easing,
+  LayoutAnimationConfig,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
 import { Text } from '@/ui';
 
-import { CitaBloque } from './cita-bloque';
+import { CitaArrastrable } from './cita-arrastrable';
 import {
   agruparHuecos,
   aHora,
@@ -20,7 +34,6 @@ import {
 export const ALTO_HUECO = 44;
 const PX_MIN = ALTO_HUECO / PASO_MIN;
 const MARGEN = 10;
-const MEDIANIL = 52;
 
 type Props = {
   ventana: Rango;
@@ -29,8 +42,15 @@ type Props = {
   citas: CitaEnDia[];
   /** Minuto actual si el día mostrado es hoy. */
   ahoraMin: number | null;
+  /** Hueco que se muestra con un pulso (p. ej. el próximo libre). */
+  resaltado: number | null;
+  scrollOffset: SharedValue<number>;
+  dedoY: SharedValue<number>;
   onHueco: (ini: number) => void;
   onCita: (id: string) => void;
+  onArrastre: (activo: boolean) => void;
+  /** Mueve la cita a un nuevo minuto de inicio. Resuelve false si no se pudo. */
+  onMover: (bloque: CitaEnDia, nuevoIni: number) => Promise<boolean>;
 };
 
 /** Posición vertical (px) de un minuto del día dentro de la línea de tiempo. */
@@ -38,9 +58,23 @@ export const yDeMinuto = (ventana: Rango, min: number) => MARGEN + (min - ventan
 
 /**
  * Línea de tiempo vertical del día: horas en Geist Mono, cuadrícula de 30 min, horas fuera de la
- * disponibilidad sombreadas, bloqueos con su motivo y un hueco tocable por cada media hora libre.
+ * disponibilidad sombreadas, bloqueos con su motivo, un hueco tocable por cada media hora libre
+ * y las citas, que se pueden arrastrar para cambiarles la hora.
  */
-export function LineaDeTiempo({ ventana, huecos, bloqueos, citas, ahoraMin, onHueco, onCita }: Props) {
+export function LineaDeTiempo({
+  ventana,
+  huecos,
+  bloqueos,
+  citas,
+  ahoraMin,
+  resaltado,
+  scrollOffset,
+  dedoY,
+  onHueco,
+  onCita,
+  onArrastre,
+  onMover,
+}: Props) {
   const y = (min: number) => yDeMinuto(ventana, min);
   const altoTotal = y(ventana.fin) + MARGEN;
 
@@ -53,29 +87,34 @@ export function LineaDeTiempo({ ventana, huecos, bloqueos, citas, ahoraMin, onHu
   const bloques = distribuirColumnas(citas);
 
   return (
-    <View style={[styles.root, { height: altoTotal }]}>
-      <View style={styles.medianil}>
+    <View className="flex-row" style={{ height: altoTotal }}>
+      <View className="w-[52px]">
         {marcas
           .filter((m) => m % 60 === 0)
           .map((m) => (
-            <Text key={m} variant="mono" tone={color.inkSoft} style={[styles.hora, { top: y(m) - 8 }]}>
+            <Text key={m} variant="mono" className="absolute left-0 text-ink-soft" style={{ top: y(m) - 8 }}>
               {aHora(m)}
             </Text>
           ))}
       </View>
 
-      <View style={styles.carril}>
+      <View className="flex-1">
         {fuera.map((r) => (
           <View
             key={`f${r.ini}`}
-            style={[styles.fuera, { top: y(r.ini), height: (r.fin - r.ini) * PX_MIN }]}
+            className="absolute left-0 right-0 bg-quiet"
+            style={{ top: y(r.ini), height: (r.fin - r.ini) * PX_MIN }}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
           />
         ))}
 
         {marcas.map((m) => (
-          <View key={`l${m}`} style={[m % 60 === 0 ? styles.lineaHora : styles.lineaMedia, { top: y(m) }]} />
+          <View
+            key={`l${m}`}
+            className={cn('absolute right-0 h-px bg-line', m % 60 === 0 ? 'left-0' : 'left-3 opacity-50')}
+            style={{ top: y(m) }}
+          />
         ))}
 
         {bloqueos.map((b) => {
@@ -86,11 +125,12 @@ export function LineaDeTiempo({ ventana, huecos, bloqueos, citas, ahoraMin, onHu
           return (
             <View
               key={b.id}
-              style={[styles.bloqueo, { top: y(ini) + 1, height: alto - 2 }]}
+              className="absolute left-0.5 right-0.5 overflow-hidden rounded-field border border-line bg-quiet px-3 py-1.5"
+              style={{ top: y(ini) + 1, height: alto - 2 }}
               accessible
               accessibilityLabel={`Bloqueado de ${aHora(b.ini)} a ${aHora(b.fin)}${b.motivo ? `, ${b.motivo}` : ''}`}>
               {alto >= 30 ? (
-                <Text variant="caption" tone={color.inkSoft} numberOfLines={1}>
+                <Text variant="caption" className="text-ink-soft" numberOfLines={1}>
                   {b.motivo ? `Bloqueado · ${b.motivo}` : 'Bloqueado'}
                 </Text>
               ) : null}
@@ -103,85 +143,111 @@ export function LineaDeTiempo({ ventana, huecos, bloqueos, citas, ahoraMin, onHu
             key={`h${h.ini}`}
             accessibilityRole="button"
             accessibilityLabel={`Agendar a las ${aHora(h.ini)}`}
-            onPress={() => onHueco(h.ini)}
-            style={[styles.hueco, { top: y(h.ini) }]}>
-            {({ pressed }) =>
-              pressed || h.ini === primerLibre ? (
-                <View style={[styles.fantasma, pressed && styles.fantasmaActivo]}>
-                  <PlusIcon size={14} color={pressed ? color.accent : color.inkSoft} />
-                  <Text variant="label" tone={pressed ? color.accent : color.inkSoft}>
-                    Agendar a las {aHora(h.ini)}
-                  </Text>
-                </View>
-              ) : null
-            }
+            onPress={() => {
+              void Haptics.selectionAsync();
+              onHueco(h.ini);
+            }}
+            className={cn(
+              'absolute left-0 right-0 p-[3px] active:opacity-100',
+              h.ini === primerLibre || h.ini === resaltado ? 'opacity-100' : 'opacity-0',
+            )}
+            style={{ top: y(h.ini), height: ALTO_HUECO }}>
+            {h.ini === resaltado ? (
+              <HuecoResaltado hora={aHora(h.ini)} />
+            ) : (
+              <View className="flex-1 flex-row items-center justify-center gap-1 rounded-field border border-dashed border-ink-soft">
+                <PlusIcon size={14} color={color.inkSoft} />
+                <Text variant="label" className="text-ink-soft">
+                  Agendar a las {aHora(h.ini)}
+                </Text>
+              </View>
+            )}
           </Pressable>
         ))}
 
-        {bloques.map((b) => {
-          const ini = Math.max(b.ini, ventana.ini);
-          const fin = Math.min(b.fin, ventana.fin);
-          const alto = Math.max(ALTO_HUECO, (fin - ini) * PX_MIN) - 2;
-          return (
-            <View
-              key={b.cita.id}
-              style={[
-                styles.bloque,
-                { top: y(ini) + 1, height: alto, left: `${(b.col / b.cols) * 100}%`, width: `${100 / b.cols}%` },
-              ]}>
-              <CitaBloque cita={b.cita} alto={alto} onPress={() => onCita(b.cita.id)} />
-            </View>
-          );
-        })}
+        <LayoutAnimationConfig skipEntering skipExiting>
+          {bloques.map((b) => {
+            const ini = Math.max(b.ini, ventana.ini);
+            const fin = Math.min(b.fin, ventana.fin);
+            return (
+              <CitaArrastrable
+                key={b.cita.id}
+                cita={b.cita}
+                ini={b.ini}
+                top={y(ini) + 1}
+                alto={Math.max(ALTO_HUECO, (fin - ini) * PX_MIN) - 2}
+                col={b.col}
+                cols={b.cols}
+                pxMin={PX_MIN}
+                minMinutos={ventana.ini - b.ini}
+                maxMinutos={ventana.fin - b.fin}
+                scrollOffset={scrollOffset}
+                dedoY={dedoY}
+                onPress={() => onCita(b.cita.id)}
+                onArrastre={onArrastre}
+                onSoltar={(minutos) => onMover(b, b.ini + minutos)}
+              />
+            );
+          })}
+        </LayoutAnimationConfig>
 
-        {ahoraMin !== null && ahoraMin >= ventana.ini && ahoraMin <= ventana.fin ? (
-          <View
-            pointerEvents="none"
-            style={[styles.ahora, { top: y(ahoraMin) - 1 }]}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants">
-            <View style={styles.ahoraPunto} />
-          </View>
-        ) : null}
+        {ahoraMin !== null && ahoraMin >= ventana.ini && ahoraMin <= ventana.fin ? <LineaAhora top={y(ahoraMin) - 1} /> : null}
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flexDirection: 'row' },
-  medianil: { width: MEDIANIL },
-  hora: { position: 'absolute', left: 0 },
-  carril: { flex: 1 },
-  fuera: { position: 'absolute', left: 0, right: 0, backgroundColor: color.quiet },
-  lineaHora: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: color.line },
-  lineaMedia: { position: 'absolute', left: space.md, right: 0, height: StyleSheet.hairlineWidth, backgroundColor: color.line },
-  bloqueo: {
-    position: 'absolute',
-    left: 2,
-    right: 2,
-    borderRadius: radius.field,
-    backgroundColor: color.quiet,
-    borderWidth: 1,
-    borderColor: color.line,
-    paddingHorizontal: space.md,
-    paddingVertical: 6,
-    overflow: 'hidden',
-  },
-  hueco: { position: 'absolute', left: 0, right: 0, height: ALTO_HUECO, padding: 3 },
-  fantasma: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space.xs,
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: color.inkSoft,
-  },
-  fantasmaActivo: { borderColor: color.accent, backgroundColor: color.surface },
-  bloque: { position: 'absolute', paddingHorizontal: 1 },
-  ahora: { position: 'absolute', left: -6, right: 0, height: 2, backgroundColor: color.accent, justifyContent: 'center' },
-  ahoraPunto: { width: 10, height: 10, borderRadius: radius.pill, backgroundColor: color.accent, marginLeft: -4 },
-});
+/** Línea de "ahora": cobalto, con un punto que respira despacio para ubicar el momento sin alarmar. */
+function LineaAhora({ top }: { top: number }) {
+  const reducir = useReducedMotion();
+  const pulso = useSharedValue(0);
+
+  useEffect(() => {
+    if (reducir) return;
+    pulso.set(withRepeat(withTiming(1, { duration: 2200, easing: Easing.out(Easing.quad) }), -1, false));
+  }, [reducir, pulso]);
+
+  const halo = useAnimatedStyle(() => ({
+    opacity: 0.35 * (1 - pulso.get()),
+    transform: [{ scale: 1 + pulso.get() * 1.6 }],
+  }));
+
+  return (
+    <View
+      pointerEvents="none"
+      className="absolute -left-1.5 right-0 h-0.5 justify-center bg-accent"
+      style={{ top }}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants">
+      <View className="-ml-1 h-2.5 w-2.5 items-center justify-center">
+        <Animated.View className="absolute h-2.5 w-2.5 rounded-full bg-accent" style={halo} />
+        <View className="h-2.5 w-2.5 rounded-full bg-accent" />
+      </View>
+    </View>
+  );
+}
+
+/** Hueco señalado por "Próximo hueco libre": tres pulsos de cobalto y se queda quieto. */
+function HuecoResaltado({ hora }: { hora: string }) {
+  const reducir = useReducedMotion();
+  const pulso = useSharedValue(0);
+
+  useEffect(() => {
+    if (reducir) return;
+    pulso.set(
+      withRepeat(withSequence(withTiming(1, { duration: 420 }), withTiming(0, { duration: 420 })), 3, false),
+    );
+  }, [reducir, pulso]);
+
+  const fondo = useAnimatedStyle(() => ({ opacity: 0.25 + pulso.get() * 0.75 }));
+
+  return (
+    <View className="flex-1 flex-row items-center justify-center gap-1 overflow-hidden rounded-field border-[1.5px] border-accent">
+      <Animated.View className="absolute bottom-0 left-0 right-0 top-0 bg-accent-soft" style={fondo} />
+      <PlusIcon size={14} color={color.accent} />
+      <Text variant="label" className="text-accent">
+        Libre a las {hora}
+      </Text>
+    </View>
+  );
+}

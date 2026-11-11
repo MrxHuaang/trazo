@@ -1,12 +1,16 @@
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
 import { useConsultorio, useCrearCita, useCuposSolidariosSemana, usePaciente } from '@/data/hooks';
 import { ErrorSolape, type Modalidad, type Paciente } from '@/domain/types';
 import { fechaClave, fechaCorta, horaTexto, isoDesde, sumarMinutos } from '@/lib/dates';
-import { color, radius, space, tile } from '@/theme';
-import { Button, Field, HatchOverlay, Segmented, Sheet, SheetHeader, Text, ToggleRow } from '@/ui';
+import { confirmarCupoSolidario } from '@/features/solidario/cupos';
+import { cn } from '@/lib/cn';
+import { tile } from '@/theme';
+import { Aparecer, Button, Field, HatchOverlay, Segmented, Sheet, SheetHeader, Text, ToggleRow } from '@/ui';
 
 import { confirmar } from './confirmar';
 import { programarAviso } from './notifications';
@@ -76,14 +80,8 @@ export function NuevaCitaSheet() {
   const guardar = async () => {
     if (!paciente || !horaLista || guardando) return;
     setError(null);
-    if (cuposAgotados) {
-      const seguir = await confirmar({
-        titulo: 'Cupos solidarios completos',
-        mensaje: `Esa semana ya tiene ${cuposUsados} de ${cuposTotal} cupos solidarios. Puedes agendar este cupo adicional si así lo decides.`,
-        aceptar: 'Agendar igual',
-      });
-      if (!seguir) return;
-    }
+    // RN-03: la regla de cupos vive en el módulo solidario; aquí solo se pregunta.
+    if (solidaria && !(await confirmarCupoSolidario(fecha))) return;
     setGuardando(true);
     try {
       const inicio = isoDesde(fecha, horaLista);
@@ -97,6 +95,7 @@ export function NuevaCitaSheet() {
         esSolidaria: solidaria,
       });
       await programarAviso(cita.id, cita.inicio);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (pacienteNuevo) {
         const completar = await confirmar({
           titulo: 'Cita agendada',
@@ -133,110 +132,110 @@ export function NuevaCitaSheet() {
       footer={
         <>
           {error ? (
-            <Text variant="label" tone={color.danger} accessibilityRole="alert">
+            <Text variant="label" className="text-danger" accessibilityRole="alert">
               {error}
             </Text>
           ) : falta ? (
-            <Text variant="caption" tone={color.inkSoft}>
+            <Text variant="caption" className="text-ink-soft">
               {falta}
             </Text>
           ) : null}
           <Button label="Agendar" onPress={guardar} loading={guardando} disabled={!!falta} />
         </>
       }>
-      <PacienteSelector
-        valor={paciente}
-        nuevo={pacienteNuevo}
-        autoFocus={!pacienteIdParam}
-        onChange={(p, nuevo) => {
-          setEleccion({ paciente: p, nuevo });
-          setSolidaria(null);
-        }}
-      />
+      <Aparecer orden={0}>
+        <PacienteSelector
+          valor={paciente}
+          nuevo={pacienteNuevo}
+          autoFocus={!pacienteIdParam}
+          onChange={(p, nuevo) => {
+            setEleccion({ paciente: p, nuevo });
+            setSolidaria(null);
+          }}
+        />
+      </Aparecer>
 
-      <SelectorHorario
-        dias={dias}
-        hoy={hoy}
-        fecha={fecha}
-        onFecha={(f) => {
-          setFecha(f);
-          setError(null);
-        }}
-        hora={hora}
-        onHora={(h) => {
-          setHora(h);
-          setError(null);
-        }}
-        todas={todas}
-        onTodas={setTodas}
-        datos={datos}
-      />
+      <Aparecer orden={1}>
+        <SelectorHorario
+          dias={dias}
+          hoy={hoy}
+          fecha={fecha}
+          onFecha={(f) => {
+            setFecha(f);
+            setError(null);
+          }}
+          hora={hora}
+          onHora={(h) => {
+            setHora(h);
+            setError(null);
+          }}
+          todas={todas}
+          onTodas={setTodas}
+          datos={datos}
+        />
+      </Aparecer>
 
-      <View style={styles.bloque}>
+      <Aparecer orden={2} className="gap-2">
         <Text variant="label">Duración</Text>
         <Opciones opciones={opcionesDuracion} valor={duracion} onChange={setDuracion} />
-      </View>
+      </Aparecer>
 
-      <View style={styles.bloque}>
+      <Aparecer orden={3} className="gap-2">
         <Text variant="label">Modalidad</Text>
         <Segmented options={MODALIDADES} value={modalidad} onChange={setModalidad} accessibilityLabel="Modalidad" />
-      </View>
+      </Aparecer>
 
       {modalidad === 'virtual' ? (
-        <Field
-          label="Enlace de la videollamada"
-          placeholder="meet.google.com/abc-defg-hij"
-          value={enlace}
-          onChangeText={setEnlace}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          helper="Opcional. Se incluye en los mensajes de WhatsApp."
-        />
+        <Animated.View entering={FadeIn.duration(200).reduceMotion(ReduceMotion.System)}>
+          <Field
+            label="Enlace de la videollamada"
+            placeholder="meet.google.com/abc-defg-hij"
+            value={enlace}
+            onChangeText={setEnlace}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            helper="Opcional. Se incluye en los mensajes de WhatsApp."
+          />
+        </Animated.View>
       ) : null}
 
-      <View style={[styles.solidario, solidaria && styles.solidarioActivo]}>
-        {solidaria ? <HatchOverlay color={tile.solidario.fg} opacity={0.08} /> : null}
-        <ToggleRow
-          label="Cupo solidario"
-          description={
-            paciente && sugiereSolidaria(paciente)
-              ? 'Sugerido por la tarifa o la afectación del paciente.'
-              : 'Cuenta en los cupos de la semana.'
-          }
-          value={solidaria}
-          onChange={setSolidaria}
-        />
-        {consultorio && solidaria ? (
-          <Text variant="caption" tone={tile.solidario.fg}>
-            {cuposAgotados
-              ? `Esa semana ya tiene ${cuposUsados} de ${cuposTotal} cupos. Al agendar se pide confirmar.`
-              : `Con esta cita: ${cuposUsados + 1} de ${cuposTotal} cupos de esa semana.`}
-          </Text>
-        ) : null}
-      </View>
+      <Aparecer orden={4} reacomodar>
+        <View
+          className={cn(
+            'gap-1 overflow-hidden rounded-field border px-4 py-2',
+            solidaria ? 'border-durazno bg-durazno' : 'border-line bg-transparent',
+          )}>
+          {solidaria ? <HatchOverlay color={tile.solidario.fg} opacity={0.08} /> : null}
+          <ToggleRow
+            label="Cupo solidario"
+            description={
+              paciente && sugiereSolidaria(paciente)
+                ? 'Sugerido por la tarifa o la afectación del paciente.'
+                : 'Cuenta en los cupos de la semana.'
+            }
+            value={solidaria}
+            onChange={setSolidaria}
+          />
+          {consultorio && solidaria ? (
+            <Text variant="caption" className="text-durazno-ink">
+              {cuposAgotados
+                ? `Esa semana ya tiene ${cuposUsados} de ${cuposTotal} cupos. Al agendar se pide confirmar.`
+                : `Con esta cita: ${cuposUsados + 1} de ${cuposTotal} cupos de esa semana.`}
+            </Text>
+          ) : null}
+        </View>
+      </Aparecer>
 
-      <Field
-        label="Motivo"
-        placeholder="Opcional"
-        value={motivo}
-        onChangeText={setMotivo}
-        helper="Solo lo ves tú. No aparece en los avisos."
-      />
+      <Aparecer orden={5} reacomodar>
+        <Field
+          label="Motivo"
+          placeholder="Opcional"
+          value={motivo}
+          onChangeText={setMotivo}
+          helper="Solo lo ves tú. No aparece en los avisos."
+        />
+      </Aparecer>
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  bloque: { gap: space.sm },
-  solidario: {
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderColor: color.line,
-    paddingHorizontal: space.lg,
-    paddingVertical: space.sm,
-    gap: space.xs,
-    overflow: 'hidden',
-  },
-  solidarioActivo: { backgroundColor: tile.solidario.bg, borderColor: tile.solidario.bg },
-});

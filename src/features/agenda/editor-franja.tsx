@@ -1,9 +1,11 @@
+import * as Haptics from 'expo-haptics';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOutUp, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
 import type { Disponibilidad, Modalidad } from '@/domain/types';
-import { color, radius, space } from '@/theme';
+import { color } from '@/theme';
 import { Button, Segmented, Text } from '@/ui';
 
 import { BotonIcono } from './boton-icono';
@@ -66,6 +68,7 @@ export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
         id: franja?.id,
         datos: { diaSemana: dia, horaInicio: aHora(ini), horaFin: aHora(fin), modalidad },
       });
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onCerrar();
     } catch (e) {
       setError(e instanceof Error && e.name === 'ErrorFranja' ? e.message : 'No se pudo guardar la franja. Intenta de nuevo.');
@@ -90,9 +93,13 @@ export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
   };
 
   return (
-    <View style={styles.panel}>
-      <View style={styles.cabecera}>
-        <Text variant="bodyMedium" style={styles.flex}>
+    <Animated.View
+      entering={FadeInDown.springify().damping(18).reduceMotion(ReduceMotion.System)}
+      exiting={FadeOutUp.duration(160).reduceMotion(ReduceMotion.System)}
+      layout={LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System)}
+      className="gap-3 overflow-hidden rounded-tile border border-line bg-surface p-4">
+      <View className="min-h-[44px] flex-row items-center gap-2">
+        <Text variant="bodyMedium" className="flex-1">
           {franja ? `Editar franja del ${nombreDia.toLowerCase()}` : `Nueva franja del ${nombreDia.toLowerCase()}`}
         </Text>
         {franja ? (
@@ -100,7 +107,7 @@ export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
         ) : null}
       </View>
 
-      <View style={styles.bloque}>
+      <View className="gap-2">
         <Text variant="label">Desde las {aHora(ini)}</Text>
         <HoraTira
           etiqueta="Inicio"
@@ -115,7 +122,7 @@ export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
         />
       </View>
 
-      <View style={styles.bloque}>
+      <View className="gap-2">
         <Text variant="label">Hasta las {aHora(fin)}</Text>
         <HoraTira
           etiqueta="Fin"
@@ -131,31 +138,17 @@ export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
       <Segmented options={MODALIDADES} value={modalidad} onChange={setModalidad} accessibilityLabel="Modalidad de la franja" />
 
       {cruce || error ? (
-        <Text variant="caption" tone={color.danger} accessibilityRole="alert">
-          {cruce ? 'Se cruza con otra franja de este día. Ajusta las horas.' : error}
-        </Text>
+        <Animated.View entering={FadeIn.duration(160).reduceMotion(ReduceMotion.System)}>
+          <Text variant="caption" className="text-danger" accessibilityRole="alert">
+            {cruce ? 'Se cruza con otra franja de este día. Ajusta las horas.' : error}
+          </Text>
+        </Animated.View>
       ) : null}
 
-      <View style={styles.acciones}>
-        <Button label="Volver" variant="ghost" onPress={onCerrar} style={styles.flex} />
-        <Button label="Guardar" onPress={alGuardar} loading={guardar.isPending} disabled={cruce || borrar.isPending} style={styles.flex} />
+      <View className="flex-row gap-2">
+        <Button label="Volver" variant="ghost" onPress={onCerrar} className="flex-1" />
+        <Button label="Guardar" onPress={alGuardar} loading={guardar.isPending} disabled={cruce || borrar.isPending} className="flex-1" />
       </View>
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  panel: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radius.tile,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    overflow: 'hidden',
-  },
-  cabecera: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 40 },
-  bloque: { gap: space.sm },
-  acciones: { flexDirection: 'row', gap: space.sm },
-  flex: { flex: 1 },
-});

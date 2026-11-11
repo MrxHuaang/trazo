@@ -1,10 +1,12 @@
+import * as Haptics from 'expo-haptics';
 import { TrashIcon } from 'phosphor-react-native/src/icons/Trash';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
 import type { Bloqueo } from '@/domain/types';
 import { fechaClave, fechaCorta, horaTexto, isoDesde, minutosDelDia, sumarDias } from '@/lib/dates';
-import { color, radius, space } from '@/theme';
+import { color } from '@/theme';
 import { Button, Field, Text, ToggleRow } from '@/ui';
 
 import { BotonIcono } from './boton-icono';
@@ -79,6 +81,7 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
     setError(null);
     try {
       await guardar.mutateAsync({ id: bloqueo?.id, datos: { inicio: inicioIso, fin: finIso, motivo: motivo.trim() || null } });
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onCerrar();
     } catch (e) {
       setError(e instanceof Error && e.name === 'ErrorFranja' ? e.message : 'No se pudo guardar el bloqueo. Intenta de nuevo.');
@@ -103,9 +106,13 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
   };
 
   return (
-    <View style={styles.panel}>
-      <View style={styles.cabecera}>
-        <Text variant="bodyMedium" style={styles.flex}>
+    <Animated.View
+      entering={FadeInDown.springify().damping(18).reduceMotion(ReduceMotion.System)}
+      exiting={FadeOutUp.duration(160).reduceMotion(ReduceMotion.System)}
+      layout={LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System)}
+      className="gap-3 overflow-hidden rounded-tile border border-line bg-surface p-4">
+      <View className="min-h-[44px] flex-row items-center gap-2">
+        <Text variant="bodyMedium" className="flex-1">
           {bloqueo ? 'Editar bloqueo' : 'Nuevo bloqueo'}
         </Text>
         {bloqueo ? (
@@ -113,7 +120,7 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
         ) : null}
       </View>
 
-      <View style={styles.bloque}>
+      <View className="gap-2">
         <Text variant="label">Desde · {fechaTitulo(desde)}</Text>
         <FechaChips
           dias={diasInicio}
@@ -127,7 +134,7 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
         />
       </View>
 
-      <View style={styles.bloque}>
+      <View className="gap-2">
         <Text variant="label">Hasta · {fechaTitulo(hasta)}</Text>
         <FechaChips
           dias={diasFin}
@@ -148,8 +155,11 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
       />
 
       {todoElDia ? null : (
-        <>
-          <View style={styles.bloque}>
+        <Animated.View
+          entering={FadeIn.duration(200).reduceMotion(ReduceMotion.System)}
+          exiting={FadeOut.duration(140).reduceMotion(ReduceMotion.System)}
+          className="gap-3">
+          <View className="gap-2">
             <Text variant="label">Empieza a las {aHora(horaIni)}</Text>
             <HoraTira
               etiqueta="Empieza"
@@ -162,7 +172,7 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
               }}
             />
           </View>
-          <View style={styles.bloque}>
+          <View className="gap-2">
             <Text variant="label">Termina a las {aHora(horaFin)}</Text>
             <HoraTira
               etiqueta="Termina"
@@ -171,7 +181,7 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
               onChange={(h) => setHoraFin(aMinutos(h))}
             />
           </View>
-        </>
+        </Animated.View>
       )}
 
       <Field
@@ -184,31 +194,17 @@ export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
       />
 
       {invalido || error ? (
-        <Text variant="caption" tone={color.danger} accessibilityRole="alert">
-          {invalido ? 'El bloqueo debe terminar después de empezar.' : error}
-        </Text>
+        <Animated.View entering={FadeIn.duration(160).reduceMotion(ReduceMotion.System)}>
+          <Text variant="caption" className="text-danger" accessibilityRole="alert">
+            {invalido ? 'El bloqueo debe terminar después de empezar.' : error}
+          </Text>
+        </Animated.View>
       ) : null}
 
-      <View style={styles.acciones}>
-        <Button label="Volver" variant="ghost" onPress={onCerrar} style={styles.flex} />
-        <Button label="Guardar" onPress={alGuardar} loading={guardar.isPending} disabled={invalido || borrar.isPending} style={styles.flex} />
+      <View className="flex-row gap-2">
+        <Button label="Volver" variant="ghost" onPress={onCerrar} className="flex-1" />
+        <Button label="Guardar" onPress={alGuardar} loading={guardar.isPending} disabled={invalido || borrar.isPending} className="flex-1" />
       </View>
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  panel: {
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radius.tile,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    overflow: 'hidden',
-  },
-  cabecera: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 40 },
-  bloque: { gap: space.sm },
-  acciones: { flexDirection: 'row', gap: space.sm },
-  flex: { flex: 1 },
-});

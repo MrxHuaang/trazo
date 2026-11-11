@@ -1,30 +1,31 @@
 import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
-import { color, radius, space } from '@/theme';
-import { Text } from '@/ui';
+import { cn } from '@/lib/cn';
+import { Presionable, Text } from '@/ui';
 
 type BotonIconoProps = {
   icono: ReactNode;
   etiqueta: string;
   onPress: () => void;
+  /** Fondo cobalto suave para la acción destacada de la cabecera. */
+  destacado?: boolean;
+  className?: string;
 };
 
-/** Botón redondo solo con ícono: 40 de diámetro más margen táctil hasta 48. */
-export function BotonIcono({ icono, etiqueta, onPress }: BotonIconoProps) {
+/** Botón redondo solo con ícono, de 44 de diámetro. */
+export function BotonIcono({ icono, etiqueta, onPress, destacado, className }: BotonIconoProps) {
   return (
-    <Pressable
+    <Presionable
       accessibilityRole="button"
       accessibilityLabel={etiqueta}
-      hitSlop={4}
-      onPress={() => {
-        void Haptics.selectionAsync();
-        onPress();
-      }}
-      style={({ pressed }) => [styles.icono, pressed && styles.pressed]}>
+      onPress={onPress}
+      className={className}
+      hundir={0.92}
+      contentClassName={cn('h-11 w-11 items-center justify-center rounded-full', destacado ? 'bg-accent-soft' : 'bg-quiet')}>
       {icono}
-    </Pressable>
+    </Presionable>
   );
 }
 
@@ -33,40 +34,27 @@ type BotonTextoProps = {
   onPress: () => void;
   accessibilityLabel?: string;
   borde?: boolean;
+  className?: string;
 };
 
 /** Acción de texto en cobalto (o píldora con borde de tinta) con área táctil de 44. */
-export function BotonTexto({ etiqueta, onPress, accessibilityLabel, borde }: BotonTextoProps) {
+export function BotonTexto({ etiqueta, onPress, accessibilityLabel, borde, className }: BotonTextoProps) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? etiqueta}
-      hitSlop={borde ? 4 : undefined}
-      onPress={onPress}
-      style={({ pressed }) => [styles.texto, borde && styles.borde, pressed && styles.pressed]}>
-      <Text variant="label" tone={borde ? color.ink : color.accent}>
+      onPress={() => {
+        void Haptics.selectionAsync();
+        onPress();
+      }}
+      className={cn(
+        'min-h-[44px] justify-center active:opacity-60',
+        borde ? 'rounded-full border border-ink px-4' : 'px-0.5',
+        className,
+      )}>
+      <Text variant="label" className={borde ? 'text-ink' : 'text-accent'}>
         {etiqueta}
       </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  icono: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  texto: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 2 },
-  borde: {
-    minHeight: 40,
-    borderWidth: 1,
-    borderColor: color.ink,
-    borderRadius: radius.pill,
-    paddingHorizontal: space.lg,
-  },
-  pressed: { opacity: 0.6 },
-});
