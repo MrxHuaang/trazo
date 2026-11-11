@@ -1,16 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { CheckIcon } from 'phosphor-react-native/src/icons/Check';
 import { ShieldCheckIcon } from 'phosphor-react-native/src/icons/ShieldCheck';
 import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOut, ReduceMotion } from 'react-native-reanimated';
 
 import { useActualizarPaciente, useCrearPaciente, usePaciente } from '@/data/hooks';
 import { AFECTACIONES, type Afectacion, type Consentimiento, type Paciente } from '@/domain/types';
+import { cn } from '@/lib/cn';
 import { fechaCorta } from '@/lib/dates';
-import { color, radius, space, tile } from '@/theme';
-import { Button, EmptyState, Field, Segmented, Sheet, SheetHeader, Text, ToggleRow, TraceLine } from '@/ui';
+import { color, tile } from '@/theme';
+import { Aparecer, Button, EmptyState, Field, Presionable, Segmented, Sheet, SheetHeader, Text, ToggleRow, TraceLine } from '@/ui';
 
 import { useConsentimientos, useRegistrarConsentimiento } from './hooks';
 import {
@@ -87,9 +90,11 @@ function Formulario({
         if (paciente) {
           await actualizar.mutateAsync({ id: paciente.id, cambios: aPaciente(valores) });
           if (!autorizacion && valores.autoriza) await registrarConsentimiento.mutateAsync(paciente.id);
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           router.back();
         } else {
           const nuevo = await crear.mutateAsync({ ...aPaciente(valores), autorizaDatos: true });
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           router.replace({ pathname: '/paciente/[id]', params: { id: nuevo.id } });
         }
       } catch {
@@ -107,98 +112,106 @@ function Formulario({
       footer={
         <>
           {conErrores ? (
-            <Text variant="caption" tone={color.danger} accessibilityLiveRegion="polite">
+            <Text variant="caption" className="text-danger" accessibilityLiveRegion="polite">
               Revisa los campos marcados en rojo.
             </Text>
           ) : null}
           <Button label={esEdicion ? 'Guardar cambios' : 'Crear paciente'} loading={guardando} onPress={() => void guardar()} />
         </>
       }>
-      <Controller
-        control={control}
-        name="nombre"
-        render={({ field, fieldState }) => (
-          <Field
-            label="Nombre completo"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            autoCapitalize="words"
-            autoCorrect={false}
-            autoComplete="off"
-            returnKeyType="next"
-          />
-        )}
-      />
+      <Aparecer>
+        <Controller
+          control={control}
+          name="nombre"
+          render={({ field, fieldState }) => (
+            <Field
+              label="Nombre completo"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              autoCapitalize="words"
+              autoCorrect={false}
+              autoComplete="off"
+              returnKeyType="next"
+            />
+          )}
+        />
+      </Aparecer>
 
-      <Controller
-        control={control}
-        name="telefono"
-        render={({ field, fieldState }) => (
-          <Field
-            label="Celular (opcional)"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            helper="10 dígitos, empieza por 3. Sirve para WhatsApp y llamadas."
-            keyboardType="phone-pad"
-            autoComplete="off"
-            maxLength={16}
-          />
-        )}
-      />
+      <Aparecer orden={1}>
+        <Controller
+          control={control}
+          name="telefono"
+          render={({ field, fieldState }) => (
+            <Field
+              label="Celular (opcional)"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              helper="10 dígitos, empieza por 3. Sirve para WhatsApp y llamadas."
+              keyboardType="phone-pad"
+              autoComplete="off"
+              maxLength={16}
+            />
+          )}
+        />
+      </Aparecer>
 
-      <Controller
-        control={control}
-        name="correo"
-        render={({ field, fieldState }) => (
-          <Field
-            label="Correo (opcional)"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="off"
-          />
-        )}
-      />
+      <Aparecer orden={2}>
+        <Controller
+          control={control}
+          name="correo"
+          render={({ field, fieldState }) => (
+            <Field
+              label="Correo (opcional)"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="off"
+            />
+          )}
+        />
+      </Aparecer>
 
-      <Controller
-        control={control}
-        name="fechaNacimiento"
-        render={({ field, fieldState }) => (
-          <Field
-            label="Fecha de nacimiento (opcional)"
-            value={field.value}
-            onChangeText={(v) => field.onChange(formatearFechaEscrita(v))}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            helper="Año, mes y día: 1990-04-23. Los guiones se ponen solos."
-            placeholder="aaaa-mm-dd"
-            keyboardType="number-pad"
-            maxLength={10}
-          />
-        )}
-      />
+      <Aparecer orden={3}>
+        <Controller
+          control={control}
+          name="fechaNacimiento"
+          render={({ field, fieldState }) => (
+            <Field
+              label="Fecha de nacimiento (opcional)"
+              value={field.value}
+              onChangeText={(v) => field.onChange(formatearFechaEscrita(v))}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              helper="Año, mes y día: 1990-04-23. Los guiones se ponen solos."
+              placeholder="aaaa-mm-dd"
+              keyboardType="number-pad"
+              maxLength={10}
+            />
+          )}
+        />
+      </Aparecer>
 
-      <View style={styles.grupo}>
+      <Aparecer orden={4} className="gap-2">
         <Text variant="label">Tarifa</Text>
         <Controller
           control={control}
           name="tarifa"
           render={({ field }) => <Segmented options={TARIFAS} value={field.value} onChange={field.onChange} accessibilityLabel="Tarifa" />}
         />
-        <Text variant="caption" tone={color.inkSoft}>
+        <Text variant="caption" className="text-ink-soft">
           La gratuita se registra como sesión donada, no como deuda.
         </Text>
-      </View>
+      </Aparecer>
 
-      <View style={styles.grupo}>
+      <Aparecer orden={5} className="gap-2">
         <Controller
           control={control}
           name="afectadoSismo"
@@ -216,68 +229,77 @@ function Formulario({
             control={control}
             name="afectaciones"
             render={({ field, fieldState }) => (
-              <View style={styles.grupo}>
+              // Los tipos aparecen al activar el interruptor; lo que sigue en el formulario se reacomoda.
+              <Animated.View
+                entering={FadeInDown.duration(240).reduceMotion(ReduceMotion.System)}
+                exiting={FadeOut.duration(140).reduceMotion(ReduceMotion.System)}
+                className="gap-2">
                 <Text variant="label">Tipo de afectación</Text>
-                <View style={styles.chips} accessibilityLabel="Tipo de afectación">
-                  {AFECTACIONES.map((a) => (
-                    <ChipAfectacion
+                <View className="flex-row flex-wrap gap-2" accessibilityLabel="Tipo de afectación">
+                  {AFECTACIONES.map((a, i) => (
+                    <Animated.View
                       key={a.valor}
-                      etiqueta={a.etiqueta}
-                      activo={field.value.includes(a.valor)}
-                      onPress={() => field.onChange(alternar(field.value, a.valor))}
-                    />
+                      entering={FadeIn.delay(60 + i * 40)
+                        .duration(200)
+                        .reduceMotion(ReduceMotion.System)}>
+                      <ChipAfectacion
+                        etiqueta={a.etiqueta}
+                        activo={field.value.includes(a.valor)}
+                        onPress={() => field.onChange(alternar(field.value, a.valor))}
+                      />
+                    </Animated.View>
                   ))}
                 </View>
                 {fieldState.error ? (
-                  <Text variant="caption" tone={color.danger}>
+                  <Text variant="caption" className="text-danger">
                     {fieldState.error.message}
                   </Text>
                 ) : (
-                  <Text variant="caption" tone={color.inkSoft}>
+                  <Text variant="caption" className="text-ink-soft">
                     Puedes elegir varios.
                   </Text>
                 )}
-              </View>
+              </Animated.View>
             )}
           />
         ) : null}
-      </View>
+      </Aparecer>
 
-      <Controller
-        control={control}
-        name="notasGenerales"
-        render={({ field }) => (
-          <Field
-            label="Notas generales (opcional)"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            helper="Datos prácticos: horarios, quién lo remite. Lo clínico va en las notas de sesión, que quedan bajo llave."
-            multiline
-          />
-        )}
-      />
+      <Aparecer orden={6} reacomodar>
+        <Controller
+          control={control}
+          name="notasGenerales"
+          render={({ field }) => (
+            <Field
+              label="Notas generales (opcional)"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              helper="Datos prácticos: horarios, quién lo remite. Lo clínico va en las notas de sesión, que quedan bajo llave."
+              multiline
+            />
+          )}
+        />
+      </Aparecer>
 
-      <View style={styles.autorizacion}>
-        <View style={styles.autorizacionTitulo}>
+      <Aparecer orden={7} reacomodar className="gap-2 rounded-tile border border-line bg-surface p-4">
+        <View className="flex-row items-center gap-2">
           <ShieldCheckIcon size={20} color={color.ink} />
           <Text variant="heading">Autorización de datos</Text>
         </View>
         {autorizacion ? (
-          <Text variant="body" tone={color.inkSoft}>
+          <Text variant="body" className="text-ink-soft">
             Registrada el {fechaCorta(autorizacion.aceptadoEn)} (texto {autorizacion.versionTexto}). La persona puede revocarla o pedir sus
             datos cuando quiera.
           </Text>
         ) : (
           <>
-            <Text variant="body" tone={color.inkSoft}>
+            <Text variant="body" className="text-ink-soft">
               Los datos de salud son sensibles y entregarlos es voluntario. Se usan solo para agendar y recordar citas, llevar el
               proceso de atención y gestionar pagos. La persona puede conocer, actualizar, rectificar o pedir que se supriman sus
               datos, y revocar esta autorización.
             </Text>
-            {menor ? (
-              <Text variant="bodyMedium">Es menor de edad: la autorización la da su representante legal.</Text>
-            ) : null}
+            {menor ? <Text variant="bodyMedium">Es menor de edad: la autorización la da su representante legal.</Text> : null}
             <Controller
               control={control}
               name="autoriza"
@@ -290,7 +312,7 @@ function Formulario({
                     onChange={field.onChange}
                   />
                   {fieldState.error ? (
-                    <Text variant="caption" tone={color.danger}>
+                    <Text variant="caption" className="text-danger">
                       {fieldState.error.message}
                     </Text>
                   ) : null}
@@ -299,7 +321,7 @@ function Formulario({
             />
           </>
         )}
-      </View>
+      </Aparecer>
     </Sheet>
   );
 }
@@ -310,43 +332,19 @@ const alternar = (lista: Afectacion[], valor: Afectacion) =>
 /** Chip de selección múltiple: activo = durazno con marca de verificación (no depende solo del color). */
 function ChipAfectacion({ etiqueta, activo, onPress }: { etiqueta: string; activo: boolean; onPress: () => void }) {
   return (
-    <Pressable
+    <Presionable
       accessibilityRole="checkbox"
       accessibilityLabel={etiqueta}
       accessibilityState={{ checked: activo }}
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, activo && styles.chipActivo, pressed && styles.pressed]}>
+      contentClassName={cn(
+        'min-h-[44px] flex-row items-center gap-1 rounded-full border px-4',
+        activo ? 'border-durazno-ink bg-durazno' : 'border-line bg-surface',
+      )}>
       {activo ? <CheckIcon size={14} color={tile.solidario.fg} weight="bold" /> : null}
-      <Text variant="label" tone={activo ? tile.solidario.fg : color.ink}>
+      <Text variant="label" className={activo ? 'text-durazno-ink' : 'text-ink'}>
         {etiqueta}
       </Text>
-    </Pressable>
+    </Presionable>
   );
 }
-
-const styles = StyleSheet.create({
-  grupo: { gap: space.sm },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.xs,
-    minHeight: 44,
-    paddingHorizontal: space.lg,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-  },
-  chipActivo: { backgroundColor: tile.solidario.bg, borderColor: tile.solidario.fg },
-  pressed: { opacity: 0.6 },
-  autorizacion: {
-    gap: space.sm,
-    padding: space.lg,
-    borderRadius: radius.tile,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-  },
-  autorizacionTitulo: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-});

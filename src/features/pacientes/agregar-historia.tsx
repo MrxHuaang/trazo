@@ -1,8 +1,10 @@
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import Animated, { FadeInDown, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
+import { color } from '@/theme';
 import { Button, Text } from '@/ui';
 
 type AgregarHistoriaProps = {
@@ -20,53 +22,31 @@ export function AgregarHistoria({ onAgendar, onNota, onSeguimiento }: AgregarHis
   };
 
   return (
-    <View style={[styles.wrap, abierta && styles.abierta]}>
+    <Animated.View
+      layout={LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System)}
+      className={cn('mt-2 rounded-tile border', abierta ? 'border-line bg-surface' : 'border-dashed border-ink-soft')}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Agregar a la historia"
         accessibilityState={{ expanded: abierta }}
         onPress={() => setAbierta((v) => !v)}
-        style={({ pressed }) => [styles.cabeza, pressed && styles.pressed]}>
-        <PlusIcon size={16} color={color.inkSoft} style={abierta ? styles.girado : undefined} />
-        <Text variant="bodyMedium" tone={color.inkSoft}>
+        className="min-h-[52px] flex-row items-center justify-center gap-2 active:opacity-60">
+        <View className={cn(abierta && 'rotate-45')}>
+          <PlusIcon size={16} color={color.inkSoft} />
+        </View>
+        <Text variant="bodyMedium" className="text-ink-soft">
           {abierta ? 'Cerrar' : 'Agregar a la historia'}
         </Text>
       </Pressable>
       {abierta ? (
-        <View style={styles.opciones}>
+        <Animated.View
+          entering={FadeInDown.duration(220).reduceMotion(ReduceMotion.System)}
+          className="flex-row flex-wrap justify-center gap-2 px-4 pb-4">
           <Button label="Agendar cita" size="sm" variant="secondary" onPress={elegir(onAgendar)} />
           <Button label="Nota de sesión" size="sm" variant="secondary" onPress={elegir(onNota)} />
           <Button label="Seguimiento en 7 días" size="sm" variant="secondary" onPress={elegir(onSeguimiento)} />
-        </View>
+        </Animated.View>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: color.inkSoft,
-    borderRadius: radius.tile,
-    marginTop: space.sm,
-  },
-  abierta: { borderStyle: 'solid', borderColor: color.line, backgroundColor: color.surface },
-  cabeza: {
-    minHeight: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space.sm,
-  },
-  girado: { transform: [{ rotate: '45deg' }] },
-  pressed: { opacity: 0.6 },
-  opciones: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: space.sm,
-    paddingHorizontal: space.lg,
-    paddingBottom: space.lg,
-  },
-});

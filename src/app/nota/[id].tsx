@@ -7,7 +7,7 @@ export default function NotaRoute() {
   const { id, pacienteId } = useLocalSearchParams<{ id: string; pacienteId?: string }>();
   return (
     <>
-      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.9, 1], sheetGrabberVisible: false }} />
+      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
       <NotaScreen key={`${id}-${pacienteId ?? ''}`} id={id} pacienteId={pacienteId} />
     </>
   );

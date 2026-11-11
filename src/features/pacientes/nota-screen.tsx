@@ -1,11 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
+import * as Haptics from 'expo-haptics';
 import { router, usePreventRemove } from 'expo-router';
 import { LockSimpleIcon } from 'phosphor-react-native/src/icons/LockSimple';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
+import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 
-import { color, radius, space, tile } from '@/theme';
-import { Button, EmptyState, Field, Sheet, SheetHeader, Text, TraceLine } from '@/ui';
+import { color, tile } from '@/theme';
+import { Aparecer, Button, EmptyState, Field, Sheet, SheetHeader, Text, TraceLine } from '@/ui';
 
 import { fechaHistoria } from './historia';
 import { llaveContenidoNota, useContenidoNota, useContextoNota, useGuardarNota } from './hooks';
@@ -72,6 +74,7 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
   const guardarYSalir = async () => {
     try {
       await persistir(valor.trim());
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setSalir(true);
       permitirSalida();
       router.back();
@@ -91,9 +94,9 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Bloquear nota"
-            hitSlop={10}
+            hitSlop={8}
             onPress={candado.bloquear}
-            style={styles.botonCandado}>
+            className="h-11 w-11 items-center justify-center rounded-full bg-quiet active:opacity-60">
             <LockSimpleIcon size={18} color={color.ink} />
           </Pressable>
         ) : undefined
@@ -121,29 +124,29 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
     const sinSeguridad = candado.estado === 'sin-seguridad';
     return (
       <Sheet header={encabezado}>
-        <View style={styles.cerrada}>
-          <View style={styles.circulo}>
+        <Aparecer className="items-center gap-3 px-2 pt-8">
+          <View className="h-[72px] w-[72px] items-center justify-center rounded-full bg-lavanda">
             <LockSimpleIcon size={28} color={tile.consulta.fg} />
           </View>
-          <Text variant="title" style={styles.centrado}>
+          <Text variant="title" className="text-center">
             {sinSeguridad ? 'Este teléfono no tiene bloqueo' : 'Nota bajo llave'}
           </Text>
-          <Text variant="body" tone={color.inkSoft} style={styles.centrado}>
+          <Text variant="body" className="text-center text-ink-soft">
             {sinSeguridad
               ? 'Sin huella, rostro ni código, cualquiera que tenga el teléfono puede leer las notas. Activa un bloqueo de pantalla en los ajustes del teléfono.'
               : 'Usa tu huella, tu rostro o el código del teléfono para leerla o escribir.'}
           </Text>
           {candado.mensaje ? (
-            <Text variant="label" tone={color.inkSoft} style={styles.centrado} accessibilityLiveRegion="polite">
+            <Text variant="label" className="text-center text-ink-soft" accessibilityLiveRegion="polite">
               {candado.mensaje}
             </Text>
           ) : null}
           {sinSeguridad ? (
-            <Button label="Abrir sin bloqueo" variant="secondary" onPress={candado.continuarSinSeguridad} style={styles.boton} />
+            <Button label="Abrir sin bloqueo" variant="secondary" onPress={candado.continuarSinSeguridad} className="mt-2 self-stretch" />
           ) : (
-            <Button label="Desbloquear" loading={candado.verificando} onPress={candado.desbloquear} style={styles.boton} />
+            <Button label="Desbloquear" loading={candado.verificando} onPress={candado.desbloquear} className="mt-2 self-stretch" />
           )}
-        </View>
+        </Aparecer>
       </Sheet>
     );
   }
@@ -159,7 +162,11 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
           onPress={() => void guardarYSalir()}
         />
       }>
-      <View onTouchStart={candado.registrarActividad} style={styles.editor}>
+      {/* Al desbloquear, el contenido aparece con un fundido corto. */}
+      <Animated.View
+        entering={FadeIn.duration(260).reduceMotion(ReduceMotion.System)}
+        onTouchStart={candado.registrarActividad}
+        className="gap-3">
         {editorListo ? (
           <Field
             label="Nota de la sesión"
@@ -173,38 +180,14 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
             autoCapitalize="sentences"
             placeholder="Lo trabajado, acuerdos y tareas."
             helper="Solo tú la ves. Se bloquea al salir de la app o tras 2 minutos sin actividad; lo escrito se guarda antes."
-            style={styles.entrada}
+            className="min-h-[260px]"
           />
         ) : contenido.isError ? (
           <EmptyState title="No se pudo abrir la nota" body="Cierra esta hoja y vuelve a intentarlo." />
         ) : (
           <TraceLine height={40} />
         )}
-      </View>
+      </Animated.View>
     </Sheet>
   );
 }
-
-const styles = StyleSheet.create({
-  cerrada: { alignItems: 'center', gap: space.md, paddingTop: space.xxxl, paddingHorizontal: space.sm },
-  circulo: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.pill,
-    backgroundColor: tile.consulta.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centrado: { textAlign: 'center' },
-  boton: { alignSelf: 'stretch', marginTop: space.sm },
-  botonCandado: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.pill,
-    backgroundColor: color.quiet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  editor: { gap: space.md },
-  entrada: { minHeight: 260 },
-});

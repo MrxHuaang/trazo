@@ -1,8 +1,8 @@
 import { useRef, type ReactNode } from 'react';
-import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
 import { Text } from '@/ui';
 
 export type AccionMenu = {
@@ -16,6 +16,9 @@ type MenuAccionesProps = {
   onCerrar: () => void;
   acciones: AccionMenu[];
 };
+
+/** Alto de la barra superior de la ficha: el menú cuelga justo debajo. */
+const ALTO_BARRA = 52;
 
 /** Menú corto anclado arriba a la derecha (acciones de la ficha). Se cierra tocando fuera o con atrás. */
 export function MenuAcciones({ visible, onCerrar, acciones }: MenuAccionesProps) {
@@ -46,15 +49,18 @@ export function MenuAcciones({ visible, onCerrar, acciones }: MenuAccionesProps)
         pendiente.current = null;
         accion?.();
       }}>
-      <Pressable style={StyleSheet.absoluteFill} onPress={onCerrar} accessibilityRole="button" accessibilityLabel="Cerrar menú" />
-      <View style={[styles.menu, { top: insets.top + 52 }]} accessibilityRole="menu">
+      <Pressable className="absolute inset-0" onPress={onCerrar} accessibilityRole="button" accessibilityLabel="Cerrar menú" />
+      <View
+        className="absolute right-5 min-w-[240px] overflow-hidden rounded-field border border-line bg-surface"
+        style={{ top: insets.top + ALTO_BARRA }}
+        accessibilityRole="menu">
         {acciones.map((a, i) => (
           <Pressable
             key={a.etiqueta}
             accessibilityRole="menuitem"
             accessibilityLabel={a.etiqueta}
             onPress={() => elegir(a.onPress)}
-            style={({ pressed }) => [styles.item, i > 0 && styles.divisor, pressed && styles.pressed]}>
+            className={cn('min-h-[48px] flex-row items-center gap-3 px-4 active:bg-quiet', i > 0 && 'border-t border-line')}>
             {a.icono}
             <Text variant="bodyMedium">{a.etiqueta}</Text>
           </Pressable>
@@ -63,25 +69,3 @@ export function MenuAcciones({ visible, onCerrar, acciones }: MenuAccionesProps)
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  menu: {
-    position: 'absolute',
-    right: space.xl,
-    minWidth: 240,
-    backgroundColor: color.surface,
-    borderRadius: radius.field,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.line,
-    overflow: 'hidden',
-  },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    minHeight: 48,
-    paddingHorizontal: space.lg,
-  },
-  divisor: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.line },
-  pressed: { backgroundColor: color.quiet },
-});
