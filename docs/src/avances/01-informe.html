@@ -6,26 +6,26 @@
   </div>
   {{WAVE}}
   <div class="titles">
-    <div class="kicker">Informe de avances · corte 10 de noviembre de 2026</div>
+    <div class="kicker">Informe de avances · corte 10 de noviembre de 2026, 9:00 p. m.</div>
     <h1>Trazo: avances del proyecto final</h1>
     <div class="subtitle">Bitácora día a día, estado frente al plan, repositorio, código por fecha y capturas de la aplicación móvil de consulta psicológica con programa solidario post-sismo.</div>
   </div>
   <div class="meta">
     <div><b>Estudiante</b>Juan José Pantoja Ordoñez<br>Ingeniería de Software, 8.º semestre<br>Universidad Visión de las Américas</div>
     <div><b>Asignatura</b>Desarrollo Móvil 2<br>Avances del proyecto final<br>Aliada: Angela Sophia Córdoba, psicóloga</div>
-    <div><b>Repositorio</b>github.com/MrxHuaang/trazo<br>Rama activa: feat/mvp-sprints<br>Pull request n.º 1 abierto</div>
+    <div><b>Repositorio</b>github.com/MrxHuaang/trazo<br>Rama activa: feat/mvp-sprints<br>Pull request n.º 2 abierto</div>
   </div>
 </section>
 
 <!-- ===================== 1. RESUMEN ===================== -->
 <section>
   <h2 class="chapter">Resumen del avance</h2>
-  <p class="lead">Trazo es una app móvil en React Native + Expo para organizar la consulta de una psicóloga independiente (agenda, pacientes, recordatorios, pagos, notas) con un módulo solidario para atender a personas afectadas por el sismo del 10 de agosto de 2026 en Pereira. A la fecha están listos el documento maestro, el sistema visual, la capa de datos y la pantalla principal funcionando en el emulador; los módulos restantes están en desarrollo en ramas separadas.</p>
+  <p class="lead">Trazo es una app móvil en React Native + Expo para organizar la consulta de una psicóloga independiente (agenda, pacientes, recordatorios, pagos, notas) con un módulo solidario para atender a personas afectadas por el sismo del 10 de agosto de 2026 en Pereira. A la fecha están listos el documento maestro, la capa de datos y los cinco módulos (Hoy y pagos, agenda, pacientes, solidario y acceso), integrados en una sola rama y probados en el emulador Pixel 8. La interfaz se rehízo con NativeWind y Tailwind, como se vio en el curso, con un diseño con movimiento, textos cortos y botones cómodos.</p>
 
   <div class="kpis">
     <div class="kpi"><div class="n">3 días</div><div class="l">de trabajo registrados (8, 9 y 10 de noviembre)</div></div>
-    <div class="kpi"><div class="n">9</div><div class="l">commits en el repositorio público, más 3 en rama de módulo</div></div>
-    <div class="kpi"><div class="n">126</div><div class="l">archivos cambiados frente a la plantilla inicial (+10.796 líneas)</div></div>
+    <div class="kpi"><div class="n">57</div><div class="l">commits en la rama <code>feat/mvp-sprints</code> (sin contar fusiones)</div></div>
+    <div class="kpi"><div class="n">5 de 5</div><div class="l">módulos integrados y probados en el emulador Pixel 8</div></div>
     <div class="kpi"><div class="n">46 págs.</div><div class="l">documento maestro v0.2 con requerimientos, diseño y arquitectura</div></div>
   </div>
 
@@ -33,6 +33,7 @@
   <table class="compact">
     <tbody>
       <tr><td class="k">Repositorio (público)</td><td>https://github.com/MrxHuaang/trazo</td></tr>
+      <tr><td class="k">Pull request del MVP</td><td>https://github.com/MrxHuaang/trazo/pull/2</td></tr>
       <tr><td class="k">Pull request de la base</td><td>https://github.com/MrxHuaang/trazo/pull/1</td></tr>
       <tr><td class="k">Rama con el trabajo más reciente</td><td><code>feat/mvp-sprints</code></td></tr>
       <tr><td class="k">Documento maestro</td><td><code>01_Documentacion_y_repositorio/Trazo_Documento_Maestro_v0.2.pdf</code> (en esta carpeta)</td></tr>
@@ -48,9 +49,11 @@
       <tr><td><strong>02_Dia1_2026-11-08_Planeacion_y_diseno</strong></td><td>Fuentes del documento maestro y del sistema de generación de PDF.</td></tr>
       <tr><td><strong>03_Dia2_2026-11-09_Base_y_sistema_visual</strong></td><td>Código del sistema visual Trazo suave, componentes, navegación y primera pantalla.</td></tr>
       <tr><td><strong>04_Dia2_2026-11-09_Capa_de_datos</strong></td><td>Base de datos local, dominio, repositorios, hooks y datos de demostración.</td></tr>
-      <tr><td><strong>05_Dia2_2026-11-09_Modulo_Hoy_y_pagos</strong></td><td>Pantalla Hoy con datos reales, recordatorios por WhatsApp y pagos (rama de módulo).</td></tr>
-      <tr><td><strong>06_Dia3_2026-11-10_Modulos_en_desarrollo</strong></td><td>Corte del código en curso de agenda, pacientes, solidario y acceso.</td></tr>
-      <tr><td><strong>07_Capturas</strong></td><td>Capturas de la app corriendo en el emulador Pixel 8.</td></tr>
+      <tr><td><strong>05_Dia2-3_2026-11-09_Modulo_Hoy_y_pagos</strong></td><td>Primera versión de Hoy con datos reales, recordatorios por WhatsApp, pagos y plantillas.</td></tr>
+      <tr><td><strong>06_Dia3_2026-11-10_Modulos_primera_version</strong></td><td>Primera versión de agenda, pacientes, solidario y acceso, ya integrada.</td></tr>
+      <tr><td><strong>07_Dia3_2026-11-10_NativeWind_y_diseno_v2</strong></td><td>Configuración de NativeWind y Tailwind, paleta y componentes base con movimiento.</td></tr>
+      <tr><td><strong>08_Dia3_2026-11-10_Funciones_v2</strong></td><td>Funciones nuevas de cada módulo: arrastrar citas, mapa, sismos, resumen semanal, estado con Zustand.</td></tr>
+      <tr><td><strong>09_Capturas</strong></td><td>Capturas de la app corriendo en el emulador Pixel 8.</td></tr>
     </tbody>
   </table>
   <p class="small">Cada carpeta de código trae un archivo <code>LEEME.md</code> con la ruta original de cada archivo en el repositorio, el commit del que se tomó y qué hace. Los nombres usan <code>__</code> en lugar de <code>/</code> (por ejemplo, <code>theme__tokens.ts</code> es <code>src/theme/tokens.ts</code>).</p>
@@ -92,19 +95,36 @@
     </tbody>
   </table>
 
-  <h3>Día 3 · martes 10 de noviembre · Módulos en desarrollo</h3>
+  <h3>Día 3 · martes 10 de noviembre (mañana) · Primera versión de los módulos</h3>
   <table class="tight">
-    <thead><tr><th style="width:24%">Módulo</th><th>Alcance</th><th style="width:24%">Estado al corte</th></tr></thead>
+    <thead><tr><th style="width:22%">Módulo</th><th>Qué se hizo</th><th style="width:18%">Commits</th></tr></thead>
     <tbody>
-      <tr><td><strong>Agenda</strong></td><td>Línea de tiempo del día, crear cita tocando un hueco, detalle con cambio de estado, avisos locales, disponibilidad y bloqueos.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>Pacientes</strong></td><td>Buscador con creación en contexto, ficha con historia, autorización de datos, notas privadas bajo bloqueo, exportar a PDF.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>Solidario</strong></td><td>Cupos solidarios, jornadas con asistentes, seguimientos, líneas de ayuda, informe de impacto.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>Acceso y ajustes</strong></td><td>Bienvenida (crear consultorio o cargar demostración), bloqueo al abrir, ajustes.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>Hoy y pagos</strong></td><td>Plantillas de mensajes de WhatsApp editables, con variables y vista previa (commit <code>1ec6bb3</code>). Módulo completo en su rama; tipos y lint en verde.</td><td><span class="tag low">Listo para integrar</span></td></tr>
-      <tr><td><strong>Informe de avances</strong></td><td>Este informe y el paquete de código por día.</td><td><span class="tag low">Hecho</span></td></tr>
+      <tr><td><strong>Hoy y pagos</strong></td><td>Plantillas de mensajes de WhatsApp editables, con variables y vista previa.</td><td><code>1ec6bb3</code></td></tr>
+      <tr><td><strong>Agenda</strong></td><td>Línea de tiempo del día, crear cita tocando un hueco, detalle con cambio de estado, avisos locales, disponibilidad y bloqueos.</td><td><code>62bf34c</code> a <code>c40f3a8</code></td></tr>
+      <tr><td><strong>Pacientes</strong></td><td>Buscador con creación en contexto, ficha con historia, autorización de datos, notas privadas bajo bloqueo, exportar a PDF.</td><td>Rama de módulo</td></tr>
+      <tr><td><strong>Solidario</strong></td><td>Cupos solidarios, jornadas con asistentes, seguimientos, líneas de ayuda e informe de impacto en PDF.</td><td>Rama de módulo</td></tr>
+      <tr><td><strong>Acceso y ajustes</strong></td><td>Bienvenida (crear consultorio o cargar demostración), bloqueo al abrir con biometría o código, ajustes.</td><td>Rama de módulo</td></tr>
+      <tr><td><strong>Integración</strong></td><td>Fusión de los cinco módulos en <code>feat/mvp-sprints</code> y primera prueba conjunta en el emulador.</td><td><code>09dd598</code> a <code>5a9d169</code></td></tr>
     </tbody>
   </table>
-  <p class="small">Cada módulo se trabaja en su propia rama a partir de <code>feat/mvp-sprints</code> y solo toca sus archivos (tabla de propiedad en <code>AGENTS.md</code>), para integrarlos sin conflictos. La carpeta 06 contiene el corte del código en curso; todavía no está integrado ni probado en el emulador.</p>
+
+  <h3>Día 3 · martes 10 de noviembre (tarde y noche) · Stack del curso y diseño v2</h3>
+  <table class="tight">
+    <thead><tr><th style="width:22%">Actividad</th><th>Qué se hizo</th><th style="width:18%">Commits</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Revisión del curso</strong></td><td>Se revisaron los proyectos del semestre para alinear el stack: NativeWind y Tailwind, Zustand, TanStack Query con axios, mapas con Leaflet y expo-location, carrusel de Reanimated.</td><td>Tabla de stack más abajo</td></tr>
+      <tr><td><strong>NativeWind</strong></td><td>Configuración igual a la de clase (Babel, Metro, <code>tailwind.config.js</code>) con la paleta de Trazo como única fuente de color. Componentes base pasados a clases y piezas de movimiento nuevas: <code>Presionable</code>, <code>Aparecer</code> y <code>NumeroAnimado</code>.</td><td><code>5ed4ca9</code>, <code>4d27832</code></td></tr>
+      <tr><td><strong>Agenda v2</strong></td><td>Arrastrar una cita para reprogramarla en pasos de 15 minutos, con deshacer; botón “Próximo hueco libre”; día seleccionado en un estado de Zustand.</td><td><code>fec2703</code>, <code>db8a6aa</code>, <code>e3db291</code></td></tr>
+      <tr><td><strong>Pacientes v2</strong></td><td>Filas deslizables para WhatsApp o agendar, ficha con encabezado que se encoge, asistencia de un vistazo y jornadas en la historia.</td><td><code>6a1108b</code> a <code>61d384d</code></td></tr>
+      <tr><td><strong>Hoy y pagos v2</strong></td><td>Encabezado colapsable, línea del día interactiva, cuenta regresiva a la próxima cita y resumen de la semana en formato de historias con carrusel.</td><td><code>e2e820d</code> a <code>e080788</code></td></tr>
+      <tr><td><strong>Solidario v2</strong></td><td>Mapa de jornadas con Leaflet y ubicación, sismos recientes cerca de Pereira con datos públicos del USGS (axios y TanStack Query), seguimientos deslizables.</td><td><code>e278503</code> a <code>09cf0f8</code></td></tr>
+      <tr><td><strong>Acceso v2</strong></td><td>Bienvenida con carrusel y sismógrafo que reacciona al movimiento real del teléfono (acelerómetro), sesión en Zustand.</td><td><code>d5e97c0</code> a <code>2466663</code></td></tr>
+      <tr><td><strong>Claridad y accesibilidad</strong></td><td>Reglas nuevas: textos cortos, una acción principal por pantalla, botones de al menos 44 pt, el color nunca como única señal y etiquetas para lector de pantalla. Revisión pantalla por pantalla en el emulador.</td><td><code>4061c11</code>, <code>d035c5d</code></td></tr>
+      <tr><td><strong>Ajuste de alcance</strong></td><td>Se retiró el ejercicio de calma para pacientes: quien usa Trazo es la psicóloga. El sismógrafo vivo queda como firma visual.</td><td><code>a3f1f85</code></td></tr>
+      <tr><td><strong>Pull request</strong></td><td>Pull request n.º 2 con el MVP completo hacia la rama principal.</td><td>github.com/MrxHuaang/trazo/pull/2</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Cada módulo se trabajó en su propia rama y solo tocó sus archivos (tabla de propiedad en <code>AGENTS.md</code>), por eso se integraron sin conflictos.</p>
 </section>
 
 <!-- ===================== 3. ESTADO ===================== -->
@@ -114,11 +134,11 @@
     <thead><tr><th style="width:9%">Sprint</th><th style="width:24%">Objetivo</th><th>Entregables</th><th style="width:19%">Estado</th></tr></thead>
     <tbody>
       <tr><td><strong>S0</strong></td><td>Diseño y preparación</td><td>Documento maestro, sistema visual, repositorio, emulador configurado.</td><td><span class="tag low">Completo</span></td></tr>
-      <tr><td><strong>S1</strong></td><td>Fundaciones</td><td>Tokens y componentes, navegación, capa de datos, datos de demostración. Bienvenida, bloqueo y pacientes en curso.</td><td><span class="tag mid">Parcial</span></td></tr>
-      <tr><td><strong>S2</strong></td><td>Agenda</td><td>Línea de tiempo, citas, disponibilidad, avisos. Regla anti-solapes ya implementada en la capa de datos.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>S3</strong></td><td>Consultorio completo</td><td>Hoy, recordatorios y pagos listos en rama de módulo. Ficha y notas en curso.</td><td><span class="tag mid">Parcial</span></td></tr>
-      <tr><td><strong>S4</strong></td><td>Programa solidario</td><td>Cupos, jornadas, seguimientos, líneas de ayuda.</td><td><span class="tag mid">En desarrollo</span></td></tr>
-      <tr><td><strong>S5</strong></td><td>Cierre</td><td>Integración, pruebas de usabilidad, prueba en iPhone real, video.</td><td><span class="tag">Pendiente</span></td></tr>
+      <tr><td><strong>S1</strong></td><td>Fundaciones</td><td>Componentes, navegación, capa de datos, demostración, bienvenida, bloqueo y pacientes.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S2</strong></td><td>Agenda</td><td>Línea de tiempo, citas, arrastrar para reprogramar, disponibilidad, bloqueos y avisos.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S3</strong></td><td>Consultorio completo</td><td>Hoy, recordatorios, pagos, ficha, notas privadas y resumen semanal.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S4</strong></td><td>Programa solidario</td><td>Cupos, jornadas, seguimientos, líneas de ayuda, informe, mapa y sismos recientes.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S5</strong></td><td>Cierre</td><td>Integración y prueba en emulador hechas. Faltan prueba en iPhone real, prueba de usabilidad y video.</td><td><span class="tag mid">En curso</span></td></tr>
     </tbody>
   </table>
 
@@ -129,6 +149,24 @@
       <tr><td><strong>Nombre</strong></td><td>De Sostén a Trazo.</td><td>Trazo ya era la firma visual de la app (la línea de sismógrafo).</td></tr>
       <tr><td><strong>Persistencia</strong></td><td>Base de datos local SQLite en el teléfono en lugar de Supabase en la nube. Supabase queda como adaptador futuro.</td><td>Funciona en Expo Go sin cuentas ni costo, y los datos de salud no salen del dispositivo.</td></tr>
       <tr><td><strong>Página web de reservas</strong></td><td>Se aplaza.</td><td>Necesita un servidor; depende de conectar Supabase.</td></tr>
+      <tr><td><strong>Estilos</strong></td><td>De estilos en línea a NativeWind y Tailwind.</td><td>Es lo que se enseñó en el curso.</td></tr>
+      <tr><td><strong>Funciones nuevas</strong></td><td>Mapa de jornadas, sismos recientes, resumen semanal, arrastrar citas.</td><td>Usan lo visto en clase (mapas, axios, carrusel, gestos).</td></tr>
+      <tr><td><strong>Ejercicio de calma</strong></td><td>Se construyó y luego se retiró.</td><td>La usuaria es la psicóloga, no el paciente.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Stack frente a lo visto en el curso</h3>
+  <table class="tight">
+    <thead><tr><th style="width:30%">Visto en clase</th><th>Dónde se usa en Trazo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Expo Router</strong></td><td>Pestañas, pilas, rutas dinámicas (<code>paciente/[id]</code>, <code>cita/[id]</code>) y hojas inferiores.</td></tr>
+      <tr><td><strong>NativeWind + Tailwind</strong></td><td>Toda la interfaz; la paleta vive en <code>tailwind.config.js</code>.</td></tr>
+      <tr><td><strong>TanStack Query + axios</strong></td><td>Toda la lectura de datos; axios para los sismos del USGS.</td></tr>
+      <tr><td><strong>Zustand</strong></td><td>Sesión, día de la agenda, búsqueda de pacientes, permisos y ubicación del mapa.</td></tr>
+      <tr><td><strong>expo-location + Leaflet en WebView</strong></td><td>Mapa de jornadas y selección de punto al crear una jornada.</td></tr>
+      <tr><td><strong>Reanimated + Gesture Handler</strong></td><td>Arrastrar citas, filas deslizables, encabezados que se encogen, Trazo interactivo.</td></tr>
+      <tr><td><strong>react-native-reanimated-carousel</strong></td><td>Bienvenida y resumen de la semana.</td></tr>
+      <tr><td><em>Extras (10 %)</em></td><td>SQLite local, acelerómetro, biometría, avisos locales y PDF.</td></tr>
     </tbody>
   </table>
 
@@ -148,8 +186,8 @@ npx expo lint             <span class="c"># estilo</span></code></pre>
 
   <h3>Próximos pasos</h3>
   <ol>
-    <li>Terminar e integrar los módulos de agenda, pacientes, solidario y acceso en <code>feat/mvp-sprints</code>.</li>
-    <li>Probar todos los flujos en el emulador Pixel 8 y revisar la lista de diferencias con iPhone.</li>
+    <li>Probar en el dispositivo el arrastre de citas, el resumen semanal y el modo de selección del mapa.</li>
+    <li>Revisar la lista de diferencias entre Pixel 8 e iPhone.</li>
     <li>Prueba en un iPhone real con Expo Go y prueba de usabilidad (SUS) con 3 a 5 personas.</li>
     <li>Actualizar el documento maestro a la versión 1.0 y grabar el video de demostración.</li>
   </ol>
@@ -158,9 +196,20 @@ npx expo lint             <span class="c"># estilo</span></code></pre>
 <!-- ===================== 4. CAPTURAS ===================== -->
 <section>
   <h2 class="chapter">Capturas</h2>
-  <p class="lead">La app corriendo en el emulador Pixel 8 (Android) con Expo Go 58, el 9 de noviembre de 2026.</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10mm;padding:0 12mm">
-    <figure style="margin:0"><img src="../img/hoy.png" style="width:100%;border:1.2px solid #17171C;border-radius:5mm"><figcaption><b>Hoy.</b> Línea del día con las citas como puntos, próxima cita, pendientes por confirmar, cupos solidarios (con textura) y valor por cobrar.</figcaption></figure>
-    <figure style="margin:0"><img src="../img/solidario.png" style="width:100%;border:1.2px solid #17171C;border-radius:5mm"><figcaption><b>Solidario.</b> Estado vacío provisional con el Trazo en calma; el módulo completo está en desarrollo.</figcaption></figure>
+  <p class="lead">La app corriendo en el emulador Pixel 8 (Android) con Expo Go 58 y datos de demostración, la noche del 10 de noviembre de 2026.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6mm;padding:0 8mm">
+    <figure style="margin:0"><img src="../img/v2-hoy.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Hoy.</b> Línea del día, pendientes, cupos solidarios y por cobrar.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-agenda.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Agenda.</b> Semana, cupos y línea de tiempo con la hora actual.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-pacientes.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Pacientes.</b> Búsqueda, filtros y filas deslizables.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-ficha.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Ficha.</b> Acciones, asistencia de un vistazo e historia.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-solidario.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Solidario.</b> Cupos de la semana, jornadas y mapa.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-mapa.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Mapa.</b> Jornadas en Pereira con Leaflet y controles propios.</figcaption></figure>
+  </div>
+</section>
+<section>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6mm;padding:0 8mm">
+    <figure style="margin:0"><img src="../img/v2-resumen.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Tu semana.</b> Resumen semanal en historias con carrusel.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-lineas.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Líneas de ayuda.</b> Llamar con un toque o compartir.</figcaption></figure>
+    <figure style="margin:0"><img src="../img/v2-ajustes.png" style="width:100%;border:1.2px solid #17171C;border-radius:4mm"><figcaption><b>Ajustes.</b> Datos del consultorio, duración de cita y seguridad.</figcaption></figure>
   </div>
 </section>

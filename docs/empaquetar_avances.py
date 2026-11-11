@@ -65,7 +65,7 @@ def main() -> None:
     (doc / "Repositorio_GitHub.url").write_text(f"[InternetShortcut]\nURL={REPO}\n", encoding="utf-8")
     ramas = git("log", "--format=%h  %ad  %s", "--date=format:%Y-%m-%d %H:%M", "feat/mvp-sprints").decode("utf-8")
     (doc / "LEEME_Repositorio.md").write_text(
-        f"# Repositorio de Trazo\n\n- **URL (público):** {REPO}\n- **Pull request de la base:** {REPO}/pull/1\n"
+        f"# Repositorio de Trazo\n\n- **URL (público):** {REPO}\n- **Pull request del MVP:** {REPO}/pull/2\n- **Pull request de la base:** {REPO}/pull/1\n"
         "- **Rama con el trabajo más reciente:** `feat/mvp-sprints`\n"
         "- **Copia del código:** `trazo_codigo_fuente.zip` (rama `feat/mvp-sprints`, sin `node_modules`)\n\n"
         "## Cómo ejecutar\n\n```bash\ngit clone https://github.com/MrxHuaang/trazo.git\ncd trazo\ngit switch feat/mvp-sprints\n"
@@ -148,8 +148,8 @@ def main() -> None:
         "05_Dia2-3_2026-11-09_Modulo_Hoy_y_pagos",
         "Días 2 y 3 · 9 y 10 de noviembre de 2026 · Módulo Hoy y pagos",
         "Pantalla Hoy conectada a la base de datos, hoja Por confirmar con recordatorio por WhatsApp, pagos con resumen mensual y PDF, "
-        "y plantillas de mensajes. Está completo en su rama de módulo (tipos y lint en verde), pendiente de integrar y probar en el emulador.",
-        "worktree-agent-af610385417dbd482",
+        "y plantillas de mensajes. Es la primera versión del módulo, antes del rediseño con NativeWind.",
+        "1ec6bb3",
         [
             ("src/features/hoy/hoy-screen.tsx", "Hoy con datos reales: próxima cita, bloques de pendientes y secciones."),
             ("src/features/hoy/rules.ts", "Reglas puras de la pantalla Hoy."),
@@ -166,39 +166,102 @@ def main() -> None:
         ],
     )
 
-    # 06 Corte del trabajo en curso de los demás módulos
-    en_curso = [
-        ("agent-a1223845575d5aef6", "agenda", "Agenda: línea de tiempo, citas, avisos y disponibilidad"),
-        ("agent-adf143aff1f6535f2", "pacientes", "Pacientes: lista, ficha con historia, notas privadas"),
-        ("agent-a3a0504fad15bb9a2", "solidario", "Solidario: cupos, jornadas, seguimientos, informe"),
-        ("agent-a9b3277ffdadb472d", "acceso", "Acceso: bienvenida, bloqueo y ajustes"),
-    ]
-    destino = OUT / "06_Dia3_2026-11-10_Modulos_en_desarrollo"
-    destino.mkdir()
-    lineas = [
-        "# Día 3 · 10 de noviembre de 2026 · Módulos en desarrollo\n",
-        "Corte del código en curso de cada módulo, tomado de su rama de trabajo. Todavía no está integrado en "
-        "`feat/mvp-sprints` ni probado en el emulador; puede cambiar.\n",
-        "| Archivo en esta carpeta | Ruta en el repositorio | Módulo |\n|---|---|---|",
-    ]
-    for wt, modulo, descripcion in en_curso:
-        base = WT / wt / "src" / "features" / modulo
-        n = 0
-        for f in sorted(base.rglob("*.ts*")) if base.exists() else []:
-            rel = f.relative_to(WT / wt).as_posix()
-            (destino / plano(rel)).write_bytes(f.read_bytes())
-            lineas.append(f"| `{plano(rel)}` | `{rel}` | {descripcion} |")
-            n += 1
-        print(f"OK  06 {modulo}: {n} archivos")
-    (destino / "LEEME.md").write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    primera = "5a9d169"
+    carpeta(
+        "06_Dia3_2026-11-10_Modulos_primera_version",
+        "Día 3 · 10 de noviembre de 2026 (mañana) · Primera versión de los módulos",
+        "Agenda, pacientes, solidario y acceso tal como quedaron al integrarlos por primera vez en `feat/mvp-sprints`, "
+        "antes del rediseño con NativeWind.",
+        primera,
+        [
+            ("src/features/agenda/agenda-screen.tsx", "Agenda: semana, cupos y línea de tiempo del día."),
+            ("src/features/agenda/linea-tiempo.tsx", "Línea de tiempo con citas, huecos libres y hora actual."),
+            ("src/features/agenda/nueva-cita-sheet.tsx", "Hoja para crear una cita tocando un hueco."),
+            ("src/features/agenda/cita-detalle-sheet.tsx", "Detalle de la cita con cambio de estado y pago."),
+            ("src/features/agenda/notifications.ts", "Avisos locales antes de cada cita."),
+            ("src/features/agenda/disponibilidad-screen.tsx", "Disponibilidad semanal y bloqueos."),
+            ("src/features/agenda/rules.ts", "Reglas puras de la agenda."),
+            ("src/features/pacientes/pacientes-screen.tsx", "Lista de pacientes con búsqueda y creación en contexto."),
+            ("src/features/pacientes/ficha-screen.tsx", "Ficha del paciente con su historia."),
+            ("src/features/pacientes/nota-screen.tsx", "Nota de sesión privada bajo bloqueo."),
+            ("src/features/pacientes/resumen-pdf.ts", "Resumen del paciente en PDF."),
+            ("src/features/solidario/solidario-screen.tsx", "Pestaña Solidario: cupos, jornadas, seguimientos y líneas de ayuda."),
+            ("src/features/solidario/cupos.ts", "Regla de cupos solidarios por semana (RN-03)."),
+            ("src/features/solidario/jornada-screen.tsx", "Jornada con sus asistentes."),
+            ("src/features/solidario/informe.ts", "Informe de impacto del mes."),
+            ("src/features/acceso/access-gate.tsx", "Puerta de acceso: bienvenida o bloqueo según el estado."),
+            ("src/features/acceso/onboarding-screen.tsx", "Bienvenida: crear consultorio o cargar demostración."),
+            ("src/features/acceso/pantalla-bloqueo.tsx", "Bloqueo con biometría o código del teléfono."),
+        ],
+    )
 
-    # 07 Capturas
-    cap = OUT / "07_Capturas"
+    carpeta(
+        "07_Dia3_2026-11-10_NativeWind_y_diseno_v2",
+        "Día 3 · 10 de noviembre de 2026 (tarde) · NativeWind, Tailwind y base del diseño v2",
+        "Configuración de NativeWind 4 y Tailwind 3 igual a la vista en clase, paleta única de colores y componentes base "
+        "pasados a clases, con piezas de movimiento nuevas.",
+        "4d27832",
+        [
+            ("tailwind.config.js", "Colores, fuentes, radios y escala tipográfica de Trazo como tema de Tailwind."),
+            ("babel.config.js", "Preset de Babel con NativeWind (igual a los proyectos de clase)."),
+            ("metro.config.js", "Metro con NativeWind y la hoja global."),
+            ("src/global.css", "Directivas de Tailwind."),
+            ("src/theme/palette.js", "Única fuente de color, compartida por Tailwind y los tokens."),
+            ("src/lib/cn.ts", "Une clases de Tailwind resolviendo conflictos."),
+            ("src/ui/presionable.tsx", "Base táctil: se hunde con resorte y da un toque háptico."),
+            ("src/ui/aparecer.tsx", "Entrada en cascada de los bloques de cada pantalla."),
+            ("src/ui/numero-animado.tsx", "Número que cuenta hasta su valor."),
+            ("src/ui/tile.tsx", "Bloque de color con clases de NativeWind."),
+            ("src/ui/button.tsx", "Botón con variantes y área táctil cómoda."),
+            ("src/ui/trace-line.tsx", "El Trazo con energía en vivo y pulso de la próxima cita."),
+            ("AGENTS.md", "Reglas del proyecto: NativeWind, movimiento, claridad y accesibilidad."),
+        ],
+    )
+
+    carpeta(
+        "08_Dia3_2026-11-10_Funciones_v2",
+        "Día 3 · 10 de noviembre de 2026 (noche) · Funciones nuevas de cada módulo",
+        "Segunda versión de los módulos con el stack del curso: Zustand, axios con TanStack Query, mapas con Leaflet, "
+        "carrusel y gestos. Es el estado integrado y probado en el emulador Pixel 8.",
+        "a3f1f85",
+        [
+            ("src/features/agenda/cita-arrastrable.tsx", "Arrastrar una cita para reprogramarla en pasos de 15 minutos."),
+            ("src/features/agenda/store.ts", "Zustand: día mostrado en la agenda y navegación entre semanas."),
+            ("src/features/hoy/hoy-screen.tsx", "Hoy con encabezado colapsable y filas deslizables."),
+            ("src/features/hoy/trazo-interactivo.tsx", "Línea del día que se recorre con el dedo."),
+            ("src/features/hoy/bloque-proxima.tsx", "Próxima cita con anillo de cuenta regresiva."),
+            ("src/features/hoy/resumen-screen.tsx", "Resumen de la semana en historias."),
+            ("src/features/hoy/historias.tsx", "Carrusel de historias con react-native-reanimated-carousel."),
+            ("src/features/pagos/store.ts", "Zustand: mes mostrado en pagos."),
+            ("src/features/pacientes/store.ts", "Zustand: búsqueda y filtro de pacientes."),
+            ("src/features/pacientes/fila-paciente.tsx", "Fila deslizable: WhatsApp o agendar."),
+            ("src/features/pacientes/asistencia-tira.tsx", "Asistencia de un vistazo con formas por estado."),
+            ("src/features/solidario/api/usgs-api.ts", "Instancia de axios para el servicio público del USGS."),
+            ("src/features/solidario/api/sismos.api.ts", "Consulta de sismos recientes cerca de Pereira."),
+            ("src/features/solidario/api/sismo.mapper.ts", "Convierte la respuesta del USGS al modelo de la app."),
+            ("src/features/solidario/api/use-sismos.ts", "Hook de TanStack Query con caché de 15 minutos."),
+            ("src/features/solidario/mapa/mapa-screen.tsx", "Mapa de jornadas con ubicación y sismos."),
+            ("src/features/solidario/mapa/mapa-leaflet.tsx", "Leaflet dentro de react-native-webview."),
+            ("src/features/solidario/store/use-ubicacion-store.ts", "Zustand: ubicación actual."),
+            ("src/features/solidario/store/use-permisos-store.ts", "Zustand: permiso de ubicación."),
+            ("src/features/acceso/use-sismografo.ts", "Sismógrafo vivo con el acelerómetro."),
+            ("src/features/acceso/sesion.ts", "Zustand: sesión y bloqueo."),
+            ("src/features/acceso/laminas-bienvenida.tsx", "Carrusel de la bienvenida."),
+        ],
+    )
+
+    # 09 Capturas
+    cap = OUT / "09_Capturas"
     cap.mkdir()
-    shutil.copy(ROOT / "docs" / "img" / "hoy.png", cap / "01_Hoy_Pixel8_2026-11-09.png")
-    shutil.copy(ROOT / "docs" / "img" / "solidario.png", cap / "02_Solidario_provisional_Pixel8_2026-11-09.png")
-    shutil.copy(ROOT / "assets" / "images" / "icon.png", cap / "03_Icono_de_la_app.png")
-    print("OK  07_Capturas")
+    capturas = [
+        ("v2-hoy", "01_Hoy"), ("v2-agenda", "02_Agenda"), ("v2-pacientes", "03_Pacientes"), ("v2-ficha", "04_Ficha_paciente"),
+        ("v2-solidario", "05_Solidario"), ("v2-mapa", "06_Mapa_jornadas"), ("v2-resumen", "07_Resumen_semana"),
+        ("v2-lineas", "08_Lineas_de_ayuda"), ("v2-ajustes", "09_Ajustes"),
+    ]
+    for origen, nombre in capturas:
+        shutil.copy(ROOT / "docs" / "img" / f"{origen}.png", cap / f"{nombre}_Pixel8_2026-11-10.png")
+    shutil.copy(ROOT / "assets" / "images" / "icon.png", cap / "10_Icono_de_la_app.png")
+    print("OK  09_Capturas")
 
     total = sum(f.stat().st_size for f in OUT.rglob("*") if f.is_file())
     print(f"Paquete: {OUT}  ({sum(1 for f in OUT.rglob('*') if f.is_file())} archivos, {total/1e6:.1f} MB)")
