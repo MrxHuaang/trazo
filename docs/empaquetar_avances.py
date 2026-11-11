@@ -73,7 +73,7 @@ def main() -> None:
         "## Historial de commits (rama feat/mvp-sprints)\n\n```\n" + ramas + "```\n",
         encoding="utf-8",
     )
-    git("archive", "--format=zip", "-o", str(doc / "trazo_codigo_fuente.zip"), "feat/mvp-sprints")
+    git("archive", "--format=zip", "-o", str(doc / "trazo_codigo_fuente.zip"), "feat/mvp-sprints", "--", ".", ":(exclude)entregables")
     print("OK  01_Documentacion_y_repositorio")
 
     carpeta(
