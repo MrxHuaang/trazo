@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
 
@@ -42,7 +43,10 @@ export function BotonTexto({ etiqueta, onPress, accessibilityLabel, borde, class
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? etiqueta}
-      onPress={onPress}
+      onPress={() => {
+        void Haptics.selectionAsync();
+        onPress();
+      }}
       className={cn(
         'min-h-[44px] justify-center active:opacity-60',
         borde ? 'rounded-full border border-ink px-4' : 'px-0.5',

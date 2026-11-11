@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
 import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
@@ -142,7 +143,10 @@ export function LineaDeTiempo({
             key={`h${h.ini}`}
             accessibilityRole="button"
             accessibilityLabel={`Agendar a las ${aHora(h.ini)}`}
-            onPress={() => onHueco(h.ini)}
+            onPress={() => {
+              void Haptics.selectionAsync();
+              onHueco(h.ini);
+            }}
             className={cn(
               'absolute left-0 right-0 p-[3px] active:opacity-100',
               h.ini === primerLibre || h.ini === resaltado ? 'opacity-100' : 'opacity-0',
