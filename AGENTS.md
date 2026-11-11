@@ -2,7 +2,7 @@ This is an Expo/React Native mobile application. Prioritize mobile-first pattern
 
 ## Trazo: project rules
 
-- Product spec lives in `docs/` (documento maestro, v0.2). Read the relevant chapter before building a feature; user stories are `HU-xx`, business rules `RN-xx`.
+- Product spec lives in `docs/` (documento maestro, v1.0). Read the relevant chapter before building a feature; user stories are `HU-xx`, business rules `RN-xx`.
 - **Expo Go only**: the app must run in Expo Go on iPhone (no Mac, $0). Before adding any library with native code, confirm it ships in Expo Go; otherwise pick a JS-only alternative.
 - **Testing target**: Pixel 8 Android emulator; destination is iPhone. Check the Pixel/iPhone differences table (chapter 10) for every screen: safe areas, keyboard, sheets, back gesture.
 - **Design system "Trazo suave"** styled with **NativeWind 4 + Tailwind 3** (the course stack): use `className` everywhere. Colors, fonts, radii and the type scale live in `tailwind.config.js` (source of truth for colors: `src/theme/palette.js`). `src/theme/tokens.ts` only feeds SVG, Reanimated and native APIs. No `StyleSheet.create` and no literal colors in screens; inline `style` only for dynamic values (measured sizes, animated styles, safe-area insets). Light mode only. One action color (cobalt `accent`). Solidario always uses the `durazno` tile plus hatch texture. Icons: Phosphor via deep imports (`phosphor-react-native/src/icons/<Name>`), never the package root.

@@ -39,9 +39,9 @@ FONTS = (
 DOCS = {
     "maestro": {
         "title": "Trazo — Documento maestro del proyecto",
-        "footer": "Trazo · Documento maestro del proyecto · v0.2",
+        "footer": "Trazo · Documento maestro del proyecto · v1.0",
         "parts": sorted((SRC / "maestro").glob("*.html")),
-        "pdf": "Trazo_Documento_Maestro_v0.2.pdf",
+        "pdf": "Trazo_Documento_Maestro_v1.0.pdf",
     },
     "avances": {
         "title": "Trazo — Informe de avances",

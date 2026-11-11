@@ -61,7 +61,7 @@ def main() -> None:
     # 01 Documentación y repositorio
     doc = OUT / "01_Documentacion_y_repositorio"
     doc.mkdir()
-    shutil.copy(ROOT / "entregables" / "Trazo_Documento_Maestro_v0.2.pdf", doc / "Trazo_Documento_Maestro_v0.2.pdf")
+    shutil.copy(ROOT / "entregables" / "Trazo_Documento_Maestro_v1.0.pdf", doc / "Trazo_Documento_Maestro_v1.0.pdf")
     (doc / "Repositorio_GitHub.url").write_text(f"[InternetShortcut]\nURL={REPO}\n", encoding="utf-8")
     ramas = git("log", "--format=%h  %ad  %s", "--date=format:%Y-%m-%d %H:%M", "feat/mvp-sprints").decode("utf-8")
     (doc / "LEEME_Repositorio.md").write_text(

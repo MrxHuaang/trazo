@@ -1,330 +1,249 @@
-<!-- ===================== 10. IPHONE Y ANDROID ===================== -->
+<!-- ===================== IPHONE Y ANDROID ===================== -->
 <section>
   <h2 class="chapter">iPhone y Android sin Mac y sin costo</h2>
-  <p class="lead">Sí se puede, y gratis: con Expo Go la app corre en cualquier iPhone sin Mac y sin cuenta de desarrollador de Apple. El trabajo diario se prueba en el emulador Pixel 8 de Android Studio. Esta es la razón principal para usar Expo (ADR-001, ADR-002 y ADR-009).</p>
+  <p class="lead">Trazo corre en Expo Go, sin compilaciones nativas: así se prueba en Android y en iPhone sin Mac, sin cuenta de desarrollador y sin costo (ADR-001, ADR-002 y ADR-009). Todo el desarrollo se probó en el emulador Pixel 8 de Android Studio con Expo Go 58.0.5. El destino es iPhone; la prueba en un iPhone real sigue pendiente.</p>
 
-  <h3>Qué se necesita</h3>
+  <h3>Qué se usó</h3>
   <div class="grid2">
     <div class="card pick">
-      <span class="eyebrow">Imprescindible · $0</span>
+      <span class="eyebrow">Usado en el proyecto · $0</span>
       <ul class="check" style="margin:0">
-        <li>PC con Windows, Node.js LTS y Git</li>
-        <li>Cuenta gratuita en expo.dev</li>
-        <li><strong>Emulador Pixel 8</strong> en Android Studio, con Expo Go (se instala solo)</li>
-        <li>Un iPhone prestado con <strong>Expo Go</strong> para la prueba final</li>
-        <li>Cuenta gratuita de Supabase (2 proyectos: desarrollo y producción)</li>
-        <li>Repositorio en GitHub</li>
+        <li>PC con Windows, Node.js LTS, npm y Git</li>
+        <li><strong>Emulador Pixel 8</strong> en Android Studio con <strong>Expo Go 58</strong></li>
+        <li>Repositorio público en GitHub</li>
+        <li>Servicios públicos sin clave: sismos del USGS y mapas de OpenStreetMap</li>
+        <li>Para la prueba final: un iPhone con Expo Go (deseable)</li>
       </ul>
     </div>
     <div class="card sand">
-      <span class="eyebrow">No se necesita este semestre</span>
+      <span class="eyebrow">No se necesitó</span>
       <ul style="margin:0">
         <li>Mac ni Xcode</li>
         <li>Apple Developer Program (USD 99/año)</li>
         <li>Cuenta de Google Play (USD 25)</li>
-        <li>Servidores propios</li>
+        <li>Servidores, base de datos en la nube o cuenta de Expo</li>
       </ul>
-      <p class="small" style="margin-top:2mm">Solo harían falta para publicar la app en las tiendas, algo fuera del alcance (ver 10.5).</p>
+      <p class="small" style="margin-top:2mm">Solo harían falta para publicar en tiendas, que queda como trabajo futuro.</p>
     </div>
   </div>
 
   <h3>Cómo llega la app a cada dispositivo</h3>
   <table class="tight">
-    <thead><tr><th style="width:22%">Momento</th><th style="width:38%">Cómo</th><th>Detalle</th></tr></thead>
+    <thead><tr><th style="width:22%">Momento</th><th style="width:36%">Cómo</th><th>Detalle</th></tr></thead>
     <tbody>
-      <tr><td><strong>Desarrollo diario</strong></td><td><code>npx expo start</code> → tecla <code>a</code> abre el emulador Pixel 8</td><td>Instala Expo Go en el emulador la primera vez. Recarga en caliente al guardar. Es el entorno principal de pruebas.</td></tr>
-      <tr><td><strong>Prueba en iPhone real</strong></td><td><code>npx expo start --tunnel</code> → escanear el QR con la cámara del iPhone</td><td>Una vez antes de sustentar, en cualquier iPhone con Expo Go. No requiere cuenta de Apple.</td></tr>
-      <tr><td><strong>Demo sin tu PC</strong></td><td><code>eas update --branch demo</code> y abrir la actualización desde Expo Go</td><td>Útil para que el docente la abra. Verificarlo en la Semana 0; si no abre en Expo Go, se usa el túnel.</td></tr>
-      <tr><td><strong>Android “de verdad”</strong></td><td><code>eas build -p android --profile preview</code> → enlace de descarga del APK</td><td>Plan gratis: 15 compilaciones Android al mes; la cola gratuita puede tardar más de una hora.</td></tr>
-      <tr><td><strong>Página de reservas</strong></td><td><code>npx expo export -p web</code> + <code>eas deploy</code> (EAS Hosting)</td><td>Queda en una URL pública que la psicóloga comparte por WhatsApp.</td></tr>
+      <tr><td><strong>Desarrollo diario</strong></td><td><code>npx expo start</code> y tecla <code>a</code></td><td>Abre el proyecto en Expo Go dentro del emulador Pixel 8. Recarga al guardar. Fue el entorno de todas las pruebas.</td></tr>
+      <tr><td><strong>La descarga se queda en 100 %</strong></td><td><code>adb reverse tcp:8081 tcp:8081</code> y abrir <code>exp://127.0.0.1:8081</code> en Expo Go</td><td>Pasó el 9 de noviembre: el emulador no alcanzaba el servidor por la red local. Con el puerto redirigido carga siempre.</td></tr>
+      <tr><td><strong>Expo Go vuelve a una versión vieja</strong></td><td>Arranque en frío del emulador (<em>Cold Boot</em>) y reinstalar Expo Go 58</td><td>El arranque rápido restaura una instantánea (<em>snapshot</em>) del emulador que puede traer un Expo Go anterior. Antes de cada demostración se revisa la versión.</td></tr>
+      <tr><td><strong>Prueba en iPhone real</strong></td><td>Misma red Wi-Fi: escanear el QR con la cámara. Otra red: <code>npx expo start --tunnel</code></td><td>Requiere Expo Go del App Store compatible con el SDK 58. No requiere cuenta de Apple. <span class="tag mid">Pendiente</span></td></tr>
+      <tr><td><strong>Exposición</strong></td><td>Emulador en vivo desde el PC</td><td>Con video y capturas de respaldo (ver riesgos).</td></tr>
     </tbody>
   </table>
 
-  <h3>Límites de Expo Go y cómo vivir con ellos</h3>
+  <h3>Límites de Expo Go y cómo se resolvieron</h3>
   <table class="tight">
-    <thead><tr><th style="width:32%">Límite</th><th>Consecuencia y solución</th></tr></thead>
+    <thead><tr><th style="width:30%">Límite</th><th>Cómo se resolvió en Trazo</th></tr></thead>
     <tbody>
-      <tr><td>Solo trae ciertos módulos nativos</td><td>Toda librería con código nativo debe estar incluida en Expo Go. Se verifica antes de instalar (ADR-002). Las librerías en JavaScript puro funcionan siempre.</td></tr>
-      <tr><td>En iPhone, Expo Go solo abre el SDK más reciente</td><td>El proyecto arranca en SDK 58. Si Expo publica un SDK nuevo y actualiza Expo Go durante el semestre, se actualiza el proyecto con <code>npx expo install expo@latest --fix</code> (se reserva medio día).</td></tr>
-      <tr><td>Face ID no está disponible en Expo Go</td><td>El bloqueo usa el código del iPhone (misma seguridad, otro gesto). En Android la huella sí funciona. Face ID real llega con una compilación propia (10.5).</td></tr>
-      <tr><td>Sin notificaciones push remotas</td><td>No se necesitan: los avisos de cita son notificaciones locales programadas en el teléfono, que sí funcionan.</td></tr>
-      <tr><td>Nombre e ícono son los de Expo Go</td><td>Aceptable para el piloto. El nombre e ícono propios llegan con la compilación propia.</td></tr>
-      <tr><td>Es una herramienta de desarrollo</td><td>Adecuada para el semestre y el piloto con datos ficticios. Para uso profesional prolongado conviene la ruta 10.4.</td></tr>
+      <tr><td>Solo trae ciertos módulos nativos</td><td>Todas las librerías nativas usadas vienen en Expo Go: expo-sqlite, expo-location, react-native-webview, Reanimated, Gesture Handler, expo-sensors, expo-local-authentication, expo-notifications, expo-print, expo-sharing y expo-haptics. El resto es JavaScript puro.</td></tr>
+      <tr><td>En iPhone, Expo Go solo abre el SDK vigente</td><td>El proyecto está en SDK 58. Si Expo publica otro SDK antes de la exposición, la prueba en iPhone puede fallar; el emulador sigue siendo la demostración principal.</td></tr>
+      <tr><td>Face ID no funciona en Expo Go</td><td>El bloqueo pide el código del iPhone (misma seguridad, otro gesto). En Android, la huella o el PIN.</td></tr>
+      <tr><td>Sin notificaciones push</td><td>No se necesitan: los avisos de cita son locales, programados en el teléfono 15 minutos antes.</td></tr>
+      <tr><td>Sin selector nativo de fecha y hora</td><td>Selectores propios con chips: fecha en tira horizontal y hora en cuadrícula. Se ven igual en ambas plataformas.</td></tr>
+      <tr><td>Nombre e ícono son los de Expo Go</td><td>Aceptable para una demostración académica.</td></tr>
     </tbody>
   </table>
-
 
   <h3>Diferencias entre el Pixel 8 y un iPhone</h3>
-  <p>Se prueba en Android pero el destino es iPhone. Esta lista se revisa en cada historia (forma parte de la definición de terminado):</p>
+  <p>Se probó en Android y el destino es iPhone. La tabla resume cómo se maneja cada diferencia en el código.</p>
   <table class="tight">
-    <thead><tr><th style="width:17%">Aspecto</th><th style="width:25%">Pixel 8 (pruebas)</th><th style="width:25%">iPhone (destino)</th><th>Cómo se controla</th></tr></thead>
+    <thead><tr><th style="width:14%">Aspecto</th><th style="width:22%">Pixel 8 (probado)</th><th style="width:22%">iPhone (destino)</th><th>Cómo se maneja</th></tr></thead>
     <tbody>
-      <tr><td><strong>Zonas seguras</strong></td><td>Cámara perforada</td><td>Dynamic Island e indicador de inicio</td><td><code>react-native-safe-area-context</code> en todas las pantallas; nunca alturas fijas.</td></tr>
-      <tr><td><strong>Pestañas</strong></td><td>Barra Material 3</td><td>Barra Liquid Glass (iOS 26)</td><td>Pestañas nativas de Expo Router; el contenido deja espacio inferior según la barra.</td></tr>
-      <tr><td><strong>Hojas</strong></td><td>Modal a pantalla completa</td><td>Hoja nativa con alturas</td><td>No depender de la altura de la hoja; probar el cierre con el botón atrás de Android.</td></tr>
-      <tr><td><strong>Volver atrás</strong></td><td>Gesto o botón del sistema</td><td>Gesto desde el borde</td><td>Expo Router maneja ambos; no poner gestos propios en los bordes.</td></tr>
-      <tr><td><strong>Teclado</strong></td><td>Redimensiona la pantalla</td><td>Se superpone</td><td><code>KeyboardAvoidingView</code> con <code>behavior="padding"</code> en iOS; probar cada formulario.</td></tr>
-      <tr><td><strong>Fuentes</strong></td><td>Roboto por defecto</td><td>SF Pro por defecto</td><td>Fuentes propias cargadas con <code>expo-font</code>: se ven igual en ambos.</td></tr>
-      <tr><td><strong>Sombras</strong></td><td><code>elevation</code></td><td>Sombras de iOS</td><td>El estilo casi no usa sombras; donde haga falta, <code>boxShadow</code> (unificado desde RN 0.76).</td></tr>
-      <tr><td><strong>Fecha y hora</strong></td><td>Diálogo Material</td><td>Rueda o calendario de iOS</td><td>Selector propio en la agenda; el nativo solo en formularios secundarios.</td></tr>
-      <tr><td><strong>Biometría</strong></td><td>Huella funciona en Expo Go</td><td>Face ID no funciona en Expo Go</td><td>Código del teléfono como respaldo en ambos.</td></tr>
-      <tr><td><strong>Tamaño</strong></td><td>412 × 915 dp</td><td>393 × 852 pt (iPhone 16)</td><td>Diseño a 390 de ancho y flexible; probar también un perfil pequeño de 360 dp.</td></tr>
+      <tr><td><strong>Zonas seguras</strong></td><td>Cámara perforada</td><td>Dynamic Island e indicador de inicio</td><td><code>useSafeAreaInsets</code> en pantallas y hojas; nunca alturas fijas.</td></tr>
+      <tr><td><strong>Pestañas</strong></td><td>Barra Material 3</td><td>Barra Liquid Glass (iOS 26)</td><td>Pestañas nativas de Expo Router (<code>NativeTabs</code>): SF Symbols en iPhone, Material Symbols en Android.</td></tr>
+      <tr><td><strong>Hojas</strong></td><td>Hoja inferior de react-native-screens</td><td>Hoja nativa de iOS</td><td>Siete rutas con <code>presentation: 'formSheet'</code>, alturas 85 % y 100 %, sin agarradera. En iPhone el bloqueo usa <code>FullWindowOverlay</code> para tapar también las hojas abiertas.</td></tr>
+      <tr><td><strong>Volver atrás</strong></td><td>Botón o gesto del sistema</td><td>Gesto desde el borde</td><td>Expo Router maneja ambos. El gesto predictivo de Android está desactivado. En iPhone, compartir o alertar desde un menú espera a que el menú termine de cerrarse.</td></tr>
+      <tr><td><strong>Teclado</strong></td><td>Ajusta la ventana</td><td>Se superpone</td><td><code>KeyboardAvoidingView</code> con <code>padding</code> en la hoja base y en Ajustes; toques válidos con el teclado abierto.</td></tr>
+      <tr><td><strong>Biometría</strong></td><td>Huella o PIN</td><td>Face ID cae al código</td><td>Mismo flujo en ambos; si el teléfono no tiene ningún bloqueo, la app avisa y deja entrar.</td></tr>
+      <tr><td><strong>Sensores</strong></td><td>Sensores virtuales del emulador</td><td>Acelerómetro real</td><td>El Trazo de la bienvenida y del bloqueo reacciona al movimiento. Sin sensor, la línea queda quieta y nada se rompe.</td></tr>
+      <tr><td><strong>Avisos</strong></td><td>Canal "Citas" y permiso en Android 13+</td><td>Permiso de iOS</td><td>Si se niega el permiso, la app sigue igual sin avisos. El texto no lleva nombres (RN-10).</td></tr>
+      <tr><td><strong>Fuentes</strong></td><td>Roboto por defecto</td><td>SF Pro por defecto</td><td>Bricolage Grotesque, Geist y Geist Mono cargadas con <code>expo-font</code>: se ven igual en ambos.</td></tr>
+      <tr><td><strong>Tamaño</strong></td><td>412 × 915 dp</td><td>393 × 852 pt (iPhone 16)</td><td>Diseño flexible; textos que crecen con el tamaño de letra del sistema.</td></tr>
     </tbody>
   </table>
-
-  <h3>Si algún día se publica: rutas a producción</h3>
-  <table class="tight">
-    <thead><tr><th style="width:24%">Ruta</th><th>Qué implica</th><th style="width:16%">Costo</th></tr></thead>
-    <tbody>
-      <tr><td><strong>iPhone por TestFlight o App Store</strong></td><td>EAS Build compila para iOS en la nube (sin Mac) y EAS Submit la sube. Requiere cuenta de Apple Developer, idealmente a nombre de la profesional responsable de los datos. Habilita Face ID, ícono propio y notificaciones push.</td><td>USD 99 / año</td></tr>
-      <tr><td><strong>Android por Google Play</strong></td><td>Cuenta personal nueva: debe pasar por una prueba cerrada con testers antes de publicar. Alternativa: seguir con el APK directo.</td><td>USD 25 una vez · APK: $0</td></tr>
-      <tr><td><strong>Versión web instalable</strong></td><td>La misma app exportada a web y agregada a la pantalla de inicio del iPhone. Sin Face ID, con menos integración nativa.</td><td>$0</td></tr>
-    </tbody>
-  </table>
-  <div class="callout blue">
-    <span class="t">Recomendación</span>
-    <p>Semestre completo en el emulador Pixel 8 con Expo Go, una prueba final en un iPhone real con Expo Go y un APK de respaldo, a costo cero. Publicar en tiendas no hace parte del alcance; si algún día se quisiera, el código no cambia: solo se compila con EAS.</p>
-  </div>
+  <p class="small"><strong>Si se llevara a producción</strong> (fuera del alcance académico): EAS Build sin Mac para Face ID, nombre e ícono propios; cuentas de Apple Developer (USD 99/año) y Google Play (USD 25); adaptador de Supabase (ADR-010) para respaldo. Falta probar en iPhone real.</p>
 </section>
 
-<!-- ===================== 11. CALIDAD ===================== -->
+<!-- ===================== CALIDAD ===================== -->
 <section>
-  <h2 class="chapter">Calidad, pruebas y entrega continua</h2>
-  <p class="lead">La calidad se automatiza desde el primer día: cada cambio pasa por formato, tipos y pruebas antes de llegar a la rama principal, y cada semana queda una versión funcional grabada como evidencia.</p>
+  <h2 class="chapter">Calidad y pruebas</h2>
+  <p class="lead">La calidad se sostuvo con tipos estrictos, lint y una revisión manual pantalla por pantalla en el emulador. No hay pruebas automáticas ni integración continua: es lo primero que se agregaría si el proyecto siguiera.</p>
 
-  <h3>Estrategia de pruebas</h3>
+  <h3>Lo que sí se hizo</h3>
   <table class="tight">
-    <thead><tr><th style="width:18%">Nivel</th><th style="width:22%">Herramienta</th><th>Qué se prueba</th><th style="width:12%">Cuándo</th></tr></thead>
+    <thead><tr><th style="width:24%">Práctica</th><th>Cómo</th><th style="width:22%">Resultado al 10 de nov.</th></tr></thead>
     <tbody>
-      <tr><td><strong>Unitarias</strong></td><td>Jest (jest-expo)</td><td>Reglas puras: solapes, cupos solidarios, tarifas, estados, fechas con zona horaria, enlaces de WhatsApp.</td><td>Cada commit</td></tr>
-      <tr><td><strong>Componentes</strong></td><td>React Native Testing Library</td><td>Componentes de <code>src/ui</code> y formularios: validación, accesibilidad, estados vacíos y de error.</td><td>Cada PR</td></tr>
-      <tr><td><strong>Base de datos</strong></td><td>pgTAP (<code>supabase test db</code>)</td><td>Políticas RLS (un usuario ajeno no ve nada), restricción de solapes, funciones RPC.</td><td>Cada PR</td></tr>
-      <tr><td><strong>Punta a punta</strong></td><td>Maestro</td><td>Flujos críticos en emulador: iniciar sesión → agendar → recordar → marcar asistencia → registrar pago.</td><td>Fin de sprint</td></tr>
-      <tr><td><strong>Usabilidad</strong></td><td>SUS + observación</td><td>3–5 compañeros o usuarios representativos realizan tareas con datos ficticios.</td><td>S3 y S5</td></tr>
+      <tr><td><strong>TypeScript estricto</strong></td><td><code>strict</code> y <code>noUncheckedIndexedAccess</code>; rutas tipadas de Expo Router. Se verifica con <code>npx tsc --noEmit</code>.</td><td><span class="tag low">Sin errores</span></td></tr>
+      <tr><td><strong>ESLint</strong></td><td>Configuración de Expo (<code>eslint-config-expo</code>). Se verifica con <code>npx expo lint</code>.</td><td><span class="tag low">Sin errores</span></td></tr>
+      <tr><td><strong>Reglas puras separadas</strong></td><td>Cada módulo tiene su <code>rules.ts</code> sin interfaz: solapes (RN-01), cupos solidarios (RN-03), estados y fechas en hora de Colombia.</td><td>Listas para probarse</td></tr>
+      <tr><td><strong>Revisión en el emulador</strong></td><td>Cada pantalla se recorrió en el Pixel 8 con datos de demostración y se guardaron capturas (<code>docs/img/v2-*.png</code>).</td><td>Nueve pantallas con captura</td></tr>
+      <tr><td><strong>Claridad y accesibilidad</strong></td><td>Reglas escritas en <code>AGENTS.md</code>: textos cortos, una acción principal, objetivos de 44 pt, contraste 4,5:1, el color nunca como única señal, etiquetas para lector de pantalla, "Reducir movimiento".</td><td>Aplicadas en los cinco módulos</td></tr>
     </tbody>
   </table>
 
-<pre><code><span class="c">// src/features/solidario/rules.test.ts</span>
-<span class="k">import</span> { cuposDisponibles } <span class="k">from</span> <span class="s">'./rules'</span>;
-
-describe(<span class="s">'cupos solidarios (RN-03)'</span>, () =&gt; {
-  it(<span class="s">'cuenta solo las citas solidarias activas de la semana'</span>, () =&gt; {
-    <span class="k">const</span> citas = [
-      { es_solidaria: <span class="k">true</span>,  estado: <span class="s">'confirmada'</span> },
-      { es_solidaria: <span class="k">true</span>,  estado: <span class="s">'cancelada'</span> },   <span class="c">// no cuenta</span>
-      { es_solidaria: <span class="k">false</span>, estado: <span class="s">'confirmada'</span> },  <span class="c">// no es solidaria</span>
-    ];
-    expect(cuposDisponibles({ cuposSemana: 3, citas })).toBe(2);
-  });
-});</code></pre>
-
-<pre><code><span class="c"># e2e/agendar-y-recordar.yaml (Maestro)</span>
-appId: host.exp.exponent          <span class="c"># Expo Go en Android</span>
----
-- launchApp
-- openLink: exp://127.0.0.1:8081  <span class="c"># proyecto servido por expo start</span>
-- tapOn: <span class="s">"Agenda"</span>
-- tapOn: <span class="s">"Agendar a las 12:00"</span>
-- inputText: <span class="s">"Laura"</span>
-- tapOn: <span class="s">"Laura Martínez"</span>
-- tapOn: <span class="s">"Guardar cita"</span>
-- assertVisible: <span class="s">"Laura M."</span></code></pre>
-
-  <h3>Integración y entrega continua</h3>
-<pre><code><span class="c"># .github/workflows/ci.yml</span>
-name: CI
-on: [pull_request, push]
-jobs:
-  calidad:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: lts/*, cache: npm }
-      - run: npm ci
-      - run: npx expo lint
-      - run: npx tsc --noEmit
-      - run: npx jest --ci --coverage
-  demo:
-    needs: calidad
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: lts/*, cache: npm }
-      - uses: expo/expo-github-action@v8
-        with: { eas-version: latest, token: <span class="s">${{ secrets.EXPO_TOKEN }}</span> }
-      - run: npm ci
-      - run: eas update --branch demo --message <span class="s">"${{ github.event.head_commit.message }}"</span> --non-interactive</code></pre>
+  <h3>Lo que no se hizo</h3>
+  <p>No hay pruebas automáticas (las reglas puras de <code>rules.ts</code> son el punto de partida) ni integración continua: tipos y lint se corrieron a mano antes de integrar. Tampoco prueba formal de usabilidad (SUS) ni prueba en iPhone real, deseable antes de la exposición. Una tarea se daba por <strong>terminada</strong> al revisarse en el emulador, con <code>tsc</code> y lint sin errores, las reglas de claridad cumplidas y solo datos ficticios.</p>
 
   <h3>Flujo de trabajo con Git</h3>
   <ul>
-    <li><strong>Ramas cortas</strong> desde <code>main</code>: <code>feat/HU-04-crear-cita</code>, <code>fix/RN-01-solape-zona-horaria</code>. Se integran por Pull Request con CI en verde.</li>
-    <li><strong>Commits</strong> con Conventional Commits: <code>feat(citas): crear cita tocando hueco libre (HU-04)</code>.</li>
-    <li><strong>main protegida</strong>: no se sube directo; cada merge publica una actualización en el canal <code>demo</code>.</li>
-    <li><strong>Versiones</strong>: etiqueta por sprint (<code>v0.1.0</code> … <code>v1.0.0</code>) con notas de cambios.</li>
+    <li><strong>Ramas por módulo en paralelo.</strong> Cada módulo (acceso, hoy y pagos, agenda, pacientes, solidario) se trabajó en su propia rama y solo tocó sus rutas y su carpeta, según la tabla de propiedad de <code>AGENTS.md</code>. Los archivos compartidos eran de solo lectura, por eso la integración no tuvo conflictos.</li>
+    <li><strong>Integración</strong> en <code>feat/mvp-sprints</code>, con revisión de tipos, lint y emulador después de cada fusión.</li>
+    <li><strong>Pull requests</strong> hacia <code>master</code>: n.º 1 con la base del proyecto (<code>feat/base-trazo-suave</code>) y n.º 2 con el MVP (<code>feat/mvp-sprints</code>).</li>
+    <li><strong>Commits</strong> con Conventional Commits en español y el módulo como alcance: <code>feat(agenda): línea de tiempo en NativeWind, store de día y arrastre para reprogramar</code>.</li>
   </ul>
 
-  <h3>Definición de terminado</h3>
-  <ul class="check">
-    <li>Cumple los criterios de aceptación de la historia y quedó en el video semanal.</li>
-    <li>Lint, tipos y pruebas en verde; pruebas nuevas para la lógica nueva.</li>
-    <li>Accesible: etiquetas, contraste y tamaño de texto grande verificados.</li>
-    <li>Funciona en el emulador Pixel 8 y respeta la lista de diferencias con iPhone (10.4).</li>
-    <li>Sin datos reales, sin secretos en el código, sin <code>console.log</code> con datos personales.</li>
-    <li>Migraciones de base de datos versionadas y con política RLS probada.</li>
-  </ul>
 </section>
 
-<!-- ===================== 12. PLAN ===================== -->
+<!-- ===================== PLAN ===================== -->
 <section>
   <h2 class="chapter">Plan de trabajo</h2>
-  <p class="lead">Seis semanas: una de descubrimiento y preparación, y cinco sprints de una semana. Cada viernes hay una versión funcional y un video corto como evidencia.</p>
+  <p class="lead">El plan original preveía seis semanas. El trabajo real se concentró en tres días (8, 9 y 10 de noviembre de 2026): los sprints S0 a S4 están completos y S5, la preparación de la exposición, está en curso.</p>
 
-  <h3>Cronograma</h3>
+  <h3>Cronograma real</h3>
   <table class="gantt">
-    <thead><tr><th style="width:36%">Trabajo</th><th>S0<br><span style="font-weight:400">9–15 nov</span></th><th>S1<br><span style="font-weight:400">16–22 nov</span></th><th>S2<br><span style="font-weight:400">23–29 nov</span></th><th>S3<br><span style="font-weight:400">30 nov–6 dic</span></th><th>S4<br><span style="font-weight:400">7–13 dic</span></th><th>S5<br><span style="font-weight:400">14–20 dic</span></th></tr></thead>
+    <thead><tr><th style="width:40%">Trabajo</th><th>8 nov</th><th>9 nov</th><th>10 nov<br><span style="font-weight:400">mañana</span></th><th>10 nov<br><span style="font-weight:400">tarde</span></th><th>Exposición</th></tr></thead>
     <tbody>
-      <tr><td>Backlog, sistema visual y wireframes</td><td class="bar"><span class="c"></span></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td>Entorno, repositorio, CI, Supabase</td><td class="bar"><span class="s"></span></td><td class="bar"><span class="s"></span></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td>Sistema de diseño y navegación</td><td></td><td class="bar"><span></span></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td>Acceso, bloqueo y pacientes</td><td></td><td class="bar"><span></span></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td>Agenda, citas, disponibilidad, avisos</td><td></td><td></td><td class="bar"><span></span></td><td></td><td></td><td></td></tr>
-      <tr><td>Hoy, WhatsApp, pagos, notas, ficha</td><td></td><td></td><td></td><td class="bar"><span></span></td><td></td><td></td></tr>
-      <tr><td>Programa solidario</td><td></td><td></td><td></td><td></td><td class="bar"><span class="c"></span></td><td></td></tr>
-      <tr><td>Reservas web, informe, PDF</td><td></td><td></td><td></td><td></td><td></td><td class="bar"><span></span></td></tr>
-      <tr><td>Pruebas de usabilidad (SUS)</td><td></td><td></td><td></td><td class="bar"><span class="m"></span></td><td></td><td class="bar"><span class="m"></span></td></tr>
-      <tr><td>Documentación y sustentación</td><td class="bar"><span class="s"></span></td><td></td><td></td><td></td><td></td><td class="bar"><span class="s"></span></td></tr>
+      <tr><td>Contexto, requisitos, diseño y documento v0.2</td><td class="bar"><span class="c"></span></td><td class="bar"><span class="s"></span></td><td></td><td></td><td></td></tr>
+      <tr><td>Proyecto base y sistema visual Trazo suave</td><td></td><td class="bar"><span></span></td><td></td><td></td><td></td></tr>
+      <tr><td>Capa de datos local (SQLite) y demostración</td><td></td><td class="bar"><span></span></td><td></td><td></td><td></td></tr>
+      <tr><td>Hoy y pagos</td><td></td><td class="bar"><span></span></td><td class="bar"><span></span></td><td></td><td></td></tr>
+      <tr><td>Agenda, pacientes, solidario y acceso en paralelo</td><td></td><td></td><td class="bar"><span></span></td><td></td><td></td></tr>
+      <tr><td>Integración en <code>feat/mvp-sprints</code></td><td></td><td></td><td class="bar"><span class="c"></span></td><td class="bar"><span class="c"></span></td><td></td></tr>
+      <tr><td>NativeWind y stack del curso</td><td></td><td></td><td></td><td class="bar"><span></span></td><td></td></tr>
+      <tr><td>Diseño v2 "Trazo vivo", mapa y sismos</td><td></td><td></td><td></td><td class="bar"><span></span></td><td></td></tr>
+      <tr><td>Informe de avances y documento v1.0</td><td></td><td></td><td></td><td class="bar"><span class="s"></span></td><td></td></tr>
+      <tr><td>Guion, video y prueba en iPhone</td><td></td><td></td><td></td><td></td><td class="bar"><span class="m"></span></td></tr>
     </tbody>
   </table>
-  <p class="small">Fechas de referencia desde el lunes 9 de noviembre de 2026; ajustar a la fecha real de entrega.</p>
 
-  <h3>Detalle por sprint</h3>
+  <h3>Hitos registrados en Git</h3>
   <table class="tight">
-    <thead><tr><th style="width:9%">Sprint</th><th style="width:28%">Objetivo</th><th>Entregables</th><th style="width:22%">Demostración</th></tr></thead>
+    <thead><tr><th style="width:17%">Fecha y hora</th><th>Hito</th><th style="width:15%">Commit</th></tr></thead>
     <tbody>
-      <tr><td><strong>S0</strong></td><td>Diseño y preparación</td><td>Backlog priorizado; Trazo suave en alta fidelidad (tokens, fuentes, ícono); repositorio, CI y Supabase creados; emulador Pixel 8 configurado; “hola mundo” con tokens y fuentes en Expo Go.</td><td>Recorrido por el sistema visual.</td></tr>
-      <tr><td><strong>S1</strong></td><td>Fundaciones</td><td>Tokens y componentes base; navegación con pestañas; inicio de sesión y bloqueo; esquema inicial con RLS y datos ficticios; crear y buscar pacientes (HU-01, 08, 11).</td><td>Entrar, bloquear y crear pacientes.</td></tr>
-      <tr><td><strong>S2</strong></td><td>Agenda</td><td>Línea de tiempo día/semana; crear cita en el hueco; estados; disponibilidad y bloqueos; restricción anti-solapes; avisos locales (HU-03, 04, 05, 07, 13).</td><td>Agendar una semana con datos ficticios.</td></tr>
-      <tr><td><strong>S3</strong></td><td>Consultorio completo</td><td>Bandeja Hoy; recordatorio por WhatsApp; pagos y resumen; notas privadas; ficha con historial; primera prueba SUS (HU-02, 06, 09, 10, 12, 16).</td><td>Un día de consulta simulado de principio a fin.</td></tr>
-      <tr><td><strong>S4</strong></td><td>Programa solidario</td><td>Afectados y tipo de afectación; cupos semanales en la agenda; jornadas y asistentes; seguimientos; directorio de ayuda (HU-17 a 22).</td><td>Simular una jornada en un salón comunal.</td></tr>
-      <tr><td><strong>S5</strong></td><td>Cierre</td><td>Página de reservas; informe de impacto; PDF; segunda prueba SUS; correcciones; APK; documentación final y video de demostración (HU-14, 15, 23, 24).</td><td>Prueba en iPhone real y entrega final.</td></tr>
+      <tr><td>9 nov · 00:17</td><td>Proyecto creado (Expo SDK 58, Expo Router, TypeScript estricto).</td><td><code>da07a45</code></td></tr>
+      <tr><td>9 nov · 01:14</td><td>Sistema visual Trazo suave, componentes base y pantalla Hoy.</td><td><code>c381b24</code></td></tr>
+      <tr><td>9 nov · 13:06</td><td>Nombre Trazo, documento maestro v0.2 en el repositorio y PR n.º 1.</td><td><code>b26481e</code></td></tr>
+      <tr><td>9 nov · 13:21</td><td>Capa de datos local, dominio y base compartida para los módulos.</td><td><code>9ec7ccd</code></td></tr>
+      <tr><td>9 nov · 13:38</td><td>Hoy conectado a datos, Por confirmar y pagos con PDF.</td><td><code>c95d2ff</code></td></tr>
+      <tr><td>10 nov · 12:44 a 13:01</td><td>Primera versión de los cinco módulos e integración.</td><td><code>5a9d169</code></td></tr>
+      <tr><td>10 nov · 13:14</td><td>NativeWind y Tailwind, base de diseño v2 con movimiento.</td><td><code>5ed4ca9</code></td></tr>
+      <tr><td>10 nov · 20:05 a 20:16</td><td>Módulos v2: arrastre de citas, historias, mapa, sismos, filas deslizables.</td><td><code>16cb540</code></td></tr>
+      <tr><td>10 nov · 20:30</td><td>Se retira Calma y se pulen Ajustes.</td><td><code>a3f1f85</code></td></tr>
+      <tr><td>10 nov · 20:37</td><td>Informe de avances y capturas nuevas; PR n.º 2.</td><td><code>bf2ae06</code></td></tr>
     </tbody>
   </table>
 
-  <div class="grid2">
-    <div class="card">
-      <h4>Ruta corta (4 semanas)</h4>
-      <ul style="margin:0">
-        <li><strong>Semana 1:</strong> S0 + S1 en paralelo.</li>
-        <li><strong>Semana 2:</strong> agenda y avisos.</li>
-        <li><strong>Semana 3:</strong> Hoy, WhatsApp, pagos + lo <em>Must</em> del programa solidario (afectados, cupos, directorio).</li>
-        <li><strong>Semana 4:</strong> pruebas, correcciones, demo y documentación.</li>
-      </ul>
-      <p class="small" style="margin-top:2mm">Se aplazan: reservas web, jornadas, informe de impacto y PDF.</p>
-    </div>
-    <div class="card">
-      <h4>Cierre semanal (30 min)</h4>
-      <ol style="margin:0">
-        <li>Grabar un video corto de lo nuevo en el emulador (evidencia para la asignatura).</li>
-        <li>Revisar el tablero: cerrar lo terminado y mover lo pendiente.</li>
-        <li>Actualizar riesgos y registrar decisiones nuevas (ADR).</li>
-      </ol>
-      <p class="small" style="margin-top:2mm">Notas breves en el repositorio: <code>docs/semanas/AAAA-MM-DD.md</code>.</p>
-    </div>
-  </div>
-
-  <h3>Herramientas de gestión</h3>
-  <p>GitHub Projects como tablero (columnas: Backlog · Esta semana · En curso · En revisión · Hecho), una tarjeta por historia con su ID, y milestones por sprint. Las evidencias para la asignatura (capturas, actas, métricas, videos) se guardan en <code>docs/evidencias/</code>.</p>
+  <h3>Estado por sprint</h3>
+  <table class="tight">
+    <thead><tr><th style="width:8%">Sprint</th><th style="width:20%">Objetivo</th><th>Qué se entregó</th><th style="width:14%">Estado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>S0</strong></td><td>Diseño y preparación</td><td>Documento maestro v0.2, sistema visual, repositorio, emulador con Expo Go 58.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S1</strong></td><td>Fundaciones</td><td>Componentes, navegación, capa de datos SQLite, demostración, bienvenida, bloqueo y pacientes.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S2</strong></td><td>Agenda</td><td>Línea de tiempo, citas, arrastre para reprogramar, próximo hueco libre, disponibilidad, bloqueos y avisos.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S3</strong></td><td>Consultorio completo</td><td>Hoy, recordatorios por WhatsApp, pagos, ficha, notas privadas y resumen semanal.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S4</strong></td><td>Programa solidario</td><td>Cupos, jornadas, seguimientos, líneas de ayuda, informe en PDF, mapa y sismos recientes.</td><td><span class="tag low">Completo</span></td></tr>
+      <tr><td><strong>S5</strong></td><td>Exposición</td><td>Guion y video de demostración; probar en el emulador los gestos pendientes; prueba en iPhone real (deseable).</td><td><span class="tag mid">En curso</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Se aplazaron la página web de reservas, la nube (Supabase) y la prueba SUS formal. El ejercicio Calma se construyó y se retiró, porque quien usa Trazo es la psicóloga.</p>
 </section>
 
-<!-- ===================== 13. RIESGOS ===================== -->
+<!-- ===================== RIESGOS ===================== -->
 <section>
   <h2 class="chapter">Riesgos y mitigación</h2>
-  <p class="lead">Riesgos identificados al inicio, con probabilidad (P) e impacto (I) en escala Alta / Media / Baja. Se revisan en cada ritual semanal.</p>
+  <p class="lead">Con el MVP construido, los riesgos que quedan son los de la exposición. Probabilidad (P) e impacto (I) en escala Alta / Media / Baja.</p>
   <table class="tight ids">
-    <thead><tr><th style="width:8%">ID</th><th style="width:30%">Riesgo</th><th style="width:7%">P</th><th style="width:7%">I</th><th>Mitigación</th></tr></thead>
+    <thead><tr><th style="width:8%">ID</th><th style="width:31%">Riesgo</th><th style="width:6%">P</th><th style="width:6%">I</th><th>Mitigación</th></tr></thead>
     <tbody>
-      <tr><td>R-01</td><td>Expo Go se actualiza a un SDK nuevo y deja de abrir el proyecto en el iPhone.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Las pruebas diarias son en Android, así que solo afecta la prueba en iPhone; reservar medio día para actualizar el SDK.</td></tr>
-      <tr><td>R-02</td><td>Una librería necesaria no funciona en Expo Go.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Verificar compatibilidad antes de instalar (ADR-002); preferir JavaScript puro o módulos de Expo.</td></tr>
-      <tr><td>R-03</td><td>Diferencias entre Android (donde se prueba) e iPhone (destino) que no se detectan a tiempo.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Lista de diferencias (10.4) en la definición de terminado; fuentes propias; componentes nativos de Expo; prueba en iPhone real antes de sustentar.</td></tr>
-      <tr><td>R-04</td><td>El alcance crece más que el tiempo disponible.</td><td><span class="tag high">A</span></td><td><span class="tag high">A</span></td><td>MoSCoW estricto; ruta corta definida; todo pedido nuevo entra al backlog, no al sprint en curso.</td></tr>
-      <tr><td>R-05</td><td>Filtración de datos de pacientes.</td><td><span class="tag low">B</span></td><td><span class="tag high">A</span></td><td>RLS probado; datos ficticios en desarrollo; clave de servicio solo en el servidor; capítulo 14.</td></tr>
-      <tr><td>R-06</td><td>El proyecto gratuito de Supabase se pausa tras 7 días sin uso.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Durante el semestre hay uso diario; después, reactivar desde el panel o pasar a plan Pro si hay uso real.</td></tr>
-      <tr><td>R-07</td><td>La cola gratuita de EAS Build tarda horas antes de una entrega.</td><td><span class="tag mid">M</span></td><td><span class="tag low">B</span></td><td>Compilar el APK con un día de anticipación; las demos usan EAS Update, que no compila.</td></tr>
-      <tr><td>R-08</td><td>Errores de zona horaria en la agenda.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>UTC en base de datos; <code>America/Bogota</code> explícita; pruebas unitarias de fechas.</td></tr>
-      <tr><td>R-09</td><td>Solicitudes falsas o abusivas en la página de reservas.</td><td><span class="tag low">B</span></td><td><span class="tag mid">M</span></td><td>Edge Function con límite de frecuencia; confirmación manual en la app; Turnstile si aparece abuso.</td></tr>
-      <tr><td>R-10</td><td>Pérdida de trabajo o de equipo.</td><td><span class="tag low">B</span></td><td><span class="tag high">A</span></td><td>Todo en GitHub, commits diarios; migraciones versionadas; nada importante solo en el PC.</td></tr>
+      <tr><td>R-01</td><td>La demostración en vivo falla en el emulador (no carga o se queda en 100 %).</td><td><span class="tag mid">M</span></td><td><span class="tag high">A</span></td><td>Abrir el proyecto antes de empezar; tener listo <code>adb reverse tcp:8081 tcp:8081</code>; video y capturas de respaldo.</td></tr>
+      <tr><td>R-02</td><td>Sin internet en el salón: el mapa (teselas de OpenStreetMap y Leaflet) y los sismos del USGS no cargan.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>El resto funciona sin red porque los datos son locales. Abrir mapa y sismos antes de exponer; datos del celular como respaldo; capturas <code>v2-mapa</code> y <code>v2-solidario</code>.</td></tr>
+      <tr><td>R-03</td><td>El emulador restaura una instantánea con un Expo Go viejo.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Arranque en frío y revisar que sea Expo Go 58 el día anterior.</td></tr>
+      <tr><td>R-04</td><td>Expo Go del iPhone pasa a otro SDK y no abre el proyecto.</td><td><span class="tag low">B</span></td><td><span class="tag low">B</span></td><td>La prueba en iPhone es deseable, no requisito; la demostración principal es el emulador.</td></tr>
+      <tr><td>R-05</td><td>Un gesto poco probado (arrastre de citas, historias, modo selección del mapa) falla frente al público.</td><td><span class="tag mid">M</span></td><td><span class="tag mid">M</span></td><td>Probarlos antes; cada gesto tiene un botón o acción visible como alternativa.</td></tr>
+      <tr><td>R-06</td><td>La demostración se ve vacía o desordenada por las fechas.</td><td><span class="tag low">B</span></td><td><span class="tag mid">M</span></td><td>Los datos ficticios usan fechas relativas a hoy; recargar la demostración desde Ajustes antes de exponer.</td></tr>
+      <tr><td>R-07</td><td>El tiempo no alcanza para mostrar todo.</td><td><span class="tag high">A</span></td><td><span class="tag mid">M</span></td><td>Guion con un solo recorrido: un día de consulta y una jornada solidaria. Lo demás, en el video.</td></tr>
+      <tr><td>R-08</td><td>Pérdida del PC o del trabajo.</td><td><span class="tag low">B</span></td><td><span class="tag high">A</span></td><td>Todo en GitHub (ramas y PR); el documento, el informe y las capturas también están en el repositorio.</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ===================== 14. ÉTICA ===================== -->
+<!-- ===================== ÉTICA ===================== -->
 <section>
   <h2 class="chapter">Ética, privacidad y marco legal</h2>
-  <p class="lead">En el alcance académico solo se usan datos ficticios, pero Trazo está pensada para guardar datos de salud de personas reales, algunas en situación de vulnerabilidad por el sismo. La ley colombiana los trata como datos sensibles, y la ética profesional de la psicología agrega el deber de confidencialidad.</p>
+  <p class="lead">Trazo solo tiene datos ficticios: ningún dato corresponde a personas reales, ni en la app, ni en las capturas, ni en el video. Aun así se diseñó como si fuera a guardar datos de salud de personas afectadas por el sismo, que la ley colombiana trata como sensibles y que la ética de la psicología obliga a proteger.</p>
 
   <h3>Marco normativo aplicable</h3>
   <table class="tight">
     <thead><tr><th style="width:27%">Norma</th><th>Qué implica para Trazo</th></tr></thead>
     <tbody>
       <tr><td><strong>Ley 1581 de 2012</strong> (protección de datos personales)</td><td>Los datos de salud son sensibles: se requiere autorización previa, expresa e informada; su entrega es facultativa; los titulares pueden conocer, actualizar, rectificar y suprimir sus datos y revocar la autorización. Los datos de menores requieren autorización de su representante legal.</td></tr>
-      <tr><td><strong>Decreto 1377 de 2013</strong> (compilado en el Decreto 1074 de 2015)</td><td>Reglamenta la autorización, la política de tratamiento y la relación con los encargados (proveedores como Supabase y Expo).</td></tr>
+      <tr><td><strong>Decreto 1377 de 2013</strong> (compilado en el Decreto 1074 de 2015)</td><td>Reglamenta la autorización, la política de tratamiento y la relación con los encargados.</td></tr>
       <tr><td><strong>Ley 1090 de 2006</strong> (Código Deontológico y Bioético del psicólogo)</td><td>Confidencialidad, secreto profesional y consentimiento informado. La app debe facilitarlos, nunca ponerlos en riesgo.</td></tr>
-      <tr><td><strong>Resolución 1995 de 1999</strong> y <strong>Resolución 839 de 2017</strong> (historia clínica)</td><td>Si Angela decide que las notas forman parte de su historia clínica, aplican sus reglas de custodia, integridad y conservación (la Resolución 839 fija un mínimo de 15 años desde la última atención). Por eso las notas no se borran sin más (RN-09).</td></tr>
-      <tr><td><strong>Ley 1616 de 2013</strong> (salud mental)</td><td>Contexto del derecho a la atención en salud mental; orienta la remisión oportuna y el directorio de ayuda.</td></tr>
+      <tr><td><strong>Resolución 1995 de 1999</strong> y <strong>Resolución 839 de 2017</strong> (historia clínica)</td><td>Si la psicóloga decide que las notas forman parte de su historia clínica, aplican sus reglas de custodia, integridad y conservación (mínimo 15 años desde la última atención). Por eso las notas no se borran sin más (RN-09).</td></tr>
+      <tr><td><strong>Ley 1616 de 2013</strong> (salud mental)</td><td>Orienta la remisión oportuna y el directorio de líneas de ayuda.</td></tr>
     </tbody>
   </table>
 
-  <h3>Roles frente a los datos</h3>
+  <h3>Dónde quedan los datos</h3>
   <ul>
-    <li><strong>Responsable del tratamiento:</strong> Angela. Decide qué se recoge y para qué; firma la autorización con sus pacientes y publica su política de tratamiento.</li>
-    <li><strong>Encargado:</strong> Juan José, durante el desarrollo y el soporte; firma un acuerdo de confidencialidad con Angela.</li>
-    <li><strong>Proveedores:</strong> Supabase (base de datos en São Paulo) y Expo (actualizaciones). Se revisan sus términos de procesamiento de datos y se menciona en la autorización que la información se almacena en servidores fuera de Colombia.</li>
+    <li><strong>En el teléfono.</strong> La base de datos es SQLite local. No hay cuentas, servidor ni nube: los datos de pacientes no salen del dispositivo.</li>
+    <li><strong>Solo sale lo que la psicóloga envía.</strong> Un recordatorio por WhatsApp o un PDF compartido salen porque ella lo decide, con su propia app de mensajería.</li>
+    <li><strong>Los servicios externos no reciben datos de la app.</strong> El USGS (sismos) y OpenStreetMap (mapa) solo reciben la consulta pública o la zona del mapa que se mira.</li>
+    <li><strong>Roles.</strong> En uso real, la psicóloga sería la responsable del tratamiento. En este proyecto académico no hay titulares reales ni encargados.</li>
   </ul>
 
-  <h3>Prácticas del proyecto</h3>
+  <h3>Prácticas implementadas</h3>
   <div class="grid2">
     <div class="card">
-      <h4>Durante el desarrollo</h4>
+      <h4>En la app</h4>
       <ul style="margin:0">
-        <li>Solo datos ficticios (<code>supabase/seed.sql</code>), también en la sustentación y en los videos.</li>
-        <li>Proyecto de Supabase separado para desarrollo y para uso real.</li>
-        <li>Nunca capturas de pantalla con datos de pacientes reales.</li>
-        <li>Acuerdo de confidencialidad firmado antes de cualquier dato real.</li>
+        <li>Bloqueo con biometría o código al abrir y tras 2 minutos en segundo plano.</li>
+        <li>Cortina en el selector de apps para no mostrar datos.</li>
+        <li>Notas privadas con su propio bloqueo y autobloqueo.</li>
+        <li>Avisos de cita sin nombres ni motivos (RN-10).</li>
+        <li>Autorización de datos registrada por paciente.</li>
+        <li>Líneas de ayuda dentro de la app, sin depender de la red.</li>
       </ul>
     </div>
     <div class="card">
-      <h4>En uso real</h4>
+      <h4>En el proyecto</h4>
       <ul style="margin:0">
-        <li>Autorización de datos registrada por paciente, con versión del texto (Anexo C).</li>
-        <li>Exportación y supresión a solicitud del titular (HU-25), respetando los deberes de conservación.</li>
-        <li>Plan ante incidentes: cerrar sesiones, rotar claves, informar a Angela y evaluar el reporte a la Superintendencia de Industria y Comercio.</li>
-        <li>Las líneas de ayuda nunca dependen de la red: van dentro de la app.</li>
+        <li>Solo datos ficticios (<code>src/data/seed.ts</code>), también en capturas, video y exposición.</li>
+        <li>Sin secretos ni claves en el repositorio público.</li>
+        <li>Opción "Borrar todos los datos" en Ajustes.</li>
+        <li>Si se llevara a producción: respaldo cifrado, política de tratamiento y plan ante incidentes.</li>
       </ul>
     </div>
   </div>
-  <p class="small">Este capítulo orienta el diseño y no constituye asesoría legal. Angela debe validar los textos de autorización y consentimiento con su criterio profesional y, si lo considera, con el Colegio Colombiano de Psicólogos.</p>
+  <p class="small">La base local se protege con el aislamiento y el cifrado del propio sistema operativo; la app no agrega cifrado propio. Este capítulo orienta el diseño y no constituye asesoría legal.</p>
 </section>
 
-<!-- ===================== 15. COSTOS ===================== -->
+<!-- ===================== COSTOS ===================== -->
 <section>
   <h2 class="chapter">Costos</h2>
-  <p class="lead">El proyecto cuesta $0 durante el semestre. Los únicos costos posibles son opcionales y posteriores, y solo aplicarían si se quisiera publicar en tiendas.</p>
+  <p class="lead">Confirmado: el proyecto costó $0. Todo lo usado es gratuito o de código abierto. Los únicos costos posibles serían opcionales y solo si se quisiera publicar en tiendas.</p>
   <table>
-    <thead><tr><th class="k">Recurso</th><th>Plan</th><th>Qué incluye (relevante)</th><th style="width:18%">Costo</th></tr></thead>
+    <thead><tr><th class="k">Recurso</th><th>Plan</th><th>Para qué se usó</th><th style="width:16%">Costo</th></tr></thead>
     <tbody>
-      <tr><td class="k">React Native, Expo SDK, Expo Router</td><td>Código abierto</td><td>Todo el framework.</td><td>$0</td></tr>
-      <tr><td class="k">Expo Go</td><td>App gratuita</td><td>Ejecutar el proyecto en iPhone y Android sin compilar.</td><td>$0</td></tr>
-      <tr><td class="k">EAS (Expo Application Services)</td><td>Free</td><td>15 compilaciones Android y 15 iOS al mes (cola de baja prioridad); EAS Update hasta 1.000 usuarios activos al mes; hosting web.</td><td>$0</td></tr>
-      <tr><td class="k">Supabase</td><td>Free</td><td>2 proyectos activos, 500 MB de base de datos, 1 GB de archivos, 50.000 usuarios activos al mes. Se pausa tras 7 días sin uso.</td><td>$0</td></tr>
-      <tr><td class="k">GitHub + GitHub Actions</td><td>Free</td><td>Repositorio, tablero, CI (minutos gratuitos mensuales en repositorios privados).</td><td>$0</td></tr>
-      <tr><td class="k">Android Studio, VS Code, Maestro, Node.js</td><td>Gratis</td><td>Desarrollo, emulador y pruebas.</td><td>$0</td></tr>
-      <tr style="background:#F3F4F7"><td class="k">Apple Developer Program</td><td>Opcional</td><td>Solo para TestFlight/App Store después del semestre.</td><td>USD 99 / año</td></tr>
+      <tr><td class="k">React Native, Expo SDK 58, Expo Router</td><td>Código abierto</td><td>Todo el framework y la navegación.</td><td>$0</td></tr>
+      <tr><td class="k">Expo Go</td><td>App gratuita</td><td>Ejecutar el proyecto sin compilar.</td><td>$0</td></tr>
+      <tr><td class="k">NativeWind, TanStack Query, axios, Zustand, Reanimated, Leaflet</td><td>Código abierto</td><td>Interfaz, datos, estado, movimiento y mapa.</td><td>$0</td></tr>
+      <tr><td class="k">API de sismos del USGS</td><td>Pública, sin clave</td><td>Sismos recientes cerca de Pereira.</td><td>$0</td></tr>
+      <tr><td class="k">Teselas de OpenStreetMap</td><td>Uso razonable</td><td>Fondo del mapa de jornadas.</td><td>$0</td></tr>
+      <tr><td class="k">GitHub</td><td>Free</td><td>Repositorio público y pull requests.</td><td>$0</td></tr>
+      <tr><td class="k">Android Studio, VS Code, Node.js</td><td>Gratis</td><td>Desarrollo y emulador Pixel 8.</td><td>$0</td></tr>
+      <tr style="background:#F3F4F7"><td class="k">Apple Developer Program</td><td>Opcional</td><td>Solo para TestFlight o App Store.</td><td>USD 99 / año</td></tr>
       <tr style="background:#F3F4F7"><td class="k">Google Play Console</td><td>Opcional</td><td>Solo para publicar en Play Store.</td><td>USD 25 una vez</td></tr>
-      <tr style="background:#F3F4F7"><td class="k">Supabase Pro</td><td>Opcional</td><td>Sin pausas y con copias diarias, si hay uso real continuo.</td><td>USD 25 / mes</td></tr>
+      <tr style="background:#F3F4F7"><td class="k">Supabase y EAS</td><td>Opcional</td><td>Respaldo en la nube y compilaciones propias; sus planes gratuitos alcanzarían para empezar.</td><td>$0 al inicio</td></tr>
     </tbody>
   </table>
-  <p class="small">Límites de los planes gratuitos consultados en noviembre de 2026 (fuentes en el Anexo E); los proveedores pueden cambiarlos.</p>
+  <p class="small">Precios consultados en noviembre de 2026 (fuentes en el Anexo E); los proveedores pueden cambiarlos.</p>
 </section>
