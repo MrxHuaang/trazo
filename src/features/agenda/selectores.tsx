@@ -4,10 +4,10 @@
  */
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef } from 'react';
-import { FlatList, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
-import { isoDesde, numeroDia } from '@/lib/dates';
-import { color, radius, space } from '@/theme';
+import { cn } from '@/lib/cn';
+import { numeroDia } from '@/lib/dates';
 import { Text } from '@/ui';
 
 import { diaAbreviado, fechaTitulo, type OpcionHora } from './rules';
@@ -21,11 +21,11 @@ type OpcionProps = {
   tachada?: boolean;
   mono?: boolean;
   accessibilityLabel?: string;
-  style?: StyleProp<ViewStyle>;
+  className?: string;
 };
 
 /** Píldora seleccionable: tinta cuando está elegida, borde suave cuando no. */
-export function Opcion({ etiqueta, seleccionada, onPress, deshabilitada, tachada, mono, accessibilityLabel, style }: OpcionProps) {
+export function Opcion({ etiqueta, seleccionada, onPress, deshabilitada, tachada, mono, accessibilityLabel, className }: OpcionProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -36,17 +36,14 @@ export function Opcion({ etiqueta, seleccionada, onPress, deshabilitada, tachada
         if (!seleccionada) void Haptics.selectionAsync();
         onPress();
       }}
-      style={({ pressed }) => [
-        styles.opcion,
-        seleccionada && styles.opcionActiva,
-        deshabilitada && styles.opcionInactiva,
-        pressed && styles.pressed,
-        style,
-      ]}>
+      className={cn(
+        'min-h-[44px] items-center justify-center rounded-full border px-4 active:opacity-70',
+        seleccionada ? 'border-ink bg-ink' : deshabilitada ? 'border-quiet bg-quiet' : 'border-line bg-surface',
+        className,
+      )}>
       <Text
         variant={mono ? 'mono' : 'label'}
-        tone={seleccionada ? color.onAccent : deshabilitada ? color.inkSoft : color.ink}
-        style={tachada && styles.tachada}>
+        className={cn(seleccionada ? 'text-accent-on' : deshabilitada ? 'text-ink-soft' : 'text-ink', tachada && 'line-through')}>
         {etiqueta}
       </Text>
     </Pressable>
@@ -55,8 +52,7 @@ export function Opcion({ etiqueta, seleccionada, onPress, deshabilitada, tachada
 
 /* ---------- Fecha ---------- */
 
-const ANCHO_FECHA = 52;
-const PASO_FECHA = ANCHO_FECHA + space.sm;
+const PASO_FECHA = 52 + 8;
 
 type FechaChipsProps = {
   dias: string[];
@@ -81,8 +77,8 @@ export function FechaChips({ dias, valor, onChange, hoy }: FechaChipsProps) {
       data={dias}
       keyExtractor={(d) => d}
       showsHorizontalScrollIndicator={false}
-      style={styles.tira}
-      contentContainerStyle={styles.tiraContenido}
+      className="-mx-5 grow-0"
+      contentContainerClassName="px-5"
       getItemLayout={(_, i) => ({ length: PASO_FECHA, offset: PASO_FECHA * i, index: i })}
       initialScrollIndex={indice > 2 ? indice - 2 : undefined}
       onScrollToIndexFailed={() => undefined}
@@ -98,12 +94,15 @@ export function FechaChips({ dias, valor, onChange, hoy }: FechaChipsProps) {
               if (!activa) void Haptics.selectionAsync();
               onChange(item);
             }}
-            style={({ pressed }) => [styles.fecha, activa && styles.opcionActiva, pressed && styles.pressed]}>
-            <Text variant="caption" tone={activa ? color.onAccent : color.inkSoft}>
+            className={cn(
+              'mr-2 w-[52px] items-center gap-0.5 rounded-full border py-2 active:opacity-70',
+              activa ? 'border-ink bg-ink' : 'border-line bg-surface',
+            )}>
+            <Text variant="caption" className={activa ? 'text-accent-on' : 'text-ink-soft'}>
               {item === hoy ? 'hoy' : diaAbreviado(item)}
             </Text>
-            <Text variant="heading" tone={activa ? color.onAccent : color.ink}>
-              {numeroDia(isoDesde(item))}
+            <Text variant="heading" className={activa ? 'text-accent-on' : 'text-ink'}>
+              {numeroDia(item)}
             </Text>
           </Pressable>
         );
@@ -125,7 +124,7 @@ const MOTIVO: Record<OpcionHora['estado'], string> = { libre: '', ocupada: ', oc
 /** Cuadrícula de horas de inicio. Las ocupadas o bloqueadas se ven tachadas y no se pueden elegir. */
 export function HoraChips({ horas, valor, onChange }: HoraChipsProps) {
   return (
-    <View style={styles.cuadricula}>
+    <View className="flex-row flex-wrap gap-2">
       {horas.map((h) => (
         <Opcion
           key={h.hora}
@@ -136,15 +135,14 @@ export function HoraChips({ horas, valor, onChange }: HoraChipsProps) {
           tachada={h.estado !== 'libre'}
           accessibilityLabel={`${h.hora}${MOTIVO[h.estado]}`}
           onPress={() => onChange(h.hora)}
-          style={styles.hora}
+          className="min-w-[76px] px-3"
         />
       ))}
     </View>
   );
 }
 
-const ANCHO_HORA = 72;
-const PASO_HORA = ANCHO_HORA + space.sm;
+const PASO_HORA = 72 + 8;
 
 /** Tira horizontal de horas ('08:00') para elegir el inicio o el fin de una franja. */
 export function HoraTira({ horas, valor, onChange, etiqueta }: { horas: string[]; valor: string; onChange: (h: string) => void; etiqueta: string }) {
@@ -162,8 +160,8 @@ export function HoraTira({ horas, valor, onChange, etiqueta }: { horas: string[]
       data={horas}
       keyExtractor={(h) => h}
       showsHorizontalScrollIndicator={false}
-      style={styles.tira}
-      contentContainerStyle={styles.tiraContenido}
+      className="-mx-5 grow-0"
+      contentContainerClassName="px-5"
       getItemLayout={(_, i) => ({ length: PASO_HORA, offset: PASO_HORA * i, index: i })}
       initialScrollIndex={indice > 1 ? indice - 1 : undefined}
       onScrollToIndexFailed={() => undefined}
@@ -176,7 +174,7 @@ export function HoraTira({ horas, valor, onChange, etiqueta }: { horas: string[]
           accessibilityLabel={`${etiqueta} ${item}`}
           seleccionada={item === valor}
           onPress={() => onChange(item)}
-          style={styles.horaTira}
+          className="mr-2 w-[72px] px-0"
         />
       )}
     />
@@ -194,43 +192,10 @@ export function Opciones<T extends string | number>({
   onChange: (v: T) => void;
 }) {
   return (
-    <View style={styles.cuadricula}>
+    <View className="flex-row flex-wrap gap-2">
       {opciones.map((o) => (
         <Opcion key={String(o.valor)} etiqueta={o.etiqueta} seleccionada={o.valor === valor} onPress={() => onChange(o.valor)} />
       ))}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  opcion: {
-    minHeight: 44,
-    paddingHorizontal: space.lg,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  opcionActiva: { backgroundColor: color.ink, borderColor: color.ink },
-  opcionInactiva: { backgroundColor: color.quiet, borderColor: color.quiet },
-  tachada: { textDecorationLine: 'line-through' },
-  pressed: { opacity: 0.7 },
-  tira: { marginHorizontal: -space.xl, flexGrow: 0 },
-  tiraContenido: { paddingHorizontal: space.xl },
-  fecha: {
-    width: ANCHO_FECHA,
-    marginRight: space.sm,
-    paddingVertical: space.sm,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-    alignItems: 'center',
-    gap: 2,
-  },
-  cuadricula: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  hora: { minWidth: 76, paddingHorizontal: space.md },
-  horaTira: { width: ANCHO_HORA, marginRight: space.sm, paddingHorizontal: 0 },
-});

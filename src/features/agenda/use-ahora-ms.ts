@@ -11,3 +11,6 @@ export function useAhoraMs() {
 
   return ms;
 }
+
+/** Instante actual para usar dentro de manejadores de eventos (no durante el render). */
+export const instante = () => Date.now();

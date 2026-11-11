@@ -1,19 +1,18 @@
-import * as Haptics from 'expo-haptics';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { View } from 'react-native';
 
 import type { CitaConPaciente } from '@/domain/types';
+import { cn } from '@/lib/cn';
 import { horaTexto } from '@/lib/dates';
-import { color, radius, space, tile } from '@/theme';
-import { HatchOverlay, SolidarioMark, Text } from '@/ui';
+import { tile } from '@/theme';
+import { HatchOverlay, Presionable, SolidarioMark, Text } from '@/ui';
 
-import { ETIQUETA_ESTADO, ETIQUETA_MODALIDAD, rangoHoras } from './rules';
+import { ETIQUETA_ESTADO, ETIQUETA_MODALIDAD, esActiva, rangoHoras } from './rules';
 
 type Props = {
   cita: CitaConPaciente;
   /** Alto disponible en px: decide cuántas líneas caben. */
   alto: number;
   onPress: () => void;
-  style?: StyleProp<ViewStyle>;
 };
 
 /**
@@ -21,98 +20,71 @@ type Props = {
  * consulta en lavanda, solidaria en durazno con textura, solicitada con borde punteado cobalto,
  * asistió atenuada y no asistió con borde de error.
  */
-export function CitaBloque({ cita, alto, onPress, style }: Props) {
+export function CitaBloque({ cita, alto, onPress }: Props) {
   const solicitada = cita.estado === 'solicitada';
-  const tono = cita.esSolidaria ? tile.solidario : tile.consulta;
-  const fg = solicitada ? color.accent : tono.fg;
   const compacto = alto < 56;
+  const tinta = solicitada ? 'text-accent' : cita.esSolidaria ? 'text-durazno-ink' : 'text-lavanda-ink';
 
   const etiqueta = `${rangoHoras(cita)}, ${cita.paciente.nombre}, ${ETIQUETA_MODALIDAD[cita.modalidad].toLowerCase()}, ${ETIQUETA_ESTADO[cita.estado].toLowerCase()}${cita.esSolidaria ? ', cupo solidario' : ''}`;
-
-  const detalle = [
-    ETIQUETA_MODALIDAD[cita.modalidad].toLowerCase(),
-    cita.esSolidaria ? 'solidaria' : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const detalle = cita.esSolidaria
+    ? `${ETIQUETA_MODALIDAD[cita.modalidad].toLowerCase()} · solidaria`
+    : ETIQUETA_MODALIDAD[cita.modalidad].toLowerCase();
 
   return (
-    <Pressable
+    <Presionable
       accessibilityRole="button"
       accessibilityLabel={etiqueta}
-      accessibilityHint="Abre el detalle de la cita"
-      onPress={() => {
-        void Haptics.selectionAsync();
-        onPress();
-      }}
-      style={({ pressed }) => [
-        styles.base,
-        { backgroundColor: solicitada ? color.surface : tono.bg },
-        solicitada && styles.solicitada,
-        cita.estado === 'no_asistio' && styles.noAsistio,
-        cita.estado === 'asistio' && styles.atenuada,
-        pressed && styles.pressed,
-        style,
-      ]}>
+      accessibilityHint={esActiva(cita) ? 'Toca para abrirla. Mantén presionada y arrastra para cambiarle la hora.' : 'Abre el detalle de la cita'}
+      onPress={onPress}
+      hundir={0.98}
+      className="flex-1"
+      contentClassName={cn(
+        'flex-1 gap-px overflow-hidden rounded-field px-3 py-1.5',
+        solicitada ? 'border-[1.5px] border-dashed border-accent bg-surface' : cita.esSolidaria ? 'bg-durazno' : 'bg-lavanda',
+        cita.estado === 'no_asistio' && 'border-[1.5px] border-danger',
+        cita.estado === 'asistio' && 'opacity-60',
+      )}>
       {cita.esSolidaria && !solicitada ? <HatchOverlay color={tile.solidario.fg} /> : null}
-      <View style={styles.fila}>
-        <Text variant="mono" tone={fg}>
+      <View className="flex-row items-center gap-2">
+        <Text variant="mono" className={tinta}>
           {horaTexto(cita.inicio)}
         </Text>
         {compacto ? (
-          <Text variant="bodyMedium" tone={fg} numberOfLines={1} style={styles.flex}>
+          <Text variant="bodyMedium" className={cn('flex-1', tinta)} numberOfLines={1}>
             {solicitada ? `Solicitada · ${cita.paciente.nombre}` : cita.paciente.nombre}
           </Text>
         ) : (
-          <View style={styles.flex} />
+          <View className="flex-1" />
         )}
         {solicitada && cita.esSolidaria ? <SolidarioMark /> : null}
         {cita.estado === 'no_asistio' ? (
-          <View style={styles.insignia}>
-            <Text variant="caption" tone={color.danger}>
+          <View className="rounded-full bg-danger-bg px-2">
+            <Text variant="caption" className="text-danger">
               No asistió
             </Text>
           </View>
         ) : cita.estado === 'asistio' ? (
-          <Text variant="caption" tone={fg}>
+          <Text variant="caption" className={tinta}>
             Asistió
           </Text>
         ) : solicitada && !compacto ? (
-          <Text variant="caption" tone={fg}>
+          <Text variant="caption" className={tinta}>
             Solicitada
           </Text>
         ) : null}
       </View>
       {compacto ? null : (
         <>
-          <Text variant="bodyMedium" tone={fg} numberOfLines={1}>
+          <Text variant="bodyMedium" className={tinta} numberOfLines={1}>
             {cita.paciente.nombre}
           </Text>
           {alto >= 68 ? (
-            <Text variant="caption" tone={fg} numberOfLines={1}>
+            <Text variant="caption" className={tinta} numberOfLines={1}>
               {detalle}
             </Text>
           ) : null}
         </>
       )}
-    </Pressable>
+    </Presionable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    flex: 1,
-    borderRadius: radius.field,
-    paddingHorizontal: space.md,
-    paddingVertical: 6,
-    overflow: 'hidden',
-    gap: 1,
-  },
-  solicitada: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.accent },
-  noAsistio: { borderWidth: 1.5, borderColor: color.danger },
-  atenuada: { opacity: 0.6 },
-  pressed: { transform: [{ scale: 0.98 }] },
-  fila: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  flex: { flex: 1 },
-  insignia: { backgroundColor: color.dangerBg, borderRadius: radius.pill, paddingHorizontal: space.sm },
-});

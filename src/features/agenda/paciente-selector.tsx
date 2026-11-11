@@ -1,11 +1,12 @@
 import { UserPlusIcon } from 'phosphor-react-native/src/icons/UserPlus';
 import { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
+import { Keyboard, Pressable, View } from 'react-native';
+import Animated, { FadeIn, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
 import { useCrearPaciente, usePacientes } from '@/data/hooks';
 import type { Paciente } from '@/domain/types';
 import { formatoTelefono } from '@/lib/format';
-import { color, radius, space } from '@/theme';
+import { color } from '@/theme';
 import { Field, SolidarioMark, Text } from '@/ui';
 
 import { BotonTexto } from './boton-icono';
@@ -24,6 +25,8 @@ type Props = {
   autoFocus?: boolean;
 };
 
+const FILA = 'min-h-[52px] flex-row items-center gap-3 py-2 active:opacity-60';
+
 /**
  * Paciente de la cita: buscador por nombre o teléfono y creación en contexto.
  * Si el nombre no existe aparece "Crear paciente «…»"; los demás datos se completan en su ficha.
@@ -37,22 +40,24 @@ export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
 
   if (valor) {
     return (
-      <View style={styles.wrap}>
+      <View className="gap-2">
         <Text variant="label">Paciente</Text>
-        <View style={styles.elegido}>
-          <View style={styles.cuerpo}>
-            <View style={styles.nombreFila}>
-              <Text variant="bodyMedium" numberOfLines={1} style={styles.nombre}>
+        <Animated.View
+          entering={FadeIn.duration(200).reduceMotion(ReduceMotion.System)}
+          className="min-h-[56px] flex-row items-center gap-3 rounded-field border border-line bg-surface py-2 pl-4 pr-3">
+          <View className="flex-1 gap-0.5">
+            <View className="flex-row items-center gap-2">
+              <Text variant="bodyMedium" numberOfLines={1} className="shrink">
                 {valor.nombre}
               </Text>
               {valor.afectadoSismo ? <SolidarioMark /> : null}
             </View>
-            <Text variant="caption" tone={color.inkSoft} numberOfLines={1}>
+            <Text variant="caption" className="text-ink-soft" numberOfLines={1}>
               {nuevo ? 'Paciente nuevo. Completa sus datos en su ficha.' : detallePaciente(valor)}
             </Text>
           </View>
           <BotonTexto etiqueta="Cambiar" accessibilityLabel="Cambiar paciente" onPress={() => onChange(null, false)} />
-        </View>
+        </Animated.View>
       </View>
     );
   }
@@ -74,7 +79,7 @@ export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
   };
 
   return (
-    <View style={styles.wrap}>
+    <View className="gap-2">
       <Field
         label="Paciente"
         placeholder="Nombre o teléfono"
@@ -88,31 +93,32 @@ export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
       />
       <View>
         {visibles.map((p) => (
-          <Pressable
-            key={p.id}
-            accessibilityRole="button"
-            accessibilityLabel={`${p.nombre}, ${detallePaciente(p)}`}
-            onPress={() => {
-              Keyboard.dismiss();
-              setBusqueda('');
-              onChange(p, false);
-            }}
-            style={({ pressed }) => [styles.fila, pressed && styles.pressed]}>
-            <View style={styles.cuerpo}>
-              <View style={styles.nombreFila}>
-                <Text variant="bodyMedium" numberOfLines={1} style={styles.nombre}>
-                  {p.nombre}
+          <Animated.View key={p.id} layout={LinearTransition.duration(160).reduceMotion(ReduceMotion.System)}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${p.nombre}, ${detallePaciente(p)}`}
+              onPress={() => {
+                Keyboard.dismiss();
+                setBusqueda('');
+                onChange(p, false);
+              }}
+              className={`${FILA} border-b border-line`}>
+              <View className="flex-1 gap-0.5">
+                <View className="flex-row items-center gap-2">
+                  <Text variant="bodyMedium" numberOfLines={1} className="shrink">
+                    {p.nombre}
+                  </Text>
+                  {p.afectadoSismo ? <SolidarioMark /> : null}
+                </View>
+                <Text variant="caption" className="text-ink-soft" numberOfLines={1}>
+                  {detallePaciente(p)}
                 </Text>
-                {p.afectadoSismo ? <SolidarioMark /> : null}
               </View>
-              <Text variant="caption" tone={color.inkSoft} numberOfLines={1}>
-                {detallePaciente(p)}
-              </Text>
-            </View>
-          </Pressable>
+            </Pressable>
+          </Animated.View>
         ))}
         {lista.length > MAXIMO ? (
-          <Text variant="caption" tone={color.inkSoft} style={styles.nota}>
+          <Text variant="caption" className="py-2 text-ink-soft">
             Hay {lista.length - MAXIMO} más. Escribe para afinar la búsqueda.
           </Text>
         ) : null}
@@ -122,15 +128,15 @@ export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
             accessibilityLabel={`Crear paciente ${texto}`}
             disabled={crear.isPending}
             onPress={crearPaciente}
-            style={({ pressed }) => [styles.fila, styles.crear, pressed && styles.pressed]}>
+            className={FILA}>
             <UserPlusIcon size={20} color={color.accent} />
-            <Text variant="bodyMedium" tone={color.accent} numberOfLines={1} style={styles.nombre}>
+            <Text variant="bodyMedium" className="shrink text-accent" numberOfLines={1}>
               Crear paciente «{texto}»
             </Text>
           </Pressable>
         ) : null}
         {lista.length === 0 && !puedeCrear ? (
-          <Text variant="caption" tone={color.inkSoft} style={styles.nota}>
+          <Text variant="caption" className="py-2 text-ink-soft">
             {texto ? 'Sin resultados.' : 'Escribe un nombre para buscar o crear un paciente.'}
           </Text>
         ) : null}
@@ -138,35 +144,3 @@ export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { gap: space.sm },
-  elegido: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    minHeight: 56,
-    paddingLeft: space.lg,
-    paddingRight: space.md,
-    paddingVertical: space.sm,
-    borderRadius: radius.field,
-    borderWidth: 1,
-    borderColor: color.line,
-    backgroundColor: color.surface,
-  },
-  fila: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    minHeight: 52,
-    paddingVertical: space.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.line,
-  },
-  crear: { borderBottomWidth: 0 },
-  cuerpo: { flex: 1, gap: 2 },
-  nombreFila: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  nombre: { flexShrink: 1 },
-  nota: { paddingVertical: space.sm },
-  pressed: { opacity: 0.6 },
-});
