@@ -60,6 +60,8 @@ export function TraceLine({
   style,
 }: TraceLineProps) {
   const [width, setWidth] = useState(0);
+  // El ancho también vive en el hilo de la interfaz: así el worklet nunca se queda con un ancho viejo (0).
+  const ancho = useSharedValue(0);
   const reduceMotion = useReducedMotion();
   const arranque = useSharedValue(animate && !reduceMotion ? 2.2 : 1);
   const fase = useSharedValue(0);
@@ -88,7 +90,7 @@ export function TraceLine({
   }, [hayProxima, reduceMotion, pulso]);
 
   const animatedProps = useAnimatedProps(() => ({
-    points: tracePoints(width, height, agitation * arranque.get() + (energia ? energia.get() : 0), calmFrom, fase.get()),
+    points: tracePoints(ancho.get(), height, agitation * arranque.get() + (energia ? energia.get() : 0), calmFrom, fase.get()),
   }));
 
   const mid = height / 2;
@@ -98,7 +100,11 @@ export function TraceLine({
     opacity: 0.35 * (1 - pulso.get()),
   }));
 
-  const onLayout = (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width));
+  const onLayout = (e: LayoutChangeEvent) => {
+    const w = Math.round(e.nativeEvent.layout.width);
+    ancho.set(w);
+    setWidth(w);
+  };
   const posicion = (at: number) => Math.min(width - nodeRadius * 4, Math.max(nodeRadius * 4, at * width));
 
   return (

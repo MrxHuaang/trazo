@@ -56,18 +56,18 @@ export function TituloMapa({ titulo, detalle }: { titulo: string; detalle?: stri
 
 const TEXTO_PERMISO: Record<Exclude<EstadoPermiso, 'concedido' | 'comprobando'>, { titulo: string; cuerpo: string; boton: string }> = {
   sin_preguntar: {
-    titulo: 'Mira dónde estás respecto a las jornadas',
-    cuerpo: 'Solo se usa en este mapa. No se guarda ni se comparte.',
+    titulo: '¿Te mostramos en el mapa?',
+    cuerpo: 'Tu ubicación no se guarda.',
     boton: 'Permitir ubicación',
   },
   denegado: {
     titulo: 'El mapa funciona sin tu ubicación',
-    cuerpo: 'Permite la ubicación si quieres verte en el mapa.',
+    cuerpo: 'Permite la ubicación para verte en él.',
     boton: 'Permitir ubicación',
   },
   bloqueado: {
     titulo: 'El mapa funciona sin tu ubicación',
-    cuerpo: 'Actívala en los ajustes del teléfono si quieres verte en el mapa.',
+    cuerpo: 'Actívala en los ajustes del teléfono.',
     boton: 'Abrir ajustes',
   },
 };

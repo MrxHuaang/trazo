@@ -137,7 +137,7 @@ export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, pro
             accessibilityLabel={`Marcar hecho el seguimiento de ${s.nombre}`}
           />
           <Accion
-            label="Posponer 7 días"
+            label="Posponer"
             icon={ClockClockwiseIcon}
             onPress={() => void posponer()}
             disabled={actualizar.isPending}

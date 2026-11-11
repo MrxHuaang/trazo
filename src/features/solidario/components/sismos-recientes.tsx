@@ -32,7 +32,6 @@ export function SismosRecientes() {
     <>
       <Seccion
         titulo="Sismos recientes cerca de Pereira"
-        detalle="Magnitud 2,5 o más, a menos de 400 km."
         accion={
           sismos.length ? (
             <Accion

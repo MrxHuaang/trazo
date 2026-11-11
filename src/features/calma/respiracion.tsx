@@ -120,8 +120,7 @@ export function Respiracion() {
               Respira con el Trazo
             </Text>
             <Text variant="bodyLarge" className="text-ink-soft">
-              Inhala mientras la línea sube, sostén arriba y suelta el aire mientras baja. Cuatro, cuatro y seis
-              segundos, cinco veces.
+              Inhala 4, sostén 4, suelta 6. Cinco veces.
             </Text>
           </Aparecer>
         )}
