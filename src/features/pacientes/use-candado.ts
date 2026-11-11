@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AppState } from 'react-native';
@@ -52,6 +53,8 @@ export function useCandado(alBloquear: () => void) {
   const aplicar = (verificacion: Verificacion) => {
     setVerificando(false);
     if (verificacion === 'ok') {
+      // El candado cede: toque háptico de éxito.
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setMensaje(null);
       setEstado('abierta');
     } else if (verificacion === 'sin-seguridad') {
