@@ -1,130 +1,109 @@
-<!-- ===================== 16. ANEXOS ===================== -->
+<!-- ===================== ANEXOS ===================== -->
 <section>
   <h2 class="chapter">Anexos</h2>
 
   <h3 class="nonum">Anexo A · Entorno de desarrollo paso a paso (Windows)</h3>
   <h4>1. Instalar herramientas</h4>
   <ol>
-    <li><strong>Git</strong> (git-scm.com) y <strong>Node.js LTS</strong> (nodejs.org). Verificar: <code>node -v</code>, <code>git --version</code>.</li>
-    <li><strong>VS Code</strong> con las extensiones Expo Tools, ESLint y Prettier.</li>
-    <li><strong>Android Studio</strong>: instalar el SDK de Android y crear el emulador principal: Device Manager → Create device → <strong>Pixel 8</strong> → imagen Android 15 (API 35) “Google Play” → 4 GB de RAM. Crear también un perfil pequeño (≈360 dp de ancho) para detectar desbordes. Activar “Plataforma del hipervisor de Windows” si el emulador va lento y agregar <code>ANDROID_HOME</code> si Expo no encuentra el SDK.</li>
-    <li><strong>Expo Go</strong> se instala solo en el emulador la primera vez. Para la prueba final, Expo Go desde App Store en un iPhone.</li>
+    <li><strong>Git</strong> (git-scm.com) y <strong>Node.js LTS</strong> con npm (nodejs.org). Verificar: <code>node -v</code>, <code>npm -v</code>, <code>git --version</code>.</li>
+    <li><strong>VS Code</strong> con las extensiones Expo Tools, ESLint y Tailwind CSS IntelliSense (autocompleta las clases de NativeWind).</li>
+    <li><strong>Android Studio</strong>: instalar el SDK de Android y crear el emulador: Device Manager → Create device → <strong>Pixel 8</strong> → imagen reciente “Google Play” (Android 15 o superior). Si Expo no encuentra el SDK, agregar <code>ANDROID_HOME</code> y la carpeta <code>platform-tools</code> (donde está <code>adb</code>) al PATH.</li>
   </ol>
-  <h4>2. Crear cuentas gratuitas</h4>
-  <p>GitHub, expo.dev y supabase.com. En Supabase crear el proyecto <code>trazo-dev</code> en la región São Paulo.</p>
-  <h4>3. Crear y abrir el proyecto</h4>
-<pre><code>npx create-expo-app@latest trazo
+  <h4>2. Clonar y ejecutar</h4>
+<pre><code>git clone https://github.com/MrxHuaang/trazo.git
 cd trazo
-npx expo start            <span class="c"># "a" abre el emulador Android; el QR abre el iPhone con Expo Go</span>
-npx expo start --tunnel   <span class="c"># si el celular no está en la misma red</span></code></pre>
-  <h4>4. Conectar Supabase</h4>
-<pre><code>npx supabase login
-npx supabase init
-npx supabase link --project-ref &lt;id-del-proyecto&gt;
-npx supabase migration new citas          <span class="c"># escribir el SQL en supabase/migrations/</span>
-npx supabase db push                      <span class="c"># aplicar migraciones al proyecto remoto</span>
-npx supabase gen types typescript --linked &gt; src/types/database.ts</code></pre>
-  <p class="small">Opcional: con Docker Desktop, <code>npx supabase start</code> levanta una base local para probar migraciones y ejecutar <code>npx supabase test db</code>.</p>
-  <h4>5. Variables de entorno</h4>
-<pre><code><span class="c"># .env  (en .gitignore; se sube solo .env.example con valores vacíos)</span>
-EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_xxxx   <span class="c"># clave publicable; NUNCA la de servicio</span></code></pre>
-<pre><code><span class="c">// src/lib/supabase.ts</span>
-<span class="k">import</span> { createClient } <span class="k">from</span> <span class="s">'@supabase/supabase-js'</span>;
-<span class="k">import</span> { AppState } <span class="k">from</span> <span class="s">'react-native'</span>;
-<span class="k">import</span> { almacenamientoCifrado } <span class="k">from</span> <span class="s">'./secure-storage'</span>;   <span class="c">// AES + SecureStore</span>
-<span class="k">import type</span> { Database } <span class="k">from</span> <span class="s">'@/types/database'</span>;
-
-<span class="k">export const</span> supabase = createClient&lt;Database&gt;(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!,
-  { auth: { storage: almacenamientoCifrado, autoRefreshToken: <span class="k">true</span>, persistSession: <span class="k">true</span>, detectSessionInUrl: <span class="k">false</span> } },
-);
-
-AppState.addEventListener(<span class="s">'change'</span>, (estado) =&gt; {
-  <span class="k">if</span> (estado === <span class="s">'active'</span>) supabase.auth.startAutoRefresh();
-  <span class="k">else</span> supabase.auth.stopAutoRefresh();
-});</code></pre>
-  <h4>6. Configurar EAS</h4>
-<pre><code>npm install -g eas-cli
-eas login
-eas init                  <span class="c"># vincula el proyecto con tu cuenta de Expo</span>
-eas update:configure      <span class="c"># habilita actualizaciones OTA (canal demo)</span>
-eas build:configure</code></pre>
-<pre><code><span class="c">// eas.json</span>
-{
-  <span class="s">"cli"</span>: { <span class="s">"appVersionSource"</span>: <span class="s">"remote"</span> },
-  <span class="s">"build"</span>: {
-    <span class="s">"preview"</span>:    { <span class="s">"distribution"</span>: <span class="s">"internal"</span>, <span class="s">"channel"</span>: <span class="s">"demo"</span>, <span class="s">"android"</span>: { <span class="s">"buildType"</span>: <span class="s">"apk"</span> } },
-    <span class="s">"production"</span>: { <span class="s">"channel"</span>: <span class="s">"production"</span> }
-  }
-}</code></pre>
-  <h4>7. Verificación de la Semana 0</h4>
+git switch feat/mvp-sprints
+npm install
+npx expo start            <span class="c"># tecla "a": abre el emulador Pixel 8 con Expo Go</span></code></pre>
+  <p class="small">No hay variables de entorno ni cuentas que configurar: los datos viven en SQLite dentro del teléfono y los servicios remotos (USGS, OpenStreetMap) son públicos.</p>
+  <h4>3. Expo Go 58 en el emulador</h4>
+  <ul>
+    <li>La primera vez, <code>npx expo start</code> instala Expo Go en el emulador. Debe ser la versión 58 (se usó la 58.0.5).</li>
+    <li>Si el emulador abre un Expo Go viejo, es porque el arranque rápido restauró una instantánea anterior: hacer <em>Cold Boot</em> desde Device Manager y dejar que Expo instale la versión compatible.</li>
+    <li>Si Expo Go se queda en “Downloading 100 %”, redirigir el puerto y abrir la dirección local:</li>
+  </ul>
+<pre><code>adb reverse tcp:8081 tcp:8081
+<span class="c"># en Expo Go: "Enter URL manually" → exp://127.0.0.1:8081</span></code></pre>
+  <h4>4. iPhone (opcional)</h4>
+  <p>Instalar Expo Go desde el App Store. Con el PC y el iPhone en la misma red Wi-Fi, escanear con la cámara el QR que muestra <code>npx expo start</code>; en otra red, usar <code>npx expo start --tunnel</code>. No se necesita Mac ni cuenta de Apple.</p>
+  <h4>5. Verificación</h4>
+<pre><code>npx tsc --noEmit          <span class="c"># tipos (TypeScript estricto)</span>
+npx expo lint             <span class="c"># estilo (ESLint de Expo)</span></code></pre>
   <ul class="check">
-    <li>La app de plantilla abre en el emulador Pixel 8 con Expo Go.</li>
-    <li>Las fuentes (Bricolage Grotesque, Geist, Geist Mono) y los tokens de Trazo suave cargan correctamente; se probó si una actualización de EAS abre en Expo Go.</li>
-    <li>La app lee una tabla de prueba de Supabase con RLS activado.</li>
-    <li>El CI corre en GitHub y queda en verde.</li>
+    <li>La app abre en el emulador Pixel 8 con Expo Go 58 y muestra la bienvenida.</li>
+    <li>“Explorar con datos de demostración” carga 12 pacientes ficticios con citas, pagos y jornadas.</li>
+    <li>Con internet, Solidario muestra los sismos recientes y el mapa de jornadas.</li>
+    <li>Tipos y lint terminan sin errores.</li>
   </ul>
 
   <h3 class="nonum">Anexo B · Convenciones de código</h3>
   <table class="compact">
     <thead><tr><th class="k">Elemento</th><th>Convención</th><th>Ejemplo</th></tr></thead>
     <tbody>
-      <tr><td class="k">Componentes</td><td>PascalCase, un componente por archivo, exportación con nombre</td><td><code>TimelineItem.tsx</code></td></tr>
-      <tr><td class="k">Hooks</td><td>Prefijo <code>use</code>, en <code>queries.ts</code> o <code>hooks/</code></td><td><code>useCitasDeLaSemana</code></td></tr>
-      <tr><td class="k">Rutas</td><td>minúsculas según Expo Router; exportación por defecto solo aquí</td><td><code>app/(app)/cita/[id].tsx</code></td></tr>
-      <tr><td class="k">Tipos y esquemas</td><td>Mismo nombre para el esquema Zod y su tipo</td><td><code>Cita</code> / <code>z.infer&lt;typeof Cita&gt;</code></td></tr>
-      <tr><td class="k">Base de datos</td><td>snake_case, plural, en español</td><td><code>notas_sesion.autora_id</code></td></tr>
-      <tr><td class="k">Imports</td><td>Alias <code>@/</code> para <code>src/</code>; nada de rutas <code>../../../</code></td><td><code>@/features/citas</code></td></tr>
-      <tr><td class="k">TypeScript</td><td><code>strict</code>, <code>noUncheckedIndexedAccess</code>; prohibido <code>any</code> sin justificar</td><td>—</td></tr>
-      <tr><td class="k">Commits</td><td>Conventional Commits con ID de historia</td><td><code>feat(pagos): resumen mensual (HU-16)</code></td></tr>
+      <tr><td class="k">Estructura</td><td>Las rutas en <code>src/app/</code> solo componen; pantallas y reglas en <code>src/features/&lt;módulo&gt;/</code>; componentes reutilizables sin lógica de negocio en <code>src/ui/</code></td><td><code>app/cita/[id].tsx</code></td></tr>
+      <tr><td class="k">Archivos y nombres</td><td>Archivos en minúsculas con guiones; componentes en PascalCase con exportación con nombre; exportación por defecto solo en rutas</td><td><code>pantalla-bloqueo.tsx</code></td></tr>
+      <tr><td class="k">Estilos</td><td><code>className</code> de NativeWind en todo; sin <code>StyleSheet.create</code> ni colores literales; <code>style</code> en línea solo para valores dinámicos (medidas, animaciones, zonas seguras)</td><td><code>className="bg-lavanda"</code></td></tr>
+      <tr><td class="k">Pressable</td><td>Nunca pasar una función a <code>style</code> (NativeWind la descarta y rompe el diseño); usar <code>active:opacity-60</code> o <code>Presionable</code></td><td><code>&lt;Presionable&gt;</code></td></tr>
+      <tr><td class="k">Clases completas</td><td>Los nombres de clase de Tailwind se escriben completos, nunca concatenados</td><td><code>activo ? 'bg-menta' : 'bg-lavanda'</code></td></tr>
+      <tr><td class="k">Tamaños táctiles</td><td>Todo lo tocable mide al menos 44 pt; botones principales 52 pt</td><td><code>min-h-[44px]</code></td></tr>
+      <tr><td class="k">Color y tipo</td><td>Paleta única en <code>src/theme/palette.js</code> (usada por <code>tailwind.config.js</code>); variantes de texto con <code>&lt;Text variant&gt;</code>; unir clases con <code>cn()</code></td><td><code>variant="heading"</code></td></tr>
+      <tr><td class="k">Íconos</td><td>Phosphor con importación profunda, nunca desde la raíz del paquete</td><td><code>phosphor-react-native/src/icons/Sun</code></td></tr>
+      <tr><td class="k">Reanimated</td><td>Valores compartidos con <code>.get()</code> y <code>.set()</code> (React Compiler activo)</td><td><code>energia.set(0)</code></td></tr>
+      <tr><td class="k">Datos</td><td>Toda llave de consulta empieza con una llave base de <code>qk</code>; las mutaciones invalidan por llave base</td><td><code>qk.citas</code></td></tr>
+      <tr><td class="k">Fechas y dinero</td><td>Siempre con <code>src/lib/dates.ts</code> (hora de Colombia) y <code>src/lib/format.ts</code></td><td><code>horaTexto()</code></td></tr>
+      <tr><td class="k">TypeScript</td><td><code>strict</code> y <code>noUncheckedIndexedAccess</code>; alias <code>@/</code> para <code>src/</code></td><td><code>@/features/agenda</code></td></tr>
+      <tr><td class="k">Commits</td><td>Conventional Commits en español, con el módulo como alcance</td><td><code>feat(pagos): resumen mensual, registro de pagos y PDF</code></td></tr>
     </tbody>
   </table>
-  <h4>Plantilla de Pull Request</h4>
-<pre><code>## Qué cambia
-HU-xx · descripción breve
-
-## Cómo probarlo
-1. …
-
-## Lista de verificación
-- [ ] Criterios de aceptación cumplidos
-- [ ] Pruebas nuevas / actualizadas
-- [ ] Probado en iPhone (Expo Go) y Android
-- [ ] Sin datos reales ni secretos
-- [ ] Capturas (con datos ficticios)</code></pre>
+  <h4>Lista de verificación antes de integrar</h4>
+<pre><code>- [ ] Solo se tocaron las rutas y la carpeta del módulo (tabla de AGENTS.md)
+- [ ] npx tsc --noEmit y npx expo lint sin errores
+- [ ] Revisado en el emulador Pixel 8 con datos de demostración
+- [ ] Objetivos de 44 pt, etiquetas para lector de pantalla, Reducir movimiento
+- [ ] Sin datos reales ni secretos</code></pre>
 
   <h3 class="nonum">Anexo C · Borrador de autorización de tratamiento de datos</h3>
   <div class="card sand">
-    <p><strong>Autorización para el tratamiento de datos personales</strong> <span class="tag mid">Borrador v0.1 · para revisión de la responsable</span></p>
-    <p>Yo, ______________________, identificado(a) con ______________________, autorizo de manera previa, expresa e informada a <strong>Angela Sophia Córdoba</strong>, psicóloga, como Responsable del Tratamiento, para recolectar, almacenar, usar, actualizar y suprimir mis datos personales, incluidos datos sensibles relativos a mi salud, con las siguientes finalidades:</p>
+    <p><strong>Autorización para el tratamiento de datos personales</strong> <span class="tag mid">Borrador · no se usa con personas reales</span></p>
+    <p>Yo, ______________________, identificado(a) con ______________________, autorizo de manera previa, expresa e informada a <strong>[nombre de la psicóloga]</strong>, como Responsable del Tratamiento, para recolectar, almacenar, usar, actualizar y suprimir mis datos personales, incluidos datos sensibles relativos a mi salud, con las siguientes finalidades:</p>
     <ol>
       <li>Agendar y gestionar mis citas.</li>
-      <li>Enviarme recordatorios y comunicaciones sobre mi atención por WhatsApp, llamada o correo electrónico.</li>
+      <li>Enviarme recordatorios y comunicaciones sobre mi atención por WhatsApp o llamada.</li>
       <li>Llevar el registro de mi proceso de atención psicológica.</li>
       <li>Gestionar pagos y tarifas, incluidas tarifas solidarias.</li>
       <li>Elaborar estadísticas anónimas sobre la atención brindada a personas afectadas por el sismo del 10 de agosto de 2026.</li>
     </ol>
-    <p>Declaro que se me informó que: el suministro de datos sensibles es facultativo y no estoy obligado(a) a autorizar su tratamiento; mis datos se almacenan en servicios en la nube con servidores ubicados fuera de Colombia, bajo medidas de seguridad; como titular tengo derecho a conocer, actualizar, rectificar y solicitar la supresión de mis datos y a revocar esta autorización, salvo cuando exista un deber legal o contractual de conservarlos; puedo ejercer estos derechos escribiendo a [correo de contacto] y consultar la política de tratamiento en [enlace].</p>
-    <p style="margin:0">Fecha: ____________ · Firma o aceptación en la app: ____________ · Si es menor de edad, representante legal: ____________</p>
+    <p>Declaro que se me informó que: el suministro de datos sensibles es facultativo y no estoy obligado(a) a autorizar su tratamiento; mis datos se guardan en el teléfono de la profesional, protegido con bloqueo, y no se envían a servidores de terceros; como titular tengo derecho a conocer, actualizar, rectificar y solicitar la supresión de mis datos y a revocar esta autorización, salvo cuando exista un deber legal de conservarlos; puedo ejercer estos derechos escribiendo a [correo de contacto].</p>
+    <p style="margin:0">Fecha: ____________ · Firma o aceptación: ____________ · Si es menor de edad, representante legal: ____________</p>
   </div>
-  <p class="small">Texto de trabajo basado en la Ley 1581 de 2012; no constituye asesoría legal.</p>
+  <p class="small">Texto de trabajo basado en la Ley 1581 de 2012; no constituye asesoría legal. En la app, la autorización se registra por paciente con su fecha y la versión del texto aceptado.</p>
 
   <h3 class="nonum">Anexo D · Glosario</h3>
   <table class="compact">
     <tbody>
       <tr><td class="k">ADR</td><td>Registro de decisión de arquitectura: documento corto con contexto, decisión y consecuencias.</td></tr>
-      <tr><td class="k">EAS</td><td>Expo Application Services: compilación en la nube (Build), actualizaciones por aire (Update), publicación (Submit) y hosting web.</td></tr>
-      <tr><td class="k">Edge Function</td><td>Función que corre en los servidores de Supabase; aquí guarda la clave de servicio y valida las reservas web.</td></tr>
+      <tr><td class="k">axios</td><td>Librería para hacer peticiones HTTP; aquí consulta los sismos del USGS.</td></tr>
+      <tr><td class="k">Conventional Commits</td><td>Formato de mensajes de commit con tipo y alcance: <code>feat(agenda): …</code>, <code>fix(…)</code>, <code>docs: …</code>.</td></tr>
+      <tr><td class="k">EAS</td><td>Expo Application Services: compilación en la nube y publicación. No se usó; queda para producción.</td></tr>
       <tr><td class="k">Expo Go</td><td>App gratuita que ejecuta proyectos Expo sin compilarlos; permite probar en iPhone sin Mac.</td></tr>
-      <tr><td class="k">MASVS</td><td>Estándar de OWASP para la seguridad de aplicaciones móviles.</td></tr>
+      <tr><td class="k">Expo Router</td><td>Navegación basada en archivos: cada archivo de <code>src/app/</code> es una pantalla.</td></tr>
+      <tr><td class="k">formSheet</td><td>Presentación de una ruta como hoja que sube desde abajo, nativa en iPhone y en Android.</td></tr>
+      <tr><td class="k">Gesture Handler</td><td>Librería de gestos nativos: arrastrar citas, deslizar filas.</td></tr>
+      <tr><td class="k">Leaflet</td><td>Librería de mapas web; aquí corre dentro de una WebView.</td></tr>
+      <tr><td class="k">Local-first</td><td>Los datos se guardan primero en el dispositivo y la app funciona sin red; la nube sería opcional.</td></tr>
       <tr><td class="k">MoSCoW</td><td>Priorización: Must, Should, Could, Won't.</td></tr>
-      <tr><td class="k">MVP</td><td>Producto mínimo viable: lo mínimo que la usuaria usaría de verdad.</td></tr>
-      <tr><td class="k">OTA</td><td>Actualización por aire: cambia el código JavaScript sin reinstalar la app.</td></tr>
-      <tr><td class="k">RLS</td><td>Row Level Security: reglas en PostgreSQL que deciden qué filas puede ver o modificar cada usuario.</td></tr>
+      <tr><td class="k">MVP</td><td>Producto mínimo viable: lo mínimo para demostrar el valor de la idea.</td></tr>
+      <tr><td class="k">NativeWind</td><td>Permite usar clases de Tailwind (<code>className</code>) en componentes de React Native.</td></tr>
+      <tr><td class="k">OpenStreetMap</td><td>Mapa libre y colaborativo; provee las teselas (imágenes) del fondo del mapa.</td></tr>
+      <tr><td class="k">Reanimated</td><td>Librería de animaciones que corren en el hilo de la interfaz, fluidas aunque JavaScript esté ocupado.</td></tr>
+      <tr><td class="k">RLS</td><td>Row Level Security: reglas de PostgreSQL que deciden qué filas ve cada usuario. Aplicaría con Supabase en producción.</td></tr>
+      <tr><td class="k">SQLite</td><td>Base de datos en un archivo dentro del teléfono (<code>expo-sqlite</code>).</td></tr>
       <tr><td class="k">SUS</td><td>System Usability Scale: cuestionario de 10 preguntas que da un puntaje de usabilidad de 0 a 100.</td></tr>
-      <tr><td class="k">UTC</td><td>Tiempo universal coordinado; las fechas se guardan así y se muestran en hora de Colombia.</td></tr>
+      <tr><td class="k">Tailwind CSS</td><td>Sistema de clases utilitarias para estilos; su configuración guarda la paleta, las fuentes y los radios de Trazo.</td></tr>
+      <tr><td class="k">TanStack Query</td><td>Maneja la lectura, caché y actualización de datos, locales o remotos.</td></tr>
+      <tr><td class="k">USGS</td><td>Servicio Geológico de Estados Unidos; publica un catálogo mundial y abierto de sismos.</td></tr>
+      <tr><td class="k">WebView</td><td>Componente que muestra una página web dentro de la app.</td></tr>
+      <tr><td class="k">Zustand</td><td>Librería pequeña de estado global de interfaz: sesión, día de la agenda, filtros, mapa.</td></tr>
     </tbody>
   </table>
 
@@ -139,14 +118,25 @@ HU-xx · descripción breve
     <li>Vanguardia. <em>Salud mental tras el terremoto en Colombia: la emergencia que apenas comienza</em> (20 ago. 2026). https://www.vanguardia.com/colombia/2026/08/20/salud-mental-tras-el-terremoto-en-colombia-la-emergencia-que-apenas-comienza/</li>
     <li>Ministerio de Salud. <em>Directorio de líneas de salud mental y prevención del suicidio</em> (Línea Amiga Risaralda, Línea 106). https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/VS/PP/ET/directorio-salud-mental-prevencion-suicidio-minsalud.pdf</li>
   </ul>
-  <h4>Tecnología</h4>
+  <h4>Documentación técnica usada</h4>
   <ul class="small" style="color:#3F414A">
-    <li>Expo. <em>Expo SDK 58</em> (changelog). https://expo.dev/changelog/sdk-58</li>
-    <li>Expo. <em>Pricing</em> y <em>Billing plans</em>. https://expo.dev/pricing · https://docs.expo.dev/billing/plans/</li>
-    <li>Expo. <em>LocalAuthentication</em> (Face ID en Expo Go). https://docs.expo.dev/versions/latest/sdk/local-authentication/</li>
-    <li>Expo. <em>QR codes</em> (vista previa de EAS Update). https://docs.expo.dev/more/qr-codes</li>
-    <li>Supabase. <em>Pricing</em> y <em>Do Supabase projects pause when they're inactive?</em> https://supabase.com/pricing · https://supabase.com/kb/faqs/platform/free-project-pausing</li>
-    <li>TanStack. <em>React Native</em> (Query). https://tanstack.com/query/latest/docs/framework/react/react-native</li>
+    <li>Expo. <em>SDK 58 reference</em> (expo-sqlite, expo-location, expo-sensors, expo-local-authentication, expo-notifications, expo-print, expo-sharing, expo-haptics). https://docs.expo.dev/versions/v58.0.0/</li>
+    <li>Expo. <em>Expo Router</em> (pestañas nativas, pilas, rutas dinámicas y hojas). https://docs.expo.dev/router/introduction/</li>
+    <li>Expo. <em>Android Studio Emulator</em>. https://docs.expo.dev/workflow/android-studio-emulator/</li>
+    <li>Android Developers. <em>Android Debug Bridge (adb)</em>. https://developer.android.com/tools/adb</li>
+    <li>NativeWind. <em>Documentation</em> (v4). https://www.nativewind.dev/</li>
+    <li>Tailwind CSS. <em>Documentation</em> (v3). https://v3.tailwindcss.com/docs</li>
+    <li>TanStack. <em>Query: React Native</em>. https://tanstack.com/query/latest/docs/framework/react/react-native</li>
+    <li>Axios. <em>Getting started</em>. https://axios-http.com/docs/intro</li>
+    <li>Zustand. <em>Documentation</em>. https://zustand.docs.pmnd.rs/</li>
+    <li>Software Mansion. <em>React Native Reanimated</em> y <em>Gesture Handler</em>. https://docs.swmansion.com/react-native-reanimated/ · https://docs.swmansion.com/react-native-gesture-handler/</li>
+    <li>react-native-reanimated-carousel. <em>Documentation</em>. https://rn-carousel.dev/</li>
+    <li>Leaflet. <em>API reference</em>. https://leafletjs.com/reference.html</li>
+    <li>OpenStreetMap Foundation. <em>Tile Usage Policy</em>. https://operations.osmfoundation.org/policies/tiles/</li>
+    <li>USGS. <em>FDSN Event Web Service</em>. https://earthquake.usgs.gov/fdsnws/event/1/</li>
+    <li>Phosphor Icons. https://phosphoricons.com/</li>
+    <li>Conventional Commits 1.0.0. https://www.conventionalcommits.org/es/v1.0.0/</li>
+    <li>Expo. <em>Pricing</em>. https://expo.dev/pricing</li>
     <li>OWASP. <em>Mobile Application Security Verification Standard (MASVS)</em>. https://mas.owasp.org/MASVS/</li>
   </ul>
   <h4>Normas</h4>

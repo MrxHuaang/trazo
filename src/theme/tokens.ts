@@ -1,29 +1,33 @@
 /**
  * Sistema visual "Trazo suave".
- * Única fuente de color, tipografía, forma y espacio. Ningún componente usa valores sueltos.
+ * Valores para SVG, Reanimated y APIs nativas; las pantallas usan clases de NativeWind
+ * (tailwind.config.js). Los colores salen de palette.js, la única fuente.
  */
 import { Platform } from 'react-native';
 
+import { palette } from './palette';
+
 export const color = {
-  canvas: '#F6F7F9',
-  surface: '#FFFFFF',
-  ink: '#17171C',
-  inkSoft: '#5E6068',
-  line: '#E3E5EA',
-  accent: '#2340E0',
-  onAccent: '#FFFFFF',
-  danger: '#C4352B',
-  dangerBg: '#FDE3E0',
-  quiet: '#E7E9EE',
+  canvas: palette.canvas,
+  surface: palette.surface,
+  ink: palette.ink,
+  inkSoft: palette.inkSoft,
+  line: palette.line,
+  accent: palette.accent,
+  accentSoft: palette.accentSoft,
+  onAccent: palette.onAccent,
+  danger: palette.danger,
+  dangerBg: palette.dangerBg,
+  quiet: palette.quiet,
 } as const;
 
 /** Bloques: fondo pastel + texto oscuro de la misma familia (contraste > 7:1). */
 export const tile = {
-  consulta: { bg: '#D9D2FF', fg: '#241A5C' },
-  confirmar: { bg: '#C6EFD9', fg: '#0E3B26' },
-  solidario: { bg: '#FFD3BF', fg: '#4A1D0B' },
-  pagos: { bg: '#FFEFA8', fg: '#3D3102' },
-  neutral: { bg: '#FFFFFF', fg: '#17171C' },
+  consulta: { bg: palette.lavanda, fg: palette.lavandaInk },
+  confirmar: { bg: palette.menta, fg: palette.mentaInk },
+  solidario: { bg: palette.durazno, fg: palette.duraznoInk },
+  pagos: { bg: palette.mantequilla, fg: palette.mantequillaInk },
+  neutral: { bg: palette.surface, fg: palette.ink },
 } as const;
 
 export type TileTone = keyof typeof tile;
