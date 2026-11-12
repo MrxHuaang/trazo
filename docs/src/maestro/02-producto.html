@@ -1,0 +1,287 @@
+<!-- ===================== 4. PROPUESTA ===================== -->
+<section>
+  <h2 class="chapter">Propuesta de solución</h2>
+  <p class="lead">Trazo es la consulta de una psicóloga en el bolsillo. Lo solidario no es una app aparte: vive dentro de la misma agenda, con los mismos pacientes y los mismos recordatorios, para que donar tiempo no signifique perder el control de él.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" font-family="Geist, Segoe UI, sans-serif">
+      <rect x="10" y="10" width="300" height="190" rx="12" fill="#ECEBFF"/>
+      <rect x="330" y="10" width="300" height="190" rx="12" fill="#FFE3D6"/>
+      <text x="28" y="38" font-family="Bricolage Grotesque, sans-serif" font-size="17" font-weight="600" fill="#2340E0">Consultorio</text>
+      <text x="28" y="54" font-size="10" fill="#3F414A">Núcleo · ≈70 % del esfuerzo</text>
+      <text x="348" y="38" font-family="Bricolage Grotesque, sans-serif" font-size="17" font-weight="600" fill="#B4471C">Programa solidario</text>
+      <text x="348" y="54" font-size="10" fill="#3F414A">Módulo post-sismo · ≈30 % del esfuerzo</text>
+      <g font-size="11" fill="#17171C">
+        <text x="28" y="80">• Bandeja “Hoy”</text>
+        <text x="28" y="98">• Agenda en línea de tiempo</text>
+        <text x="28" y="116">• Pacientes y ficha</text>
+        <text x="28" y="134">• Recordatorios por WhatsApp</text>
+        <text x="170" y="80">• Pagos y tarifas</text>
+        <text x="170" y="98">• Notas privadas bajo llave</text>
+        <text x="170" y="116">• Disponibilidad</text>
+        <text x="170" y="134">• Reservas web</text>
+        <text x="348" y="80">• Paciente afectado + tipo</text>
+        <text x="348" y="98">• Cupos solidarios semanales</text>
+        <text x="348" y="116">• Jornadas y talleres</text>
+        <text x="348" y="134">• Asistentes rápidos</text>
+        <text x="490" y="80">• Seguimientos</text>
+        <text x="490" y="98">• Directorio de ayuda</text>
+        <text x="490" y="116">• Informe de impacto</text>
+      </g>
+      <rect x="120" y="160" width="400" height="58" rx="10" fill="#fff" stroke="#2340E0" stroke-width="1.4"/>
+      <text x="320" y="183" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2340E0">Base compartida</text>
+      <text x="320" y="203" text-anchor="middle" font-size="10.5" fill="#3F414A">mismos pacientes · misma agenda · mismos recordatorios · misma seguridad</text>
+      <text x="320" y="242" text-anchor="middle" font-size="10" fill="#5E6068">Usuarios: Angela usa la app (iPhone/Android) · los pacientes usan WhatsApp y una página web de reservas, sin instalar nada</text>
+    </svg>
+    <figcaption><b>Figura 1.</b> Los dos pilares de Trazo y lo que comparten.</figcaption>
+  </figure>
+
+  <h3>Quién usa qué</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Usuario</th><th>Canal</th><th>Para qué</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Psicóloga</td><td>App Trazo en su iPhone (en pruebas: emulador Pixel 8)</td><td>Todo el trabajo: agenda, pacientes, cobros, notas, programa solidario.</td></tr>
+      <tr><td class="k">Pacientes</td><td>WhatsApp (mensajes que Angela envía con un toque)</td><td>Recordatorios, confirmaciones, enlace de videollamada, líneas de ayuda.</td></tr>
+      <tr><td class="k">Pacientes nuevos</td><td>Página web <code>/reservar/angela</code> (mismo código, versión web)</td><td>Ver horarios libres y solicitar una cita; Angela la confirma desde la app.</td></tr>
+    </tbody>
+  </table>
+  <p>Que solo la psicóloga instale la app es una decisión deliberada: los pacientes no tienen que descargar nada, y el proyecto solo debe llegar a un iPhone, que es la parte que más cuesta sin Mac.</p>
+
+  <h3>Principios de producto</h3>
+  <div class="grid2">
+    <div class="card"><h4>1 · Lo solidario vive en la agenda</h4><p style="margin:0">Un cupo solidario es una franja de la misma agenda, con otro color. Angela ve en un vistazo cuánto tiempo dona y cuánto le queda.</p></div>
+    <div class="card"><h4>2 · Crear en contexto</h4><p style="margin:0">Se agenda tocando el hueco libre de la línea de tiempo; se crea un paciente escribiendo su nombre en el buscador. Sin formularios sueltos ni botones “Nuevo” genéricos.</p></div>
+    <div class="card"><h4>3 · WhatsApp primero</h4><p style="margin:0">Los pacientes ya están en WhatsApp. La app prepara el mensaje; Angela lo envía. Sin API pagas ni canales nuevos.</p></div>
+    <div class="card"><h4>4 · Confidencial por defecto</h4><p style="margin:0">Bloqueo al abrir (biometría o código), notas bajo llave, notificaciones sin nombres ni motivos, datos ficticios en desarrollo y sustentación.</p></div>
+    <div class="card"><h4>5 · Calma por diseño</h4><p style="margin:0">Sin sonidos de alarma ni vibraciones fuertes (pueden evocar el sismo), lenguaje sencillo, colores tranquilos y nada de imágenes de destrucción.</p></div>
+    <div class="card"><h4>6 · Gratis de operar</h4><p style="margin:0">Todo el stack funciona en planes gratuitos durante el semestre; los costos futuros son opcionales y están identificados.</p></div>
+  </div>
+
+  <h3>Alternativas evaluadas</h3>
+  <table class="tight">
+    <thead><tr><th style="width:24%">Alternativa</th><th>Valor para Angela</th><th>Encaje con la carta</th><th>Esfuerzo</th><th>Decisión</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Agenda de consulta</strong></td><td>Alto, uso diario</td><td>Débil sin módulo post-sismo</td><td>Medio</td><td>Se toma como núcleo</td></tr>
+      <tr><td><strong>Seguimiento psicosocial</strong> de afectados (registro en campo, tamizajes)</td><td>Medio, depende de que haga trabajo de campo</td><td>Total</td><td>Alto</td><td>Se toma una versión ligera como módulo</td></tr>
+      <tr><td><strong>Jornadas y talleres</strong> con inscripción</td><td>Medio</td><td>Total</td><td>Medio</td><td>Entra dentro del módulo solidario</td></tr>
+      <tr><td><strong>App para pacientes</strong> con reservas</td><td>Medio</td><td>Parcial</td><td>Alto (dos apps, más dispositivos)</td><td>Se reemplaza por una página web</td></tr>
+      <tr><td><strong>Agendador para negocios</strong> afectados</td><td>Ninguno (no es su caso)</td><td>No encaja</td><td>Medio</td><td>Descartada</td></tr>
+      <tr style="background:#F1F0FF"><td><strong>Trazo</strong>: consulta + programa solidario</td><td><strong>Alto</strong></td><td><strong>Total</strong></td><td><strong>Medio</strong></td><td><span class="tag must">Elegida</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== 5. ALCANCE ===================== -->
+<section>
+  <h2 class="chapter">Alcance del MVP</h2>
+  <p class="lead">El MVP es lo mínimo que Angela usaría en su consulta real. Se prioriza con MoSCoW y se construye en orden: primero lo que sirve todos los días, después lo solidario, al final lo que solo suma.</p>
+
+  <h3>Priorización por módulo</h3>
+  <table class="tight">
+    <thead><tr><th style="width:17%">Módulo</th><th>Funcionalidad</th><th style="width:11%">Prioridad</th><th style="width:9%">Sprint</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4"><strong>Acceso y demo</strong></td><td>Registro con correo y creación del consultorio</td><td><span class="tag must">Must</span></td><td>S1</td></tr>
+      <tr><td>Inicio de sesión; desbloqueo con biometría o código del teléfono</td><td><span class="tag must">Must</span></td><td>S1</td></tr>
+      <tr><td>Cargar datos ficticios de demostración con un toque</td><td><span class="tag must">Must</span></td><td>S1</td></tr>
+      <tr><td>Bloqueo automático tras inactividad; cierre de sesión remoto</td><td><span class="tag should">Should</span></td><td>S5</td></tr>
+      <tr><td rowspan="3"><strong>Pacientes</strong></td><td>Crear paciente desde el buscador; datos mínimos; archivar</td><td><span class="tag must">Must</span></td><td>S1</td></tr>
+      <tr><td>Ficha con línea de tiempo: citas, pagos, notas, seguimientos</td><td><span class="tag must">Must</span></td><td>S3</td></tr>
+      <tr><td>Consentimiento y autorización de datos registrados por paciente</td><td><span class="tag must">Must</span></td><td>S1</td></tr>
+      <tr><td rowspan="4"><strong>Agenda</strong></td><td>Vista día y semana en línea de tiempo; crear cita tocando el hueco</td><td><span class="tag must">Must</span></td><td>S2</td></tr>
+      <tr><td>Estados: solicitada, confirmada, asistió, no asistió, cancelada</td><td><span class="tag must">Must</span></td><td>S2</td></tr>
+      <tr><td>Disponibilidad semanal y bloqueos (vacaciones, jornadas)</td><td><span class="tag should">Should</span></td><td>S2</td></tr>
+      <tr><td>Reprogramar arrastrando la cita</td><td><span class="tag could">Could</span></td><td>S5</td></tr>
+      <tr><td rowspan="3"><strong>Hoy y recordatorios</strong></td><td>Bandeja “Hoy”: citas, por confirmar, solicitudes, seguimientos, cobros</td><td><span class="tag must">Must</span></td><td>S3</td></tr>
+      <tr><td>Recordatorio por WhatsApp en un toque con plantilla editable</td><td><span class="tag must">Must</span></td><td>S3</td></tr>
+      <tr><td>Notificación local a Angela antes de cada cita</td><td><span class="tag must">Must</span></td><td>S2</td></tr>
+      <tr><td rowspan="2"><strong>Pagos</strong></td><td>Pago por cita: monto, método (Nequi, Daviplata, efectivo, transferencia), estado</td><td><span class="tag must">Must</span></td><td>S3</td></tr>
+      <tr><td>Resumen mensual: cobrado, pendiente, donado</td><td><span class="tag should">Should</span></td><td>S3</td></tr>
+      <tr><td><strong>Notas</strong></td><td>Nota de sesión privada, protegida con biometría</td><td><span class="tag should">Should</span></td><td>S3</td></tr>
+      <tr><td rowspan="2"><strong>Reservas web</strong></td><td>Página pública con horarios libres y solicitud de cita</td><td><span class="tag should">Should</span></td><td>S5</td></tr>
+      <tr><td>Confirmar o rechazar solicitudes desde “Hoy”</td><td><span class="tag should">Should</span></td><td>S5</td></tr>
+      <tr><td rowspan="6"><strong>Programa solidario</strong></td><td>Marcar paciente como afectado y tipo de afectación</td><td><span class="tag must">Must</span></td><td>S4</td></tr>
+      <tr><td>Cupos solidarios semanales visibles en la agenda</td><td><span class="tag must">Must</span></td><td>S4</td></tr>
+      <tr><td>Directorio de líneas de ayuda, compartible por WhatsApp</td><td><span class="tag must">Must</span></td><td>S4</td></tr>
+      <tr><td>Jornadas y talleres: fecha, lugar, cupos; registro rápido de asistentes</td><td><span class="tag should">Should</span></td><td>S4</td></tr>
+      <tr><td>Seguimientos (“llamar en 1 semana”) que aparecen en “Hoy”</td><td><span class="tag should">Should</span></td><td>S4</td></tr>
+      <tr><td>Informe de impacto mensual (personas, sesiones, horas donadas)</td><td><span class="tag could">Could</span></td><td>S5</td></tr>
+      <tr><td><strong>Documentos</strong></td><td>Exportar resumen de paciente o del mes en PDF</td><td><span class="tag could">Could</span></td><td>S5</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Fuera de alcance este semestre</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Funcionalidad</th><th>Por qué no</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Pagos en línea (PSE, tarjetas)</td><td>Comisiones, contratos con pasarelas y requisitos de seguridad; Angela ya cobra por Nequi o Daviplata.</td></tr>
+      <tr><td class="k">Videollamada integrada</td><td>Se guarda el enlace de Meet o Zoom en la cita; construirla no aporta.</td></tr>
+      <tr><td class="k">App para pacientes</td><td>La página web cubre la reserva sin instalar nada.</td></tr>
+      <tr><td class="k">Chat con pacientes</td><td>Crea expectativa de respuesta inmediata, incluso en crisis. WhatsApp ya existe.</td></tr>
+      <tr><td class="k">Historia clínica electrónica completa</td><td>Requisitos normativos amplios (Resolución 1995 de 1999, Ley 2015 de 2020). Las notas son un apoyo, no la historia oficial, salvo que Angela decida lo contrario.</td></tr>
+      <tr><td class="k">Notificaciones push remotas</td><td>No están disponibles en Expo Go para Android y exigen configuración de pago en iOS. Las notificaciones locales cubren el caso.</td></tr>
+      <tr><td class="k">Varios profesionales en la interfaz</td><td>El modelo de datos ya lo soporta (consultorios y miembros), pero la interfaz se limita a una profesional.</td></tr>
+      <tr><td class="k">Facturación electrónica</td><td>Fuera del objetivo académico; se puede integrar más adelante.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Supuestos y restricciones</h3>
+  <div class="grid2">
+    <div>
+      <h4>Supuestos</h4>
+      <ul>
+        <li>La app se diseña para iPhone y se prueba en el emulador Pixel 8 con Expo Go.</li>
+        <li>Hay conexión a internet donde se usa (la app tolera cortes cortos).</li>
+        <li>El desarrollo, las pruebas y la sustentación usan solo datos ficticios.</li>
+        <li>Los pacientes usan WhatsApp.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Restricciones</h4>
+      <ul>
+        <li>Presupuesto: $0. Sin Mac. Solo modo claro.</li>
+        <li>Solo se usan librerías incluidas en Expo Go, para que la app abra en el iPhone sin compilar.</li>
+        <li>Un desarrollador; duración de un semestre.</li>
+        <li>Datos de salud: Ley 1581 de 2012 y Ley 1090 de 2006.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6. REQUERIMIENTOS ===================== -->
+<section>
+  <h2 class="chapter">Requerimientos</h2>
+  <p class="lead">Los requerimientos se escriben como historias de usuario con criterios de aceptación verificables. Cada historia es una tarjeta del tablero del proyecto y una rama de Git.</p>
+
+  <h3>Actores</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Actor</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Profesional</td><td>Psicóloga dueña de un consultorio (persona de referencia: Angela). Se registra con correo; cada cuenta ve solo sus datos.</td></tr>
+      <tr><td class="k">Solicitante</td><td>Persona que pide cita desde la página web, sin cuenta.</td></tr>
+      <tr><td class="k">Sistema</td><td>Procesos automáticos: notificaciones locales, reglas de la base de datos, funciones del servidor.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Historias de usuario</h3>
+  <table class="tight ids">
+    <thead><tr><th style="width:10%">ID</th><th>Historia</th><th style="width:11%">Prioridad</th></tr></thead>
+    <tbody>
+      <tr><td>HU-01</td><td>Como profesional, quiero iniciar sesión y desbloquear la app con biometría o el código del teléfono, para proteger la información de mis pacientes sin perder tiempo.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-02</td><td>Como profesional, quiero ver en “Hoy” mis citas, lo pendiente de confirmar, las solicitudes, los seguimientos y los cobros, para saber qué hacer primero.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-03</td><td>Como profesional, quiero ver mi agenda por día y semana en una línea de tiempo, para ver mis huecos libres de un vistazo.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-04</td><td>Como profesional, quiero crear una cita tocando un hueco libre, para agendar en segundos mientras hablo con el paciente.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-05</td><td>Como profesional, quiero cambiar el estado de una cita, para saber quién asistió y medir inasistencias.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-06</td><td>Como profesional, quiero enviar un recordatorio por WhatsApp con un toque, para reducir inasistencias sin escribir cada mensaje.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-07</td><td>Como profesional, quiero recibir una notificación antes de cada cita, para prepararme a tiempo.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-08</td><td>Como profesional, quiero crear un paciente escribiendo su nombre en el buscador, para no salir del flujo de agendar.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-09</td><td>Como profesional, quiero ver la ficha del paciente como una línea de tiempo, para recordar su proceso antes de la sesión.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-10</td><td>Como profesional, quiero registrar el pago de cada cita y su método, para saber quién me debe.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-11</td><td>Como profesional, quiero registrar el consentimiento y la autorización de datos de cada paciente, para cumplir la ley.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-12</td><td>Como profesional, quiero escribir notas de sesión protegidas con biometría, para que nadie más pueda leerlas si tomo prestado mi celular.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-13</td><td>Como profesional, quiero definir mi disponibilidad semanal y bloqueos, para que la agenda y la página web solo muestren horas reales.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-14</td><td>Como solicitante, quiero ver los horarios libres en una página web y pedir una cita, para no tener que escribir y esperar respuesta.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-15</td><td>Como profesional, quiero confirmar o rechazar solicitudes web desde “Hoy”, para mantener el control de mi agenda.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-16</td><td>Como profesional, quiero ver el resumen del mes (cobrado, pendiente, donado), para entender mis ingresos y mi aporte.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-17</td><td>Como profesional, quiero marcar a un paciente como afectado por el sismo y el tipo de afectación, para darle el trato y la tarifa adecuados.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-18</td><td>Como profesional, quiero definir cuántos cupos solidarios doy por semana y verlos en la agenda, para ayudar sin desbordarme.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-19</td><td>Como profesional, quiero tener a mano las líneas de ayuda y compartirlas por WhatsApp, para orientar a quien lo necesite en el momento.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-20</td><td>Como profesional, quiero programar jornadas o talleres con lugar y cupos, para organizar mi trabajo comunitario.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-21</td><td>Como profesional, quiero registrar asistentes de una jornada en segundos y marcar quién necesita seguimiento, para no perder a nadie.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-22</td><td>Como profesional, quiero programar seguimientos (“llamar en una semana”) que aparezcan en “Hoy”, para volver a contactar a tiempo.</td><td><span class="tag should">Should</span></td></tr>
+      <tr><td>HU-23</td><td>Como profesional, quiero un informe mensual de impacto, para mostrar cuántas personas afectadas atendí y cuánto tiempo doné.</td><td><span class="tag could">Could</span></td></tr>
+      <tr><td>HU-24</td><td>Como profesional, quiero exportar el resumen de un paciente o del mes en PDF, para compartirlo o archivarlo.</td><td><span class="tag could">Could</span></td></tr>
+      <tr><td>HU-26</td><td>Como profesional nueva, quiero registrarme con mi correo y crear mi consultorio, para empezar a usar la app en minutos.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-27</td><td>Como evaluador, quiero cargar datos ficticios de demostración con un toque, para probar todas las pantallas sin escribir datos.</td><td><span class="tag must">Must</span></td></tr>
+      <tr><td>HU-25</td><td>Como profesional, quiero exportar o eliminar los datos de un paciente cuando lo solicite, para atender sus derechos como titular.</td><td><span class="tag could">Could</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Criterios de aceptación de las historias clave</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>HU-04 · Crear cita en el hueco</h4>
+      <ul>
+        <li><strong>Dado</strong> un hueco libre en la agenda, <strong>cuando</strong> lo toco, <strong>entonces</strong> se abre una hoja inferior con la hora ya puesta y la duración por defecto.</li>
+        <li><strong>Cuando</strong> escribo un nombre que no existe, <strong>entonces</strong> aparece la opción “Crear paciente «…»”.</li>
+        <li><strong>Si</strong> la hora choca con otra cita, <strong>entonces</strong> no se guarda y se explica el conflicto (RN-01).</li>
+        <li>La cita creada aparece de inmediato (actualización optimista) y se programa su notificación.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>HU-06 · Recordatorio por WhatsApp</h4>
+      <ul>
+        <li><strong>Dada</strong> una cita confirmada para mañana, <strong>entonces</strong> aparece en “Por confirmar” de la bandeja “Hoy”.</li>
+        <li><strong>Cuando</strong> toco “Recordar”, <strong>entonces</strong> se abre WhatsApp con el número y el mensaje de la plantilla ya escritos.</li>
+        <li><strong>Al volver</strong> a la app, la cita queda marcada como recordada con fecha y hora.</li>
+        <li>Si el paciente no tiene teléfono, la acción se desactiva y lo indica.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>HU-12 · Notas privadas</h4>
+      <ul>
+        <li><strong>Cuando</strong> abro una nota, <strong>entonces</strong> se pide biometría o el código del teléfono (en Expo Go para iPhone se usa el código; Face ID llega con la compilación propia).</li>
+        <li>Las notas nunca aparecen en notificaciones, vistas previas ni en el informe de impacto.</li>
+        <li>Al salir de la app o pasar 2 minutos, la nota se vuelve a bloquear.</li>
+        <li>La base de datos solo devuelve notas a su autora (RLS).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>HU-14 / HU-15 · Reserva web</h4>
+      <ul>
+        <li>La página solo muestra horas dentro de la disponibilidad y sin citas (no expone nombres ni motivos).</li>
+        <li>El formulario pide nombre, teléfono, modalidad y autorización de datos; valida con Zod en cliente y servidor.</li>
+        <li>La solicitud reserva el horario como “solicitada” y aparece en “Hoy” de Angela.</li>
+        <li><strong>Cuando</strong> Angela confirma, <strong>entonces</strong> se abre WhatsApp con el mensaje de confirmación listo.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>HU-18 · Cupos solidarios</h4>
+      <ul>
+        <li>En ajustes defino N cupos por semana y la tarifa (gratuita o social).</li>
+        <li>La agenda muestra en otro color las citas solidarias y un contador “2 de 3 cupos usados esta semana”.</li>
+        <li><strong>Si</strong> agendo un cupo solidario con el cupo agotado, <strong>entonces</strong> la app avisa y permite continuar conscientemente (RN-03).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>HU-21 · Asistentes de jornada</h4>
+      <ul>
+        <li>Desde la jornada, registro un asistente con nombre y teléfono en una sola pantalla, sin conexión estable (se sincroniza después).</li>
+        <li>Si marco “requiere seguimiento”, se crea un seguimiento a 7 días que aparece en “Hoy” (RN-08).</li>
+        <li>Un asistente se puede convertir en paciente con un toque, conservando su historial.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Reglas de negocio</h3>
+  <table class="tight ids">
+    <thead><tr><th style="width:10%">ID</th><th>Regla</th></tr></thead>
+    <tbody>
+      <tr><td>RN-01</td><td>Dos citas activas (solicitada o confirmada) del mismo consultorio no pueden solaparse. Se garantiza en la base de datos con una restricción de exclusión, no solo en la app.</td></tr>
+      <tr><td>RN-02</td><td>Todas las fechas se guardan en UTC (<code>timestamptz</code>) y se muestran en la zona horaria <code>America/Bogota</code>.</td></tr>
+      <tr><td>RN-03</td><td>Los cupos solidarios se cuentan por semana calendario (lunes a domingo). Superarlos requiere confirmación explícita.</td></tr>
+      <tr><td>RN-04</td><td>Una cita confirmada aparece como “por confirmar” desde 24 horas antes y hasta que se registre el recordatorio.</td></tr>
+      <tr><td>RN-05</td><td>Al marcar “asistió” se crea un pago pendiente con la tarifa del paciente: normal, social o gratuita (esta última se registra como donada, no como deuda).</td></tr>
+      <tr><td>RN-06</td><td>Dos inasistencias seguidas de un paciente generan una sugerencia de contacto en “Hoy”.</td></tr>
+      <tr><td>RN-07</td><td>Una solicitud web sin respuesta en 48 horas se marca como vencida y libera el horario.</td></tr>
+      <tr><td>RN-08</td><td>Un asistente marcado con “requiere seguimiento” genera un seguimiento a 7 días; al completarlo se puede programar otro.</td></tr>
+      <tr><td>RN-09</td><td>Los pacientes no se borran: se archivan. La eliminación definitiva solo procede a solicitud del titular y si no existe un deber legal de conservar la información.</td></tr>
+      <tr><td>RN-10</td><td>Ninguna notificación, vista previa o informe muestra nombres junto a motivos de consulta o notas.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Requerimientos no funcionales</h3>
+  <table class="tight ids">
+    <thead><tr><th style="width:10%">ID</th><th style="width:17%">Atributo</th><th>Requerimiento</th></tr></thead>
+    <tbody>
+      <tr><td>RNF-01</td><td>Seguridad</td><td>RLS activo en el 100 % de las tablas; solo la clave publicable de Supabase en la app; sesión guardada cifrada (SecureStore); bloqueo biométrico; HTTPS en todo el tráfico.</td></tr>
+      <tr><td>RNF-02</td><td>Privacidad</td><td>Mínimo dato necesario (documento de identidad opcional); autorización registrada con versión del texto; datos ficticios en desarrollo; sin datos personales en registros de errores.</td></tr>
+      <tr><td>RNF-03</td><td>Disponibilidad sin red</td><td>La agenda de la semana y los pacientes se leen sin conexión (caché persistente); los cambios hechos sin red se envían al reconectar; el directorio de ayuda está empaquetado en la app.</td></tr>
+      <tr><td>RNF-04</td><td>Rendimiento</td><td>Arranque en menos de 3 s en un teléfono de gama media; listas fluidas con FlashList; respuesta visual inmediata con actualizaciones optimistas.</td></tr>
+      <tr><td>RNF-05</td><td>Usabilidad</td><td>Agendar en ≤ 20 s; acciones frecuentes a ≤ 2 toques; lenguaje claro y sin jerga técnica.</td></tr>
+      <tr><td>RNF-06</td><td>Accesibilidad</td><td>Contraste WCAG 2.2 AA; soporte de texto grande; áreas táctiles ≥ 44 pt; etiquetas para VoiceOver y TalkBack; el color nunca es la única señal.</td></tr>
+      <tr><td>RNF-07</td><td>Compatibilidad y localización</td><td>iOS y Android en las versiones mínimas que soporta Expo SDK 58; versión web para la página de reservas; español de Colombia con fechas y moneda <code>es-CO</code> (COP).</td></tr>
+      <tr><td>RNF-08</td><td>Mantenibilidad</td><td>TypeScript estricto; arquitectura por funcionalidades; lint y formato automáticos; cobertura de pruebas ≥ 70 % en lógica de negocio.</td></tr>
+      <tr><td>RNF-09</td><td>Escalabilidad</td><td>Modelo multi-consultorio desde el día uno; índices en consultas de agenda; paginación en listas; funciones del servidor sin estado.</td></tr>
+    </tbody>
+  </table>
+</section>

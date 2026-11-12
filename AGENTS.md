@@ -1,5 +1,16 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Trazo: project rules
+
+- Product spec lives in `docs/` (documento maestro, v0.2). Read the relevant chapter before building a feature; user stories are `HU-xx`, business rules `RN-xx`.
+- **Expo Go only**: the app must run in Expo Go on iPhone (no Mac, $0). Before adding any library with native code, confirm it ships in Expo Go; otherwise pick a JS-only alternative.
+- **Testing target**: Pixel 8 Android emulator; destination is iPhone. Check the Pixel/iPhone differences table (chapter 10) for every screen: safe areas, keyboard, sheets, back gesture.
+- **Design system "Trazo suave"**: every color, font, radius and spacing comes from `src/theme/tokens.ts`; no literal colors in components. Light mode only. One action color (cobalt `#2340E0`). Solidario always uses the durazno tile plus hatch texture. Icons: Phosphor via deep imports (`phosphor-react-native/src/icons/<Name>`), never the package root.
+- **Structure**: routes in `src/app/` only compose; screens and pure rules live in `src/features/<feature>/`; reusable components in `src/ui/` (no business logic).
+- Reanimated shared values: use `.get()` / `.set()` (React Compiler is enabled).
+- Demo data only (`src/features/demo/`); never real patient data.
+- UI copy in Spanish (Colombia); dates in `America/Bogota`.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:

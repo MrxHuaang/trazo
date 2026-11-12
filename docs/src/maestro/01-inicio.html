@@ -1,0 +1,187 @@
+<!-- ===================== PORTADA ===================== -->
+<section class="cover">
+  <div class="top">
+    <span class="brand">Trazo</span>
+    <span>Proyecto de Desarrollo Móvil · 2026-2</span>
+  </div>
+  {{WAVE}}
+  <div class="titles">
+    <div class="kicker">Documento maestro del proyecto</div>
+    <h1>Trazo: consulta psicológica y apoyo solidario después del sismo</h1>
+    <div class="subtitle">Visión, requerimientos, diseño, arquitectura, stack tecnológico y plan de trabajo de una aplicación móvil en React Native + Expo para la psicóloga Angela Sophia Córdoba, en Pereira.</div>
+  </div>
+  <div class="meta">
+    <div><b>Autor</b>Juan José Pantoja Ordoñez<br>Ingeniería de Software, 8.º semestre<br>Universidad Visión de las Américas</div>
+    <div><b>Aliada</b>Angela Sophia Córdoba<br>Psicóloga<br>Pereira, Risaralda</div>
+    <div><b>Versión</b>0.2 · Decisiones cerradas<br>8 de noviembre de 2026<br>Asignatura: Desarrollo Móvil</div>
+  </div>
+</section>
+
+<!-- ===================== CONTROL Y CONTENIDO ===================== -->
+<section>
+  <h2 class="chapter nonum">Control del documento</h2>
+  <p class="lead">Este documento reúne lo necesario para construir Trazo de principio a fin: qué problema resuelve, qué se construye primero, con qué tecnologías, cómo llegar gratis al iPhone de la psicóloga sin tener Mac y en qué orden trabajar. Esta versión 0.2 recoge las decisiones de producto, diseño y tecnología tomadas por el equipo de desarrollo.</p>
+
+  <table class="versions compact">
+    <thead><tr><th>Versión</th><th>Fecha</th><th>Cambios</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>0.1</td><td>08/11/2026</td><td>Primera versión completa: concepto, alcance, requerimientos, diseño, arquitectura, plan y costos.</td><td>Reemplazada</td></tr>
+      <tr><td>0.2</td><td>08/11/2026</td><td>Decisiones cerradas: sistema visual Trazo suave, solo modo claro, pruebas en emulador Pixel 8, sin levantamiento con usuarios; alcance y plan ajustados.</td><td>Vigente</td></tr>
+      <tr><td>1.0</td><td>—</td><td>Versión final entregada con el proyecto.</td><td>Pendiente</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Contenido</h4>
+  <div class="toc">
+    <ol>
+      <li>Resumen ejecutivo</li>
+      <li>Contexto y aliada<span class="sub">El sismo del 10 de agosto y la consulta psicológica</span></li>
+      <li>Problema y oportunidad<span class="sub">Supuestos de diseño, objetivos, métricas</span></li>
+      <li>Propuesta de solución<span class="sub">Dos pilares, principios, alternativas evaluadas</span></li>
+      <li>Alcance del MVP<span class="sub">Priorización MoSCoW y fuera de alcance</span></li>
+      <li>Requerimientos<span class="sub">Historias de usuario, reglas de negocio, no funcionales</span></li>
+      <li>Experiencia y diseño<span class="sub">Sistema visual Trazo suave, pantallas, tokens</span></li>
+      <li>Arquitectura y stack tecnológico<span class="sub">Expo, Expo Router, TanStack Query, Supabase</span></li>
+      <li>Modelo de datos y seguridad<span class="sub">Entidades, RLS, autenticación, privacidad</span></li>
+      <li>iPhone y Android sin Mac y sin costo<span class="sub">Expo Go, emulador Pixel 8, diferencias con iPhone</span></li>
+      <li>Calidad, pruebas y entrega continua</li>
+      <li>Plan de trabajo<span class="sub">Sprints, cronograma, cierre semanal</span></li>
+      <li>Riesgos y mitigación</li>
+      <li>Ética, privacidad y marco legal</li>
+      <li>Costos</li>
+      <li>Anexos<span class="sub">Entorno paso a paso, convenciones, autorización de datos, referencias</span></li>
+    </ol>
+  </div>
+
+  <div class="callout clay" style="margin-top:8mm">
+    <span class="t">Convenciones</span>
+    <p><span class="tag must">Must</span> imprescindible para el MVP · <span class="tag should">Should</span> importante, entra si hay tiempo · <span class="tag could">Could</span> deseable · <span class="tag wont">Won't</span> fuera de este semestre. Los identificadores <code>HU-xx</code> (historias de usuario), <code>RN-xx</code> (reglas de negocio), <code>RNF-xx</code> (no funcionales) y <code>R-xx</code> (riesgos) se usan igual en el tablero del proyecto, en las ramas y en los commits.</p>
+  </div>
+</section>
+
+<!-- ===================== 1. RESUMEN ===================== -->
+<section>
+  <h2 class="chapter">Resumen ejecutivo</h2>
+  <p class="lead">Trazo es una aplicación móvil que organiza la consulta de una psicóloga independiente —agenda, pacientes, recordatorios, pagos y notas— e incluye un programa solidario para atender a personas afectadas por el sismo de Pereira sin desordenar el resto de su trabajo.</p>
+
+  <div class="grid2">
+    <div class="card sand">
+      <span class="eyebrow">El problema</span>
+      <p>La agenda de una psicóloga independiente suele vivir entre WhatsApp, el calendario del celular y la memoria: citas que se cruzan, pacientes que no llegan porque nadie les recordó, cobros que se olvidan y notas dispersas. Después del sismo aparece una carga adicional: personas afectadas que necesitan atención a bajo costo o gratuita, jornadas en barrios y albergues, y seguimientos que se pierden.</p>
+    </div>
+    <div class="card pick">
+      <span class="eyebrow">La propuesta</span>
+      <p>Una sola app para la psicóloga con <strong>dos pilares</strong>:</p>
+      <ul>
+        <li><strong>Consultorio</strong> (núcleo): bandeja “Hoy”, agenda en línea de tiempo, pacientes, recordatorios por WhatsApp en un toque, pagos, notas privadas bajo bloqueo biométrico o código del teléfono y una página web para que los pacientes soliciten cita sin instalar nada.</li>
+        <li><strong>Programa solidario</strong> (módulo): pacientes marcados como afectados, cupos solidarios semanales, jornadas y talleres comunitarios, seguimientos y directorio de líneas de ayuda.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h4>Decisiones tomadas</h4>
+  <table class="compact">
+    <thead><tr><th class="k">Tema</th><th>Recomendación</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Concepto</td><td>Consultorio como núcleo (≈70 % del esfuerzo) + programa solidario post-sismo como módulo (≈30 %). La app la usa la psicóloga; los pacientes usan WhatsApp y una página web de reservas.</td></tr>
+      <tr><td class="k">Framework</td><td>React Native 0.88 con <strong>Expo SDK 58</strong>, TypeScript estricto y <strong>Expo Router</strong> (lo que se ve en el curso, en su versión actual).</td></tr>
+      <tr><td class="k">Datos y estado</td><td><strong>Supabase</strong> (PostgreSQL + Row Level Security, Auth, Edge Functions) · <strong>TanStack Query</strong> para datos del servidor con caché persistente · <strong>Zustand</strong> para estado local · <strong>React Hook Form + Zod</strong> para formularios y validación.</td></tr>
+      <tr><td class="k">Plataforma y pruebas</td><td>Pensada para <strong>iPhone</strong>; se desarrolla y prueba en el <strong>emulador Pixel 8</strong> con Expo Go. En iPhone corre con <strong>Expo Go</strong> (gratis, sin Mac); en Android, APK gratis con EAS Build.</td></tr>
+      <tr><td class="k">Estilo visual</td><td><strong>Trazo suave</strong>: mosaico de bloques pastel y una línea de sismógrafo que se calma como firma. Bricolage Grotesque + Geist, un solo acento cobalto, solo modo claro.</td></tr>
+      <tr><td class="k">Costo</td><td><strong>$0</strong> durante el semestre. Solo habría costo si después se publica en App Store (USD 99/año) o Play Store (USD 25 una vez).</td></tr>
+      <tr><td class="k">Plan</td><td>Semana 0 de diseño y preparación + 5 sprints semanales, con una versión funcional cada semana. Ruta corta de 4 semanas si la entrega es antes.</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ===================== 2. CONTEXTO ===================== -->
+<section>
+  <h2 class="chapter">Contexto y aliada</h2>
+  <p class="lead">El 10 de agosto de 2026 un sismo de magnitud 7,4, con epicentro cerca de San José del Palmar (Chocó), golpeó con fuerza al Eje Cafetero. Pereira fue la ciudad más afectada.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n">~120.000</div><div class="l">personas afectadas en Pereira, según estimación de la Alcaldía</div></div>
+    <div class="kpi"><div class="n">35.263</div><div class="l">viviendas con daños (estimado preliminar, ~15 % de la ciudad)</div></div>
+    <div class="kpi"><div class="n">4.658</div><div class="l">comercios afectados de 5.122 registrados, según reportes de prensa</div></div>
+    <div class="kpi"><div class="n">5 años</div><div class="l">horizonte estimado de reconstrucción de la ciudad</div></div>
+  </div>
+  <p class="small">Cifras preliminares tomadas de prensa nacional (El Tiempo, Pulzo) y del Puesto de Mando Unificado; varían según fecha de corte. Antes de la sustentación, actualizarlas con el balance oficial de la Alcaldía de Pereira o la UNGRD. Fuentes en el Anexo E.</p>
+
+  <h3>Qué cambia para una consulta psicológica</h3>
+  <p>La emergencia física se atiende en semanas; la emocional, en meses. Tres meses después del sismo siguen presentes las condiciones que sostienen el estrés: pérdidas de familiares, vivienda, negocio o empleo; réplicas y demoliciones que reactivan el miedo; y una red de salud que también resultó dañada. Especialistas consultados por la prensa señalan que el problema no es la ausencia de atención sino el momento en que llega, y la OPS/OMS acompaña la coordinación de la respuesta en salud mental en la ciudad.</p>
+  <p>Para una psicóloga independiente esto se traduce, probablemente, en tres cosas que Trazo debe resolver sin complicar su trabajo diario:</p>
+  <div class="grid3">
+    <div class="card"><span class="eyebrow">Más demanda</span><p style="margin:0">Personas que nunca habían consultado y ahora lo necesitan, muchas con ingresos golpeados. La agenda se llena y se desordena.</p></div>
+    <div class="card"><span class="eyebrow">Atención solidaria</span><p style="margin:0">Cupos gratuitos o con tarifa social, que deben convivir con la consulta normal sin que la profesional pierda el control de su tiempo.</p></div>
+    <div class="card"><span class="eyebrow">Trabajo comunitario</span><p style="margin:0">Charlas y talleres en barrios o albergues, donde se identifican personas que necesitan seguimiento individual.</p></div>
+  </div>
+  <p class="small">Son supuestos de diseño tomados de la carta y del contexto; el capítulo 3 los convierte en decisiones.</p>
+
+  <h3>La aliada</h3>
+  <p><strong>Angela Sophia Córdoba</strong>, psicóloga, aceptó por carta del 13 de octubre de 2026 que el proyecto se desarrolle para ella, con orientación al apoyo y acompañamiento psicológico de las personas afectadas por el terremoto, y con la intención de usar la aplicación en su ejercicio profesional al terminar el semestre. Usa iPhone, por eso la app se diseña para iPhone.</p>
+  <p>Las decisiones de producto y diseño las toma el equipo de desarrollo a partir de la carta, el contexto del sismo y el análisis de aplicaciones de referencia; no se hace levantamiento de información con usuarios reales.</p>
+  <p>Trazo cumple ese compromiso desde la consulta: la herramienta que organiza su trabajo diario es la misma que le permite abrir espacio, tiempo y seguimiento para las personas afectadas. Como se usará con pacientes reales y datos de salud, la seguridad y la privacidad forman parte del alcance mínimo.</p>
+
+  <h3>Partes interesadas</h3>
+  <table>
+    <thead><tr><th class="k">Parte</th><th>Rol en el proyecto</th><th>Qué necesita</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Angela Sophia Córdoba</td><td>Usuaria de referencia de la app. Si la usara con pacientes reales, sería la responsable del tratamiento de datos (Ley 1581 de 2012).</td><td>Agenda ordenada, menos inasistencias, cobros claros, confidencialidad, espacio controlado para la atención solidaria.</td></tr>
+      <tr><td class="k">Pacientes</td><td>Reciben recordatorios por WhatsApp y solicitan cita desde una página web. Titulares de los datos.</td><td>Pedir cita fácil, recordar sus citas, saber a dónde acudir en una crisis.</td></tr>
+      <tr><td class="k">Personas afectadas por el sismo</td><td>Pacientes con cupo solidario o asistentes a jornadas comunitarias.</td><td>Acceso a atención aunque sus ingresos se hayan reducido; seguimiento.</td></tr>
+      <tr><td class="k">Juan José Pantoja Ordoñez</td><td>Dueño del producto, diseñador y desarrollador; toma las decisiones del proyecto.</td><td>Alcance claro, emulador Pixel 8 para pruebas y una prueba final en un iPhone real.</td></tr>
+      <tr><td class="k">Docente de Desarrollo Móvil</td><td>Evaluadora o evaluador académico.</td><td>Evidencia de proceso, calidad técnica, documentación y demostración funcional.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===================== 3. PROBLEMA ===================== -->
+<section>
+  <h2 class="chapter">Problema y oportunidad</h2>
+  <p class="lead">El problema se define a partir de la carta, del contexto del sismo y de cómo suele trabajar una psicóloga independiente. Cada supuesto se traduce en una decisión concreta del producto.</p>
+
+  <h3>Enunciado del problema</h3>
+  <div class="card sand">
+    <p><strong>Para la psicóloga</strong>, gestionar la consulta entre WhatsApp, el calendario y la memoria genera citas cruzadas, inasistencias por falta de recordatorio, cobros olvidados y notas dispersas que ponen en riesgo la confidencialidad.</p>
+    <p style="margin-bottom:0"><strong>Después del sismo</strong>, la atención a personas afectadas (gratuita, con tarifa social o en jornadas comunitarias) se suma a esa carga sin un lugar propio, por lo que es difícil saber cuánto tiempo se está donando, a quién hay que volver a llamar y a dónde remitir a quien lo necesita.</p>
+  </div>
+
+  <h3>Supuestos de diseño</h3>
+  <table class="tight ids">
+    <thead><tr><th style="width:8%">ID</th><th style="width:44%">Supuesto</th><th>Decisión en Trazo</th></tr></thead>
+    <tbody>
+      <tr><td>S1</td><td>La agenda vive entre WhatsApp, el calendario del celular y la memoria; hay citas cruzadas u olvidadas.</td><td>Agenda en línea de tiempo y restricción anti-solapes en la base de datos (RN-01).</td></tr>
+      <tr><td>S2</td><td>Hay inasistencias porque recordar cada cita a mano toma tiempo.</td><td>Bloque “por confirmar” en Hoy y recordatorio por WhatsApp en un toque.</td></tr>
+      <tr><td>S3</td><td>Los cobros se llevan de memoria; se paga por Nequi, Daviplata, transferencia o efectivo.</td><td>Pago por cita con método y resumen mensual.</td></tr>
+      <tr><td>S4</td><td>Atender gratis o con tarifa social a personas afectadas puede desbordar la agenda.</td><td>Cupos solidarios semanales visibles en la agenda.</td></tr>
+      <tr><td>S5</td><td>Después del sismo hay charlas y talleres en barrios, colegios y albergues.</td><td>Jornadas con registro rápido de asistentes y seguimientos.</td></tr>
+      <tr><td>S6</td><td>Muchos pacientes prefieren pedir cita desde un enlace.</td><td>Página web de reservas (<em>Should</em>).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Objetivos</h3>
+  <h4>Objetivo general</h4>
+  <p>Desarrollar una aplicación móvil multiplataforma que organice la consulta de la psicóloga Angela Sophia Córdoba y facilite la atención solidaria y el seguimiento de personas afectadas por el sismo del 10 de agosto de 2026 en Pereira.</p>
+  <h4>Objetivos específicos</h4>
+  <ol>
+    <li>Definir los requerimientos a partir de la carta de aceptación, el contexto del sismo y el análisis de aplicaciones de referencia.</li>
+    <li>Diseñar una arquitectura modular, segura y escalable con React Native, Expo y Supabase, adecuada para datos sensibles de salud.</li>
+    <li>Implementar el pilar Consultorio: agenda, pacientes, recordatorios, pagos y notas privadas.</li>
+    <li>Implementar el pilar Programa solidario: afectados, cupos solidarios, jornadas, seguimientos y directorio de ayuda.</li>
+    <li>Desarrollar la aplicación para iPhone, verificarla en el emulador Pixel 8 y en un iPhone con Expo Go, y evaluar su usabilidad con usuarios representativos.</li>
+  </ol>
+
+  <h3>Métricas de éxito</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Métrica</th><th>Meta</th><th>Cómo se mide</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Usabilidad</td><td>SUS ≥ 70</td><td>Cuestionario SUS a 3–5 compañeros o usuarios representativos, con datos ficticios.</td></tr>
+      <tr><td class="k">Agendar una cita</td><td>≤ 20 segundos</td><td>Cronometrar a un usuario de prueba creando una cita para un paciente existente.</td></tr>
+      <tr><td class="k">Enviar recordatorio</td><td>≤ 2 toques</td><td>Desde la bandeja “Hoy” hasta WhatsApp con el mensaje listo.</td></tr>
+      <tr><td class="k">Citas cruzadas</td><td>0</td><td>Restricción en la base de datos que impide solapes (prueba automatizada).</td></tr>
+      <tr><td class="k">Seguridad</td><td>100 % de tablas con RLS probada</td><td>Pruebas de políticas (pgTAP) ejecutadas en CI.</td></tr>
+      <tr><td class="k">Despliegue</td><td>App funcionando</td><td>En el emulador Pixel 8 y en un iPhone con Expo Go en la demo final; APK instalable en Android.</td></tr>
+    </tbody>
+  </table>
+</section>

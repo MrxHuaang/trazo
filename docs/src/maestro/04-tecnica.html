@@ -1,0 +1,447 @@
+<!-- ===================== 8. ARQUITECTURA ===================== -->
+<section>
+  <h2 class="chapter">Arquitectura y stack tecnológico</h2>
+  <p class="lead">Una sola base de código en TypeScript produce la app para iPhone y Android y la página web de reservas. Los datos viven en Supabase, protegidos por reglas en la propia base de datos, y la app trabaja con una caché local que tolera cortes de red.</p>
+
+  <h3>Vista general</h3>
+  <figure>
+    <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="Geist, Segoe UI, sans-serif" font-size="10.5">
+      <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3F414A"/></marker></defs>
+      <!-- clientes -->
+      <rect x="10" y="10" width="230" height="200" rx="10" fill="#F3F4F7"/>
+      <text x="22" y="30" font-weight="700" font-size="11" fill="#3F414A" letter-spacing=".5">CLIENTES · UN SOLO CÓDIGO</text>
+      <rect x="22" y="42" width="206" height="58" rx="8" fill="#fff" stroke="#2340E0" stroke-width="1.2"/>
+      <text x="34" y="62" font-weight="700" fill="#2340E0">App Trazo · iPhone (destino)</text>
+      <text x="34" y="78" fill="#3F414A">React Native + Expo Router</text>
+      <text x="34" y="92" fill="#5E6068" font-size="9.5">se abre en Expo Go (sin Mac, sin costo)</text>
+      <rect x="22" y="108" width="206" height="44" rx="8" fill="#fff" stroke="#4A63F0"/>
+      <text x="34" y="127" font-weight="700" fill="#2340E0">App Trazo · Android</text>
+      <text x="34" y="142" fill="#5E6068" font-size="9.5">emulador Pixel 8 (pruebas) o APK</text>
+      <rect x="22" y="160" width="206" height="42" rx="8" fill="#fff" stroke="#B4471C"/>
+      <text x="34" y="179" font-weight="700" fill="#B4471C">Página de reservas (web)</text>
+      <text x="34" y="194" fill="#5E6068" font-size="9.5">/reservar/angela · Expo Router web</text>
+      <!-- supabase -->
+      <rect x="330" y="10" width="300" height="200" rx="10" fill="#ECEBFF"/>
+      <text x="342" y="30" font-weight="700" font-size="11" fill="#2340E0" letter-spacing=".5">SUPABASE · REGIÓN SÃO PAULO</text>
+      <g fill="#fff" stroke="#4A63F0">
+        <rect x="342" y="42" width="136" height="44" rx="7"/><rect x="486" y="42" width="132" height="44" rx="7"/>
+        <rect x="342" y="94" width="276" height="58" rx="7"/>
+        <rect x="342" y="160" width="136" height="42" rx="7"/><rect x="486" y="160" width="132" height="42" rx="7"/>
+      </g>
+      <text x="354" y="61" font-weight="700">Edge Functions</text><text x="354" y="76" fill="#5E6068" font-size="9.5">solicitar-cita (web)</text>
+      <text x="498" y="61" font-weight="700">Auth</text><text x="498" y="76" fill="#5E6068" font-size="9.5">correo + contraseña, MFA</text>
+      <text x="354" y="114" font-weight="700">PostgreSQL + Row Level Security</text>
+      <text x="354" y="129" fill="#5E6068" font-size="9.5">tablas, restricción anti-solapes, vistas de reportes,</text>
+      <text x="354" y="143" fill="#5E6068" font-size="9.5">funciones RPC (horarios libres), migraciones versionadas</text>
+      <text x="354" y="179" font-weight="700">Realtime</text><text x="354" y="193" fill="#5E6068" font-size="9.5">solicitudes nuevas (opcional)</text>
+      <text x="498" y="179" font-weight="700">Copias de seguridad</text><text x="498" y="193" fill="#5E6068" font-size="9.5">del plan / exportación SQL</text>
+      <!-- flechas -->
+      <line x1="228" y1="78" x2="340" y2="112" stroke="#3F414A" marker-end="url(#a2)"/>
+      <line x1="228" y1="130" x2="340" y2="126" stroke="#3F414A" marker-end="url(#a2)"/>
+      <line x1="228" y1="181" x2="340" y2="66" stroke="#B4471C" stroke-dasharray="4 3" marker-end="url(#a2)"/>
+      <text x="244" y="50" font-size="9.5" fill="#3F414A">HTTPS · supabase-js</text>
+      <text x="262" y="182" font-size="9.5" fill="#B4471C" transform="rotate(-46 262 182)">solo vía función</text>
+      <!-- externos -->
+      <rect x="10" y="232" width="140" height="56" rx="8" fill="#fff" stroke="#DDE0E6"/>
+      <text x="22" y="252" font-weight="700">WhatsApp</text><text x="22" y="267" fill="#5E6068" font-size="9.5">enlace wa.me con mensaje</text><text x="22" y="280" fill="#5E6068" font-size="9.5">listo (sin API paga)</text>
+      <rect x="160" y="232" width="140" height="56" rx="8" fill="#fff" stroke="#DDE0E6"/>
+      <text x="172" y="252" font-weight="700">Notificaciones locales</text><text x="172" y="267" fill="#5E6068" font-size="9.5">programadas en el</text><text x="172" y="280" fill="#5E6068" font-size="9.5">teléfono (expo-notifications)</text>
+      <line x1="80" y1="210" x2="80" y2="230" stroke="#3F414A" marker-end="url(#a2)"/>
+      <line x1="200" y1="210" x2="215" y2="230" stroke="#3F414A" marker-end="url(#a2)"/>
+      <rect x="330" y="232" width="300" height="56" rx="8" fill="#fff" stroke="#DDE0E6"/>
+      <text x="342" y="252" font-weight="700">GitHub → GitHub Actions → EAS</text>
+      <text x="342" y="267" fill="#5E6068" font-size="9.5">lint, tipos y pruebas en cada PR · EAS Update para demos ·</text>
+      <text x="342" y="280" fill="#5E6068" font-size="9.5">EAS Build para el APK · EAS Hosting para la web</text>
+    </svg>
+    <figcaption><b>Figura 3.</b> Arquitectura de Trazo. La página web nunca escribe directo en las tablas: pasa por una función del servidor que valida y limita.</figcaption>
+  </figure>
+
+  <h3>Stack</h3>
+  <table class="tight">
+    <thead><tr><th style="width:17%">Capa</th><th style="width:32%">Tecnología</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Lenguaje</strong></td><td>TypeScript en modo estricto</td><td>Errores detectados al escribir, autocompletado, tipos generados desde la base de datos.</td></tr>
+      <tr><td><strong>Framework</strong></td><td>React Native 0.88 · Expo SDK 58 · React 19 · Nueva Arquitectura</td><td>Lo que se ve en el curso, en su versión actual; Expo resuelve compilación, actualizaciones y acceso al hardware.</td></tr>
+      <tr><td><strong>Navegación</strong></td><td>Expo Router (rutas por archivos, rutas tipadas, pestañas nativas, <em>formSheet</em>)</td><td>Enlaces profundos gratis, misma estructura para móvil y web, hojas nativas para editar sin perder contexto.</td></tr>
+      <tr><td><strong>Datos del servidor</strong></td><td>TanStack Query v5 + persistencia en AsyncStorage</td><td>Caché, reintentos, actualizaciones optimistas, lectura sin red y cola de cambios pausados.</td></tr>
+      <tr><td><strong>Estado local</strong></td><td>Zustand</td><td>Estado de interfaz (filtros, vista de agenda, bloqueo) sin el peso de Redux.</td></tr>
+      <tr><td><strong>Formularios</strong></td><td>React Hook Form + Zod</td><td>Un solo esquema valida el formulario, la respuesta de la API y la función del servidor.</td></tr>
+      <tr><td><strong>Backend</strong></td><td>Supabase: PostgreSQL, Auth, RLS, Edge Functions, Realtime</td><td>Base relacional (citas, pagos, pacientes), seguridad por fila, reglas en la base, plan gratuito, código abierto (sin encierro).</td></tr>
+      <tr><td><strong>UI</strong></td><td>Sistema propio <strong>Trazo suave</strong> (<code>src/ui</code> + tokens); Phosphor; react-native-svg; Reanimated 4; Gesture Handler; FlashList v2; <code>@howljs/calendar-kit</code></td><td>Componentes reutilizables que funcionan en Expo Go; el Trazo y la textura solidaria se dibujan con SVG; agenda con gestos.</td></tr>
+      <tr><td><strong>Tipografía</strong></td><td>Bricolage Grotesque, Geist y Geist Mono (<code>@expo-google-fonts</code> + <code>expo-font</code>)</td><td>Fuentes propias: la app se ve igual en el Pixel 8 y en iPhone.</td></tr>
+      <tr><td><strong>Fechas</strong></td><td>date-fns v4 + <code>@date-fns/tz</code></td><td>Zona horaria <code>America/Bogota</code> explícita, funciones puras y fáciles de probar.</td></tr>
+      <tr><td><strong>Dispositivo</strong></td><td>expo-notifications, expo-local-authentication, expo-secure-store, expo-print, expo-sharing, expo-haptics, expo-linking</td><td>Notificaciones locales, bloqueo biométrico o por código, sesión cifrada, PDF, compartir y WhatsApp, todos disponibles en Expo Go.</td></tr>
+      <tr><td><strong>Calidad</strong></td><td>ESLint + Prettier, Jest (jest-expo) + React Native Testing Library, Maestro, pgTAP</td><td>Estilo uniforme, pruebas unitarias y de componentes, pruebas de punta a punta y pruebas de seguridad de la base.</td></tr>
+      <tr><td><strong>Entrega</strong></td><td>GitHub Actions, EAS Build, EAS Update, EAS Hosting</td><td>Integración continua gratuita, APK en la nube, demos por actualización OTA y web publicada.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Decisiones de arquitectura (ADR)</h3>
+  <p>Cada decisión importante se registra en <code>docs/adr/NNN-titulo.md</code> con contexto, decisión y consecuencias. Las iniciales:</p>
+  <table class="tight ids">
+    <thead><tr><th style="width:10%">ADR</th><th style="width:28%">Decisión</th><th>Motivo principal</th><th style="width:25%">Alternativa descartada</th></tr></thead>
+    <tbody>
+      <tr><td>001</td><td>React Native + Expo</td><td>Es lo del curso y permite probar en iPhone gratis con Expo Go, sin Mac.</td><td>Flutter: necesita Mac o servicio de pago para llegar al iPhone.</td></tr>
+      <tr><td>002</td><td>Solo módulos incluidos en Expo Go</td><td>Mantener el costo en $0 y la instalación en un QR.</td><td>Development build: requiere cuenta de Apple de pago para iPhone.</td></tr>
+      <tr><td>003</td><td>Supabase como backend</td><td>Modelo relacional, RLS y restricciones en la base; SQL para reportes.</td><td>Firebase: NoSQL, reglas menos expresivas para solapes y reportes.</td></tr>
+      <tr><td>004</td><td>TanStack Query para datos del servidor; Zustand para la interfaz</td><td>Separar caché remota de estado local reduce código y errores.</td><td>Redux Toolkit: más código para el mismo resultado.</td></tr>
+      <tr><td>005</td><td>Online primero con caché persistente</td><td>La consulta tiene conexión; basta tolerar cortes. Sincronización completa es costosa.</td><td>Offline-first total (PowerSync, WatermelonDB): queda como evolución.</td></tr>
+      <tr><td>006</td><td>WhatsApp por enlace <code>wa.me</code></td><td>Gratis, sin aprobación de plantillas, Angela revisa antes de enviar.</td><td>API de WhatsApp Business: costo por conversación y trámites.</td></tr>
+      <tr><td>007</td><td>Arquitectura por funcionalidades</td><td>Cada módulo es independiente y reutilizable; escala con el equipo.</td><td>Carpetas por tipo (screens, services): mezcla dominios.</td></tr>
+      <tr><td>008</td><td>Sistema visual Trazo suave, solo modo claro</td><td>Identidad propia ligada a la historia del proyecto; un solo tema reduce diseño y pruebas.</td><td>Calma cálida, neumorphism, glassmorphism, modo oscuro.</td></tr>
+      <tr><td>009</td><td>Pruebas en emulador Pixel 8</td><td>Sin Mac no hay simulador de iOS; Expo Go en Android cubre casi todo y se cierra con una prueba en iPhone real.</td><td>Simulador de iOS (requiere Mac).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Capas y estructura del proyecto</h3>
+  <figure>
+    <svg viewBox="0 0 640 120" xmlns="http://www.w3.org/2000/svg" font-family="Geist, Segoe UI, sans-serif" font-size="10.5">
+      <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3F414A"/></marker></defs>
+      <g fill="#fff" stroke="#4A63F0" stroke-width="1.1">
+        <rect x="6" y="20" width="108" height="56" rx="8"/><rect x="134" y="20" width="118" height="56" rx="8"/>
+        <rect x="272" y="20" width="118" height="56" rx="8"/><rect x="410" y="20" width="108" height="56" rx="8"/>
+      </g>
+      <rect x="538" y="20" width="96" height="56" rx="8" fill="#ECEBFF" stroke="#2340E0"/>
+      <g text-anchor="middle">
+        <text x="60" y="44" font-weight="700">Pantalla</text><text x="60" y="60" fill="#5E6068" font-size="9.5">app/(app)/agenda.tsx</text>
+        <text x="193" y="44" font-weight="700">Hook de la función</text><text x="193" y="60" fill="#5E6068" font-size="9.5">useCitasDeLaSemana()</text>
+        <text x="331" y="44" font-weight="700">TanStack Query</text><text x="331" y="60" fill="#5E6068" font-size="9.5">caché · reintentos · offline</text>
+        <text x="464" y="44" font-weight="700">API tipada</text><text x="464" y="60" fill="#5E6068" font-size="9.5">supabase-js + Zod</text>
+        <text x="586" y="44" font-weight="700" fill="#2340E0">Supabase</text><text x="586" y="60" fill="#2340E0" font-size="9.5">RLS</text>
+      </g>
+      <g stroke="#3F414A"><line x1="114" y1="48" x2="132" y2="48" marker-end="url(#a3)"/><line x1="252" y1="48" x2="270" y2="48" marker-end="url(#a3)"/><line x1="390" y1="48" x2="408" y2="48" marker-end="url(#a3)"/><line x1="518" y1="48" x2="536" y2="48" marker-end="url(#a3)"/></g>
+      <rect x="6" y="88" width="246" height="24" rx="6" fill="#F3F4F7"/>
+      <text x="129" y="104" text-anchor="middle" font-size="9.5" fill="#3F414A">Componentes de src/ui (sin lógica de negocio)</text>
+      <rect x="272" y="88" width="246" height="24" rx="6" fill="#F3F4F7"/>
+      <text x="395" y="104" text-anchor="middle" font-size="9.5" fill="#3F414A">Zustand: estado de interfaz (vista, filtros, bloqueo)</text>
+    </svg>
+    <figcaption><b>Figura 4.</b> Flujo de una lectura. Las pantallas nunca llaman a Supabase directamente.</figcaption>
+  </figure>
+
+<pre><code>trazo/
+├─ app/                          <span class="c"># Rutas (Expo Router): solo composición, sin lógica</span>
+│  ├─ _layout.tsx                <span class="c"># Proveedores: QueryClient persistente, tema, sesión</span>
+│  ├─ (auth)/login.tsx
+│  ├─ (app)/_layout.tsx          <span class="c"># Pestañas nativas + bloqueo biométrico</span>
+│  ├─ (app)/(tabs)/hoy.tsx · agenda.tsx · pacientes/ · solidario.tsx
+│  ├─ (app)/cita/[id].tsx        <span class="c"># presentation: 'formSheet'</span>
+│  ├─ (app)/ajustes/…
+│  └─ reservar/[slug].tsx        <span class="c"># Página pública (web)</span>
+├─ src/
+│  ├─ features/                  <span class="c"># Un módulo por funcionalidad</span>
+│  │  ├─ citas/
+│  │  │  ├─ api.ts               <span class="c"># Acceso a Supabase (única puerta de entrada)</span>
+│  │  │  ├─ queries.ts           <span class="c"># Llaves de caché + hooks (useQuery / useMutation)</span>
+│  │  │  ├─ schemas.ts           <span class="c"># Zod: tipos y validación</span>
+│  │  │  ├─ rules.ts             <span class="c"># Reglas puras (solapes, cupos, estados) + pruebas</span>
+│  │  │  ├─ components/          <span class="c"># Piezas propias de la función</span>
+│  │  │  └─ index.ts             <span class="c"># API pública del módulo</span>
+│  │  ├─ pacientes/ · pagos/ · notas/ · disponibilidad/ · solidario/ · auth/
+│  ├─ ui/                        <span class="c"># Sistema de diseño reutilizable</span>
+│  ├─ lib/                       <span class="c"># supabase.ts, query-client.ts, notifications.ts, whatsapp.ts, dates.ts</span>
+│  ├─ theme/                     <span class="c"># tokens: color, espacio, tipografía, radios</span>
+│  └─ types/database.ts          <span class="c"># Generado con: supabase gen types typescript</span>
+├─ supabase/
+│  ├─ migrations/                <span class="c"># SQL versionado (esquema, RLS, funciones)</span>
+│  ├─ functions/solicitar-cita/  <span class="c"># Edge Function (Deno)</span>
+│  ├─ tests/                     <span class="c"># pgTAP: pruebas de políticas RLS</span>
+│  └─ seed.sql                   <span class="c"># Datos ficticios para desarrollo y demos</span>
+├─ e2e/                          <span class="c"># Flujos de Maestro (.yaml)</span>
+├─ docs/adr/                     <span class="c"># Registros de decisiones</span>
+└─ .github/workflows/ci.yml</code></pre>
+
+  <div class="callout">
+    <span class="t">Reglas de dependencia</span>
+    <ul>
+      <li><code>app/</code> importa de <code>features/*</code> y <code>ui/</code>; nunca de <code>lib/supabase</code> directamente.</li>
+      <li>Un módulo de <code>features/</code> solo importa la API pública (<code>index.ts</code>) de otro módulo, nunca sus archivos internos.</li>
+      <li><code>ui/</code> no conoce el negocio: recibe datos por <em>props</em>. Así puede reutilizarse en otro proyecto.</li>
+      <li>Las reglas de negocio (<code>rules.ts</code>) son funciones puras sin React: se prueban en milisegundos.</li>
+    </ul>
+  </div>
+
+  <h3>Ejemplo completo de una funcionalidad</h3>
+  <p>Así se ve el patrón en el módulo <code>citas</code>. El mismo esquema se repite en cada módulo, lo que hace el código predecible.</p>
+<pre><code><span class="c">// src/features/citas/schemas.ts</span>
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'zod'</span>;
+
+<span class="k">export const</span> EstadoCita = z.enum([<span class="s">'solicitada'</span>, <span class="s">'confirmada'</span>, <span class="s">'asistio'</span>, <span class="s">'no_asistio'</span>, <span class="s">'cancelada'</span>]);
+
+<span class="k">export const</span> Cita = z.object({
+  id: z.uuid(),
+  inicio: z.iso.datetime({ offset: <span class="k">true</span> }),
+  fin: z.iso.datetime({ offset: <span class="k">true</span> }),
+  estado: EstadoCita,
+  modalidad: z.enum([<span class="s">'presencial'</span>, <span class="s">'virtual'</span>]),
+  es_solidaria: z.boolean(),
+  paciente: z.object({ id: z.uuid(), nombre: z.string(), telefono: z.string().nullable() }),
+});
+<span class="k">export type</span> Cita = z.infer&lt;<span class="k">typeof</span> Cita&gt;;
+
+<span class="k">export const</span> NuevaCita = z.object({
+  paciente_id: z.uuid(),
+  inicio: z.date(),
+  duracion_min: z.number().int().min(15).max(180),
+  modalidad: z.enum([<span class="s">'presencial'</span>, <span class="s">'virtual'</span>]),
+  es_solidaria: z.boolean().default(<span class="k">false</span>),
+});
+<span class="k">export type</span> NuevaCita = z.input&lt;<span class="k">typeof</span> NuevaCita&gt;;</code></pre>
+
+<pre><code><span class="c">// src/features/citas/api.ts — única puerta de entrada a la tabla citas</span>
+<span class="k">import</span> { supabase } <span class="k">from</span> <span class="s">'@/lib/supabase'</span>;
+<span class="k">import</span> { Cita, NuevaCita } <span class="k">from</span> <span class="s">'./schemas'</span>;
+
+<span class="k">const</span> CAMPOS = <span class="s">'id, inicio, fin, estado, modalidad, es_solidaria, paciente:pacientes(id, nombre, telefono)'</span>;
+
+<span class="k">export async function</span> listarCitas(desde: Date, hasta: Date) {
+  <span class="k">const</span> { data, error } = <span class="k">await</span> supabase
+    .from(<span class="s">'citas'</span>).select(CAMPOS)
+    .gte(<span class="s">'inicio'</span>, desde.toISOString()).lt(<span class="s">'inicio'</span>, hasta.toISOString())
+    .order(<span class="s">'inicio'</span>);
+  <span class="k">if</span> (error) <span class="k">throw</span> error;
+  <span class="k">return</span> Cita.array().parse(data);   <span class="c">// valida lo que llega del servidor</span>
+}
+
+<span class="k">export async function</span> crearCita(entrada: NuevaCita) {
+  <span class="k">const</span> c = NuevaCita.parse(entrada);
+  <span class="k">const</span> fin = <span class="k">new</span> Date(c.inicio.getTime() + c.duracion_min * 60_000);
+  <span class="k">const</span> { error } = <span class="k">await</span> supabase.from(<span class="s">'citas'</span>).insert({
+    paciente_id: c.paciente_id, inicio: c.inicio.toISOString(), fin: fin.toISOString(),
+    modalidad: c.modalidad, es_solidaria: c.es_solidaria,
+  });   <span class="c">// consultorio_id lo asigna un valor por defecto en la base</span>
+  <span class="k">if</span> (error?.code === <span class="s">'23P01'</span>) <span class="k">throw new</span> Error(<span class="s">'Ese horario ya está ocupado'</span>);   <span class="c">// RN-01</span>
+  <span class="k">if</span> (error) <span class="k">throw</span> error;
+}</code></pre>
+
+<pre><code><span class="c">// src/features/citas/queries.ts — llaves de caché y hooks</span>
+<span class="k">import</span> { useMutation, useQuery, useQueryClient } <span class="k">from</span> <span class="s">'@tanstack/react-query'</span>;
+<span class="k">import</span> { sumarDias } <span class="k">from</span> <span class="s">'@/lib/dates'</span>;
+<span class="k">import</span> { crearCita, listarCitas } <span class="k">from</span> <span class="s">'./api'</span>;
+
+<span class="k">export const</span> citasKeys = {
+  todas: [<span class="s">'citas'</span>] <span class="k">as const</span>,
+  semana: (lunes: string) =&gt; [...citasKeys.todas, <span class="s">'semana'</span>, lunes] <span class="k">as const</span>,
+};
+
+<span class="k">export function</span> useCitasDeLaSemana(lunes: Date) {
+  <span class="k">return</span> useQuery({
+    queryKey: citasKeys.semana(lunes.toISOString()),
+    queryFn: () =&gt; listarCitas(lunes, sumarDias(lunes, 7)),
+  });
+}
+
+<span class="k">export function</span> useCrearCita() {
+  <span class="k">const</span> qc = useQueryClient();
+  <span class="k">return</span> useMutation({
+    mutationKey: [<span class="s">'crear-cita'</span>],          <span class="c">// permite reanudarla si se crea sin red</span>
+    mutationFn: crearCita,
+    onSettled: () =&gt; qc.invalidateQueries({ queryKey: citasKeys.todas }),
+  });
+}</code></pre>
+
+  <h3>Funcionamiento con cortes de red</h3>
+  <ul>
+    <li><strong>Lectura:</strong> la caché de TanStack Query se guarda en AsyncStorage (<code>PersistQueryClientProvider</code>). Al abrir la app sin señal, la agenda y los pacientes recientes se muestran igual, con un aviso discreto.</li>
+    <li><strong>Escritura:</strong> <code>onlineManager</code> se conecta a NetInfo. Una cita creada sin red queda como mutación pausada (con <code>mutationKey</code> y valores por defecto registrados con <code>setMutationDefaults</code>) y se envía sola al reconectar, incluso si la app se cerró.</li>
+    <li><strong>Identificadores:</strong> los registros nuevos generan su UUID en el teléfono (<code>expo-crypto</code>), para que la interfaz los muestre antes de llegar al servidor.</li>
+    <li><strong>Evolución:</strong> si Angela trabaja mucho en lugares sin señal (jornadas), el ADR-005 contempla migrar a sincronización completa con SQLite.</li>
+  </ul>
+
+  <h3>Notificaciones y WhatsApp</h3>
+<pre><code><span class="c">// src/lib/whatsapp.ts</span>
+<span class="k">export function</span> enlaceWhatsApp(telefono: string, mensaje: string) {
+  <span class="k">const</span> digitos = telefono.replace(<span class="s">/\D/g</span>, <span class="s">''</span>);
+  <span class="k">const</span> numero = digitos.length === 10 ? <span class="s">`57${digitos}`</span> : digitos;   <span class="c">// celular colombiano</span>
+  <span class="k">return</span> <span class="s">`https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`</span>;
+}
+
+<span class="c">// src/lib/notifications.ts — recordatorio local, sin datos sensibles (RN-10)</span>
+<span class="k">import</span> * <span class="k">as</span> Notifications <span class="k">from</span> <span class="s">'expo-notifications'</span>;
+
+<span class="k">export function</span> programarAvisoDeCita(citaId: string, inicio: Date, minutosAntes = 15) {
+  <span class="k">return</span> Notifications.scheduleNotificationAsync({
+    identifier: <span class="s">`cita-${citaId}`</span>,
+    content: { title: <span class="s">'Tienes una cita pronto'</span>, body: <span class="s">`Empieza en ${minutosAntes} minutos`</span> },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: <span class="k">new</span> Date(inicio.getTime() - minutosAntes * 60_000),
+    },
+  });
+}</code></pre>
+
+  <h3>Paquetes</h3>
+  <p>Siempre instalar con <code>npx expo install</code>: elige la versión compatible con el SDK, que es la que trae Expo Go.</p>
+<pre><code>npx create-expo-app@latest trazo        <span class="c"># plantilla con Expo Router y TypeScript</span>
+cd trazo
+npx expo install @supabase/supabase-js @react-native-async-storage/async-storage expo-secure-store expo-crypto
+npx expo install @tanstack/react-query @tanstack/react-query-persist-client @tanstack/query-async-storage-persister
+npx expo install @react-native-community/netinfo zustand react-hook-form @hookform/resolvers zod
+npx expo install react-native-reanimated react-native-gesture-handler @shopify/flash-list @howljs/calendar-kit
+npx expo install expo-notifications expo-local-authentication expo-print expo-sharing expo-haptics
+npx expo install date-fns @date-fns/tz expo-font react-native-svg phosphor-react-native
+npx expo install @expo-google-fonts/bricolage-grotesque @expo-google-fonts/geist @expo-google-fonts/geist-mono
+npx expo install jest-expo jest @testing-library/react-native prettier -- --save-dev</code></pre>
+  <p class="small">Antes de agregar cualquier librería con código nativo, verificar en su documentación que funciona en Expo Go (ADR-002). Si no, buscar alternativa en JavaScript puro.</p>
+</section>
+
+<!-- ===================== 9. DATOS Y SEGURIDAD ===================== -->
+<section>
+  <h2 class="chapter">Modelo de datos y seguridad</h2>
+  <p class="lead">El modelo está pensado para crecer: todo cuelga de un <em>consultorio</em>, de modo que mañana Angela pueda sumar una asistente u otra colega sin rehacer la base. La seguridad vive en la base de datos, no solo en la app.</p>
+
+  <h3>Modelo entidad-relación</h3>
+  <figure>
+    <svg viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" font-family="Geist, Segoe UI, sans-serif" font-size="9.5">
+      <style>.hd{font-weight:700;font-size:10.5px;fill:#fff}.f{fill:#3F414A}.pk{fill:#17171C;font-weight:700}</style>
+      <!-- relaciones (debajo) -->
+      <g stroke="#A5AAB5" stroke-width="1.1" fill="none">
+        <path d="M150 50 H170"/>
+        <path d="M80 98 V120"/>
+        <path d="M150 150 H170"/>
+        <path d="M310 150 H330"/>
+        <path d="M310 172 H490 V150"/>
+        <path d="M80 210 V232"/>
+        <path d="M150 190 C160 190 160 262 170 262"/>
+        <path d="M470 262 H490"/>
+        <path d="M560 290 C560 318 80 318 80 300"/>
+        <path d="M310 50 H330"/>
+        <path d="M470 50 H490"/>
+      </g>
+      <g font-size="8.5" fill="#5E6068">
+        <text x="152" y="45">1:N</text><text x="84" y="113">1:N</text><text x="152" y="145">1:N</text><text x="312" y="145">1:1</text><text x="400" y="168">1:N</text><text x="84" y="226">1:N</text><text x="152" y="230">1:N</text><text x="472" y="257">1:N</text><text x="300" y="314">0..1 (asistente → paciente)</text>
+      </g>
+      <!-- fila 1 -->
+      <g><rect x="10" y="10" width="140" height="88" rx="6" fill="#fff" stroke="#2340E0"/><rect x="10" y="10" width="140" height="18" rx="6" fill="#2340E0"/><text x="18" y="23" class="hd">consultorios</text>
+        <text x="18" y="42" class="pk">id</text><text x="18" y="55" class="f">nombre, slug</text><text x="18" y="68" class="f">tarifa_base, duracion_cita</text><text x="18" y="81" class="f">cupos_solidarios_semana</text><text x="18" y="93" class="f">zona_horaria</text></g>
+      <g><rect x="170" y="10" width="140" height="62" rx="6" fill="#fff" stroke="#2340E0"/><rect x="170" y="10" width="140" height="18" rx="6" fill="#2340E0"/><text x="178" y="23" class="hd">miembros</text>
+        <text x="178" y="42" class="pk">consultorio_id, user_id</text><text x="178" y="55" class="f">rol: dueña | asistente</text></g>
+      <g><rect x="330" y="10" width="140" height="62" rx="6" fill="#fff" stroke="#2340E0"/><rect x="330" y="10" width="140" height="18" rx="6" fill="#2340E0"/><text x="338" y="23" class="hd">disponibilidad</text>
+        <text x="338" y="42" class="pk">id</text><text x="338" y="55" class="f">dia_semana, hora_ini, hora_fin</text><text x="338" y="67" class="f">modalidad</text></g>
+      <g><rect x="490" y="10" width="140" height="62" rx="6" fill="#fff" stroke="#2340E0"/><rect x="490" y="10" width="140" height="18" rx="6" fill="#2340E0"/><text x="498" y="23" class="hd">bloqueos</text>
+        <text x="498" y="42" class="pk">id</text><text x="498" y="55" class="f">inicio, fin, motivo</text></g>
+      <!-- fila 2 -->
+      <g><rect x="10" y="120" width="140" height="90" rx="6" fill="#fff" stroke="#2340E0"/><rect x="10" y="120" width="140" height="18" rx="6" fill="#2340E0"/><text x="18" y="133" class="hd">pacientes</text>
+        <text x="18" y="152" class="pk">id, consultorio_id</text><text x="18" y="165" class="f">nombre, telefono, correo</text><text x="18" y="178" class="f">tarifa: normal|social|gratuita</text><text x="18" y="191" class="f">afectado_sismo, afectaciones[]</text><text x="18" y="204" class="f">archivado_en</text></g>
+      <g><rect x="170" y="120" width="140" height="102" rx="6" fill="#fff" stroke="#2340E0"/><rect x="170" y="120" width="140" height="18" rx="6" fill="#2340E0"/><text x="178" y="133" class="hd">citas</text>
+        <text x="178" y="152" class="pk">id, consultorio_id, paciente_id</text><text x="178" y="165" class="f">inicio, fin (timestamptz)</text><text x="178" y="178" class="f">estado, modalidad, enlace</text><text x="178" y="191" class="f">es_solidaria, origen (app|web)</text><text x="178" y="204" class="f">recordada_en</text><text x="178" y="216" class="f">⊘ sin solapes (exclusión)</text></g>
+      <g><rect x="330" y="120" width="140" height="76" rx="6" fill="#fff" stroke="#2340E0"/><rect x="330" y="120" width="140" height="18" rx="6" fill="#2340E0"/><text x="338" y="133" class="hd">pagos</text>
+        <text x="338" y="152" class="pk">id, cita_id</text><text x="338" y="165" class="f">monto (COP), metodo</text><text x="338" y="178" class="f">estado: pendiente|pagado|donado</text><text x="338" y="191" class="f">pagado_en</text></g>
+      <g><rect x="490" y="120" width="140" height="64" rx="6" fill="#fff" stroke="#C4352B"/><rect x="490" y="120" width="140" height="18" rx="6" fill="#C4352B"/><text x="498" y="133" class="hd">notas_sesion 🔒</text>
+        <text x="498" y="152" class="pk">id, cita_id, autora_id</text><text x="498" y="165" class="f">contenido</text><text x="498" y="178" class="f">solo la autora (RLS)</text></g>
+      <!-- fila 3 -->
+      <g><rect x="10" y="232" width="140" height="68" rx="6" fill="#fff" stroke="#2340E0"/><rect x="10" y="232" width="140" height="18" rx="6" fill="#2340E0"/><text x="18" y="245" class="hd">consentimientos</text>
+        <text x="18" y="264" class="pk">id, paciente_id</text><text x="18" y="277" class="f">tipo, version_texto</text><text x="18" y="290" class="f">aceptado_en, revocado_en</text></g>
+      <g><rect x="170" y="240" width="140" height="62" rx="6" fill="#fff" stroke="#B4471C"/><rect x="170" y="240" width="140" height="18" rx="6" fill="#B4471C"/><text x="178" y="253" class="hd">seguimientos</text>
+        <text x="178" y="272" class="pk">id, paciente_id</text><text x="178" y="285" class="f">fecha_objetivo, motivo</text><text x="178" y="297" class="f">estado</text></g>
+      <g><rect x="330" y="240" width="140" height="62" rx="6" fill="#fff" stroke="#B4471C"/><rect x="330" y="240" width="140" height="18" rx="6" fill="#B4471C"/><text x="338" y="253" class="hd">jornadas</text>
+        <text x="338" y="272" class="pk">id, consultorio_id</text><text x="338" y="285" class="f">titulo, tipo, lugar, barrio</text><text x="338" y="297" class="f">inicio, cupos</text></g>
+      <g><rect x="490" y="240" width="140" height="50" rx="6" fill="#fff" stroke="#B4471C"/><rect x="490" y="240" width="140" height="18" rx="6" fill="#B4471C"/><text x="498" y="253" class="hd">asistentes</text>
+        <text x="498" y="272" class="pk">jornada_id, paciente_id?</text><text x="498" y="285" class="f">nombre, telefono, seguimiento</text></g>
+      <text x="10" y="332" font-size="9" fill="#5E6068">Verde: consultorio · Arcilla: programa solidario · Rojo: datos de máxima reserva.</text><text x="10" y="344" font-size="9" fill="#5E6068">Todas las tablas llevan consultorio_id, created_at y updated_at. La tabla recursos (líneas de ayuda) es global y de solo lectura.</text>
+    </svg>
+    <figcaption><b>Figura 5.</b> Modelo de datos simplificado.</figcaption>
+  </figure>
+
+  <h3>Migración de ejemplo: citas sin solapes y con RLS</h3>
+<pre><code><span class="c">-- supabase/migrations/20261116_citas.sql</span>
+<span class="k">create extension if not exists</span> btree_gist;
+
+<span class="k">create type</span> estado_cita <span class="k">as enum</span> (<span class="s">'solicitada'</span>, <span class="s">'confirmada'</span>, <span class="s">'asistio'</span>, <span class="s">'no_asistio'</span>, <span class="s">'cancelada'</span>);
+
+<span class="k">create table</span> public.citas (
+  id              uuid <span class="k">primary key default</span> gen_random_uuid(),
+  consultorio_id  uuid <span class="k">not null default</span> public.consultorio_actual()   <span class="c">-- del usuario autenticado</span>
+                  <span class="k">references</span> public.consultorios(id) <span class="k">on delete cascade</span>,
+  paciente_id     uuid <span class="k">not null references</span> public.pacientes(id),
+  inicio          timestamptz <span class="k">not null</span>,
+  fin             timestamptz <span class="k">not null</span>,
+  estado          estado_cita <span class="k">not null default</span> <span class="s">'confirmada'</span>,
+  modalidad       text <span class="k">not null check</span> (modalidad <span class="k">in</span> (<span class="s">'presencial'</span>, <span class="s">'virtual'</span>)),
+  es_solidaria    boolean <span class="k">not null default</span> false,
+  origen          text <span class="k">not null default</span> <span class="s">'app'</span>,
+  recordada_en    timestamptz,
+  created_at      timestamptz <span class="k">not null default</span> now(),
+  updated_at      timestamptz <span class="k">not null default</span> now(),
+  <span class="k">check</span> (fin &gt; inicio),
+  <span class="c">-- RN-01: dos citas activas del mismo consultorio no pueden solaparse</span>
+  <span class="k">exclude using</span> gist (
+    consultorio_id <span class="k">with</span> =,
+    tstzrange(inicio, fin, <span class="s">'[)'</span>) <span class="k">with</span> &amp;&amp;
+  ) <span class="k">where</span> (estado <span class="k">in</span> (<span class="s">'solicitada'</span>, <span class="s">'confirmada'</span>))
+);
+
+<span class="k">create index</span> citas_agenda_idx <span class="k">on</span> public.citas (consultorio_id, inicio);
+
+<span class="c">-- ¿El usuario actual pertenece al consultorio?</span>
+<span class="k">create or replace function</span> public.es_miembro(c uuid)
+<span class="k">returns</span> boolean <span class="k">language</span> sql <span class="k">stable security definer set</span> search_path = <span class="s">''</span>
+<span class="k">as</span> $$
+  <span class="k">select exists</span> (
+    <span class="k">select</span> 1 <span class="k">from</span> public.miembros m
+    <span class="k">where</span> m.consultorio_id = c <span class="k">and</span> m.user_id = (<span class="k">select</span> auth.uid())
+  );
+$$;
+
+<span class="k">alter table</span> public.citas <span class="k">enable row level security</span>;
+
+<span class="k">create policy</span> <span class="s">"miembros gestionan las citas de su consultorio"</span>
+  <span class="k">on</span> public.citas <span class="k">for all to</span> authenticated
+  <span class="k">using</span> (public.es_miembro(consultorio_id))
+  <span class="k">with check</span> (public.es_miembro(consultorio_id));</code></pre>
+  <p class="small">Las notas de sesión usan una política más estricta: <code>using (autora_id = (select auth.uid()))</code>. El rol <code>anon</code> (visitantes de la web) no tiene ninguna política sobre tablas: solo puede llamar a la función de horarios libres y a la Edge Function.</p>
+
+  <h3>Autenticación, sesión y bloqueo</h3>
+  <table class="compact">
+    <thead><tr><th class="k">Medida</th><th>Implementación</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Inicio de sesión</td><td>Supabase Auth con correo y contraseña; MFA con app autenticadora (TOTP) recomendado para cuentas profesionales.</td></tr>
+      <tr><td class="k">Sesión guardada</td><td>Token cifrado: una llave AES guardada en <code>expo-secure-store</code> (Keychain / Keystore) cifra la sesión que se guarda en AsyncStorage (patrón recomendado por Supabase, porque SecureStore limita el tamaño).</td></tr>
+      <tr><td class="k">Desbloqueo</td><td><code>expo-local-authentication</code> pide biometría (Face ID / huella) o el código del teléfono al abrir y al volver de segundo plano tras 2 minutos; en Expo Go para iPhone se usa el código, porque Face ID no está disponible ahí (capítulo 10).</td></tr>
+      <tr><td class="k">Renovación</td><td><code>supabase.auth.startAutoRefresh()</code> / <code>stopAutoRefresh()</code> según el estado de la app (<code>AppState</code>).</td></tr>
+      <tr><td class="k">Claves</td><td>En la app solo la clave publicable (<code>EXPO_PUBLIC_SUPABASE_KEY</code>). La clave de servicio vive únicamente en las Edge Functions. Nada de secretos en Git.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Página de reservas segura</h3>
+  <ol>
+    <li>La página llama a la función <code>horarios_libres(slug, desde, hasta)</code>, que devuelve solo inicios y fines disponibles: nunca nombres ni motivos.</li>
+    <li>La solicitud va a la Edge Function <code>solicitar-cita</code>, que valida con el mismo esquema Zod, limita intentos por teléfono y por IP, y crea la cita con estado <code>solicitada</code>. La restricción de exclusión impide que dos personas tomen el mismo horario.</li>
+    <li>Opcional: Cloudflare Turnstile (gratis) como verificación anti-bots.</li>
+  </ol>
+<pre><code><span class="c">// supabase/functions/solicitar-cita/index.ts (resumen)</span>
+<span class="k">import</span> { createClient } <span class="k">from</span> <span class="s">'npm:@supabase/supabase-js@2'</span>;
+<span class="k">import</span> { z } <span class="k">from</span> <span class="s">'npm:zod@4'</span>;
+
+<span class="k">const</span> Solicitud = z.object({
+  slug: z.string().min(3),
+  inicio: z.iso.datetime({ offset: <span class="k">true</span> }),
+  nombre: z.string().trim().min(3).max(80),
+  telefono: z.string().regex(<span class="s">/^3\d{9}$/</span>),            <span class="c">// celular colombiano</span>
+  modalidad: z.enum([<span class="s">'presencial'</span>, <span class="s">'virtual'</span>]),
+  autoriza_datos: z.literal(<span class="k">true</span>),
+});
+
+Deno.serve(<span class="k">async</span> (req) =&gt; {
+  <span class="k">const</span> parsed = Solicitud.safeParse(<span class="k">await</span> req.json());
+  <span class="k">if</span> (!parsed.success) <span class="k">return</span> Response.json({ error: <span class="s">'Datos inválidos'</span> }, { status: 400 });
+  <span class="k">const</span> admin = createClient(Deno.env.get(<span class="s">'SUPABASE_URL'</span>)!, Deno.env.get(<span class="s">'SUPABASE_SERVICE_ROLE_KEY'</span>)!);
+  <span class="k">const</span> { error } = <span class="k">await</span> admin.rpc(<span class="s">'crear_solicitud_cita'</span>, parsed.data);   <span class="c">// valida cupo y límite</span>
+  <span class="k">if</span> (error) <span class="k">return</span> Response.json({ error: <span class="s">'Ese horario ya no está disponible'</span> }, { status: 409 });
+  <span class="k">return</span> Response.json({ ok: <span class="k">true</span> }, { status: 201 });
+});</code></pre>
+  <p class="small">En producción se agregan cabeceras CORS para el dominio de la página y registro de intentos para el límite de frecuencia.</p>
+
+  <h3>Lista de verificación de seguridad (basada en OWASP MASVS)</h3>
+  <table class="tight">
+    <thead><tr><th style="width:18%">Área</th><th>Control en Trazo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Almacenamiento</strong></td><td>Sesión cifrada; caché local sin notas de sesión; nada sensible en registros ni en el portapapeles.</td></tr>
+      <tr><td><strong>Autenticación</strong></td><td>Contraseña + MFA; biometría local; cierre de sesión en todos los dispositivos desde ajustes.</td></tr>
+      <tr><td><strong>Red</strong></td><td>Solo HTTPS; ninguna llamada a servicios no listados en este documento.</td></tr>
+      <tr><td><strong>Plataforma</strong></td><td>Contenido oculto en el selector de apps (vista previa en blanco al ir a segundo plano); notificaciones sin datos sensibles.</td></tr>
+      <tr><td><strong>Código</strong></td><td>Dependencias actualizadas con <code>npx expo install --check</code>; revisión de avisos de seguridad de GitHub (Dependabot).</td></tr>
+      <tr><td><strong>Privacidad</strong></td><td>Minimización, consentimiento versionado, exportación y supresión a solicitud (HU-25), datos ficticios fuera de producción.</td></tr>
+      <tr><td><strong>Base de datos</strong></td><td>RLS en todas las tablas; pruebas pgTAP que verifican que un usuario de otro consultorio no ve nada; asesor de seguridad de Supabase sin alertas.</td></tr>
+    </tbody>
+  </table>
+</section>
