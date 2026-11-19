@@ -6,7 +6,7 @@ import {COLOR, LIENZO} from '../tema';
 import {Revelar} from './Revelar';
 import {TrazoLinea} from './TrazoLinea';
 
-/** 00 · Portada: el Trazo se escribe de lado a lado y la marca aparece debajo. */
+/** Escena 00. La marca entra cuando la pluma va mas o menos por la mitad. */
 export const Portada: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
@@ -15,7 +15,7 @@ export const Portada: React.FC = () => {
 
   return (
     <AbsoluteFill style={{backgroundColor: COLOR.lienzo}}>
-      {/* Cabecera: misma rejilla que la de cada seccion */}
+      {/* Misma cabecera que las secciones, para que la portada no se sienta aparte */}
       <div style={{position: 'absolute', left: LIENZO.margen, top: 84, width: LIENZO.ancho - LIENZO.margen * 2}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 32}}>
           <Revelar
@@ -48,7 +48,6 @@ export const Portada: React.FC = () => {
         />
       </div>
 
-      {/* Linea de apoyo en la columna derecha */}
       <Revelar
         texto={PORTADA.apoyo}
         desde={24}
@@ -67,7 +66,7 @@ export const Portada: React.FC = () => {
         }}
       />
 
-      {/* El Trazo: se escribe con la pluma y luego se va calmando */}
+      {/* Se escribe con la pluma en ~2.6 s y despues baja la amplitud */}
       <TrazoLinea
         ancho={LIENZO.ancho}
         alto={LIENZO.alto}
@@ -87,7 +86,6 @@ export const Portada: React.FC = () => {
         pluma
       />
 
-      {/* Marca */}
       <Revelar
         texto={PORTADA.titulo}
         desde={34}

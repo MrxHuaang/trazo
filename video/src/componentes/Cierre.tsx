@@ -6,7 +6,7 @@ import {COLOR, LIENZO} from '../tema';
 import {Revelar} from './Revelar';
 import {TrazoLinea} from './TrazoLinea';
 
-/** 13 · Cierre: gracias, autor y enlace. El Trazo se aquieta hasta quedar plano. */
+/** Escena 13. La amplitud del Trazo baja a 0 para cerrar en calma. */
 export const Cierre: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
@@ -54,7 +54,6 @@ export const Cierre: React.FC = () => {
         }}
       />
 
-      {/* El Trazo, cada vez mas quieto */}
       <TrazoLinea
         ancho={LIENZO.ancho}
         alto={LIENZO.alto}
@@ -85,7 +84,7 @@ export const Cierre: React.FC = () => {
         </div>
       </div>
 
-      {/* Ultimo segundo: todo se va al lienzo */}
+      {/* Fundido al lienzo en el ultimo segundo */}
       <AbsoluteFill
         style={{
           backgroundColor: COLOR.lienzo,

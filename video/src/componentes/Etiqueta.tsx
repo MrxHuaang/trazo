@@ -15,15 +15,12 @@ type Props = {
   readonly ancho: number;
 };
 
-/** Separa codigos de la especificacion (HU-xx, RN-xx) y nombres de paquete para pintarlos en mono. */
+// Codigos HU/RN y nombres de paquete van en mono dentro de la etiqueta.
 const CODIGO = /^(HU|RN)-\d+$/;
 const PAQUETE = /^(expo|reanimated)-[a-z-]+$/;
 const partes = (texto: string) => texto.split(/(\b(?:HU|RN)-\d+\b|\b(?:expo|reanimated)-[a-z-]+\b)/g).filter(Boolean);
 
-/**
- * Una etiqueta corta: regla fina que se dibuja de izquierda a derecha y el texto
- * que sube por mascara. Cuando llega la siguiente, esta se aquieta en gris.
- */
+/** Al entrar la siguiente etiqueta, esta pasa a gris para que la vista siga a la nueva. */
 export const Etiqueta: React.FC<Props> = ({texto, indice, aparece, siguiente, ancho}) => {
   const frame = useCurrentFrame();
   const regla = interpolate(frame, [aparece, aparece + 18], [0, 1], {

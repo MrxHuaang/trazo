@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react';
 import {cancelRender, continueRender, delayRender} from 'remotion';
 import {FUENTE, fuentesListas} from './fuentes';
 
-/** Espera a que las fuentes esten cargadas antes de medir y de pintar. */
+/** Frena el render hasta tener las fuentes; si no, fitText mide con la fuente de respaldo. */
 export const useFuentesListas = () => {
   const [handle] = useState(() => delayRender('Cargando fuentes'));
   const [listas, setListas] = useState(false);
@@ -36,7 +36,7 @@ export const tamanoTitulo = (titulo: string, ancho: number, maximo: number) => {
   return Math.floor(Math.min(maximo, ...tamanos));
 };
 
-/** Lineas aproximadas que ocupa un texto de apoyo en un ancho dado. */
+/** Estimado: el 0.94 compensa que el corte por palabras nunca llena la linea completa. */
 export const lineasApoyo = (texto: string, ancho: number, tamano: number) => {
   const {width} = measureText({
     text: texto.replace(/\*/g, ''),

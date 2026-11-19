@@ -1,6 +1,6 @@
 # Trazo · video de exposición (Remotion)
 
-Composición `Trazo`, 1920 x 1080, 30 fps. La dirección está en `BRIEF.md`.
+Composición `Trazo`, 1920 x 1080, 30 fps.
 
 ## Comandos
 

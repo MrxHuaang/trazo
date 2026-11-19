@@ -56,7 +56,7 @@
     <tbody>
       <tr><td><strong>Lenguaje</strong></td><td>TypeScript 6 en modo estricto</td><td>Errores detectados al escribir; rutas tipadas de Expo Router.</td></tr>
       <tr><td><strong>Framework</strong></td><td>Expo SDK 58 · React Native 0.88 · React 19.3 · Nueva Arquitectura · React Compiler</td><td>Lo del curso en su versión actual; corre en Expo Go sin compilar nada.</td></tr>
-      <tr><td><strong>Navegación</strong></td><td>Expo Router 58: pestañas, pilas, rutas dinámicas, hojas <em>formSheet</em></td><td>Rutas por archivos; editar en una hoja sin perder el contexto.</td></tr>
+      <tr><td><strong>Navegación</strong></td><td>Expo Router 58: pestañas, pilas, rutas dinámicas y hojas (<em>formSheet</em> en iPhone, pantalla modal en Android)</td><td>Rutas por archivos; editar en una hoja sin perder el contexto.</td></tr>
       <tr><td><strong>Estilos</strong></td><td>NativeWind 4.2 + Tailwind CSS 3.4; paleta en <code>src/theme/palette.js</code></td><td>Es lo enseñado en clase; una sola fuente de colores (ADR-011).</td></tr>
       <tr><td><strong>Persistencia</strong></td><td><code>expo-sqlite</code> 58 (SQLite local, WAL, claves foráneas)</td><td>Funciona sin internet, sin cuentas y sin costo (ADR-010).</td></tr>
       <tr><td><strong>Datos</strong></td><td>TanStack Query 5 sobre repositorios SQLite</td><td>Caché, estados de carga y error, invalidación por entidad.</td></tr>
@@ -140,7 +140,7 @@
 │  ├─ app/                      <span class="c"># Rutas (Expo Router): solo componen</span>
 │  │  ├─ _layout.tsx            <span class="c"># QueryClient, fuentes, DatabaseGate, AccessGate</span>
 │  │  ├─ (tabs)/index · agenda · pacientes · solidario
-│  │  ├─ cita/nueva · cita/[id] <span class="c"># hojas formSheet</span>
+│  │  ├─ cita/nueva · cita/[id] <span class="c"># hojas, declaradas en _layout.tsx</span>
 │  │  ├─ paciente/nuevo · paciente/[id] · nota/[id]
 │  │  ├─ jornada/nueva · jornada/[id] · mapa · seguimientos · informe
 │  │  ├─ pagos · por-confirmar · resumen · onboarding
@@ -161,7 +161,7 @@
   <div class="callout">
     <span class="t">Reglas de dependencia</span>
     <ul>
-      <li><code>src/app/</code> solo compone: importa la pantalla del módulo y declara opciones como <em>formSheet</em>.</li>
+      <li><code>src/app/</code> solo compone: importa la pantalla del módulo. Las hojas se declaran una sola vez en el <code>Stack</code> raíz.</li>
       <li>El SQL vive solo en <code>src/data/repos/</code> (entidades compartidas) o en <code>features/&lt;modulo&gt;/repo.ts</code> (tablas propias, como notas o jornadas). Las pantallas usan hooks.</li>
       <li>Toda llave de TanStack Query empieza con una llave base de <code>qk</code>; una mutación invalida por entidad sin conocer las consultas de otros módulos.</li>
       <li>Un módulo usa reglas públicas de otro sin tocar sus pantallas: la agenda pregunta a <code>solidario/cupos.ts</code> por el cupo (RN-03).</li>

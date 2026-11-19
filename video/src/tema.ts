@@ -1,4 +1,4 @@
-/** Tokens visuales y tiempos del video. Colores tomados de src/theme/palette.js de la app. */
+// Colores copiados a mano de src/theme/palette.js. Si cambia la paleta de la app, actualizar aqui.
 export const COLOR = {
   lienzo: '#F6F7F9',
   tinta: '#17171C',
@@ -16,10 +16,10 @@ export const TONOS = {
 
 export type Tono = keyof typeof TONOS;
 
-/** Rejilla de 12 columnas sobre 1920 x 1080 con margenes de 120 px. */
+/** Margen lateral comun a todas las escenas. */
 export const LIENZO = {ancho: 1920, alto: 1080, margen: 120} as const;
 
-/** Columna de texto y panel del telefono durante la grabacion. */
+/** Medidas mientras corre la grabacion (texto a un lado, telefono al otro). */
 export const DISPOSICION = {
   anchoPanel: 820,
   anchoTexto: 860,
@@ -29,7 +29,7 @@ export const DISPOSICION = {
   pisoTexto: 944,
 } as const;
 
-/** Tiempos, en segundos. */
+/** En segundos. scripts/fotogramas.mjs tiene una copia en cuadros: cambiar ambos. */
 export const TIEMPO = {
   portada: 6.5,
   tarjeta: 2.6,

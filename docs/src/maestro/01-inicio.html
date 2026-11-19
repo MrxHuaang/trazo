@@ -17,6 +17,85 @@
   </div>
 </section>
 
+<!-- ===================== RECORRIDO VISUAL ===================== -->
+<section>
+  <h2 class="chapter nonum" data-nav="Recorrido visual">Trazo en un vistazo</h2>
+  <p class="lead">Una app móvil para la consulta de una psicóloga en Pereira. Organiza su agenda y sostiene un programa solidario para personas afectadas por el sismo. Funciona sin servidor y se demuestra con datos ficticios.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n">5</div><div class="l">módulos: Acceso, Hoy y Pagos, Agenda, Pacientes y Solidario</div></div>
+    <div class="kpi"><div class="n">30 de 34</div><div class="l">historias de usuario implementadas</div></div>
+    <div class="kpi"><div class="n">0</div><div class="l">servidores: los datos viven en el teléfono</div></div>
+    <div class="kpi"><div class="n">$0</div><div class="l">costo de desarrollo y demostración</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="pilar lav">
+      <span class="eyebrow">Pilar 1</span>
+      <b>La consulta</b>
+      <p>Agenda del día y de la semana, pacientes con su historia, recordatorios por WhatsApp y control de pagos.</p>
+    </div>
+    <div class="pilar dur">
+      <span class="eyebrow">Pilar 2</span>
+      <b>El programa solidario</b>
+      <p>Cupos semanales sin costo, jornadas comunitarias, seguimientos y un informe para rendir cuentas.</p>
+    </div>
+  </div>
+
+  <h3 class="nonum">Con qué está hecho</h3>
+  <div class="stack">
+    <div>
+      <span class="eyebrow">Lo visto en el curso · 90 %</span>
+      <div class="pill-row">
+        <span class="tag should">Expo Router</span><span class="tag should">NativeWind + Tailwind</span><span class="tag should">TanStack Query + axios</span><span class="tag should">Zustand</span><span class="tag should">Leaflet + expo-location</span><span class="tag should">Reanimated + Gesture Handler</span><span class="tag should">Carrusel</span>
+      </div>
+    </div>
+    <div>
+      <span class="eyebrow">Lo propio · 10 %</span>
+      <div class="pill-row">
+        <span class="tag could">SQLite local</span><span class="tag could">Huella o rostro</span><span class="tag could">Notificaciones locales</span><span class="tag could">PDF</span><span class="tag could">Acelerómetro</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="nonum">Cómo viaja un dato</h3>
+  <p class="small">Ejemplo: agendar una cita. Las reglas de negocio viven en el repositorio, no en la pantalla.</p>
+  <div class="flow">
+    <div><span class="n">1</span><b>Pantalla</b><span>La hoja Nueva cita reúne paciente, fecha y hora.</span><code>nueva-cita-sheet.tsx</code></div>
+    <div><span class="n">2</span><b>Hook</b><span>Una mutación de TanStack Query envía el cambio.</span><code>useCrearCita</code></div>
+    <div><span class="n">3</span><b>Repositorio</b><span>Valida que no haya choque de horario (RN-01).</span><code>repos/citas.ts</code></div>
+    <div><span class="n">4</span><b>SQLite</b><span>La cita queda guardada en el teléfono.</span><code>expo-sqlite</code></div>
+    <div><span class="n">5</span><b>Refresco</b><span>Se invalida la llave y la pantalla se actualiza sola.</span><code>qk.citas</code></div>
+  </div>
+</section>
+
+<section>
+  <h2 class="chapter nonum" data-nav="La app, pantalla por pantalla">La app, pantalla por pantalla</h2>
+  <p class="lead">El recorrido sigue el día de la psicóloga: revisa su jornada, agenda, atiende, registra el pago y acompaña el programa solidario.</p>
+  <div class="tour">
+    <div class="step"><img src="../img/v2-hoy.png" alt="Pantalla Hoy"><span class="n">01</span><h4>Hoy</h4><p>El día de un vistazo: la próxima cita, solicitudes por revisar, cupos solidarios y pagos por cobrar.</p><div class="pill-row"><span class="tag could">TanStack Query</span><span class="tag could">El Trazo</span></div></div>
+    <div class="step"><img src="../img/v2-resumen.png" alt="Pantalla Tu semana"><span class="n">02</span><h4>Tu semana</h4><p>El resumen semanal en historias: se pasa con un toque y se cierra deslizando.</p><div class="pill-row"><span class="tag could">Carrusel</span><span class="tag could">Reanimated</span></div></div>
+    <div class="step"><img src="../img/v2-agenda.png" alt="Pantalla Agenda"><span class="n">03</span><h4>Agenda</h4><p>Se toca un hueco para agendar y se arrastra una cita para moverla, sin choques de horario.</p><div class="pill-row"><span class="tag could">Gestos</span><span class="tag could">RN-01</span></div></div>
+    <div class="step"><img src="../img/v2-nueva-cita.png" alt="Pantalla Nueva cita"><span class="n">04</span><h4>Nueva cita</h4><p>Paciente, fecha y hora en una sola hoja. Las horas ocupadas no se pueden elegir.</p><div class="pill-row"><span class="tag could">Hoja</span><span class="tag could">RN-03</span></div></div>
+    <div class="step"><img src="../img/v2-pacientes.png" alt="Pantalla Pacientes"><span class="n">05</span><h4>Pacientes</h4><p>Buscar o crear desde el mismo campo, filtrar y actuar deslizando la fila.</p><div class="pill-row"><span class="tag could">Zustand</span><span class="tag could">WhatsApp</span></div></div>
+    <div class="step"><img src="../img/v2-ficha.png" alt="Pantalla Ficha"><span class="n">06</span><h4>Ficha</h4><p>Asistencia de un vistazo, lo que viene y lo que ya pasó. Las notas se abren con huella.</p><div class="pill-row"><span class="tag could">Biometría</span><span class="tag could">PDF</span></div></div>
+    <div class="step"><img src="../img/v2-solidario.png" alt="Pantalla Solidario"><span class="n">07</span><h4>Solidario</h4><p>Cupos solidarios de la semana, jornadas comunitarias y seguimientos pendientes.</p><div class="pill-row"><span class="tag could">Cupos</span><span class="tag could">Jornadas</span></div></div>
+    <div class="step"><img src="../img/v2-mapa.png" alt="Pantalla Mapa"><span class="n">08</span><h4>Mapa</h4><p>Jornadas en Pereira y sismos recientes de una fuente pública. Ningún dato de pacientes sale del teléfono.</p><div class="pill-row"><span class="tag could">Leaflet</span><span class="tag could">axios</span></div></div>
+    <div class="step"><img src="../img/v2-pagos.png" alt="Pantalla Pagos"><span class="n">09</span><h4>Pagos</h4><p>Lo cobrado, lo pendiente y lo donado del mes, con exporte en PDF.</p><div class="pill-row"><span class="tag could">RN-05</span><span class="tag could">expo-print</span></div></div>
+    <div class="step"><img src="../img/v2-ajustes.png" alt="Pantalla Ajustes"><span class="n">10</span><h4>Ajustes</h4><p>Tarifas, duración de la cita, bloqueo al abrir, disponibilidad y datos de demostración.</p><div class="pill-row"><span class="tag could">SQLite</span><span class="tag could">Bloqueo</span></div></div>
+    <div class="step wide">
+      <span class="eyebrow">Para seguir leyendo</span>
+      <ul>
+        <li><b>Capítulo 6.</b> Historias de usuario y reglas de negocio.</li>
+        <li><b>Capítulo 7.</b> Sistema visual y componentes.</li>
+        <li><b>Capítulo 8.</b> Arquitectura, carpetas y decisiones técnicas.</li>
+        <li><b>Capítulo 9.</b> Modelo de datos y seguridad.</li>
+        <li><b>Capítulo 11.</b> Pruebas realizadas en el emulador.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== CONTROL Y CONTENIDO ===================== -->
 <section>
   <h2 class="chapter nonum">Control del documento</h2>
@@ -28,6 +107,7 @@
       <tr><td>0.1</td><td>08/11/2026</td><td>Concepto, alcance, requerimientos, diseño, arquitectura y plan.</td><td>Reemplazada</td></tr>
       <tr><td>0.2</td><td>08/11/2026</td><td>Sistema visual Trazo suave, solo modo claro, pruebas en emulador Pixel 8.</td><td>Reemplazada</td></tr>
       <tr><td>1.0</td><td>10/11/2026</td><td>Alineado con la app construida: SQLite local (Supabase a futuro), reservas web aplazadas, Calma retirada, HU-28 a HU-33 nuevas, estado real por historia, diseño “Trazo vivo” y capturas reales.</td><td>Vigente</td></tr>
+      <tr><td>1.0 rev.</td><td>19/11/2026</td><td>Recorrido visual al inicio y capturas nuevas. En Android las hojas son pantallas que suben desde abajo. La ficha separa Próximas e Historia.</td><td>Vigente</td></tr>
     </tbody>
   </table>
 

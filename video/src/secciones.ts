@@ -1,12 +1,8 @@
 import type {Tono} from './tema';
 
 /**
- * Contenido del video. Editar aqui los textos.
- * - `titulo`: admite "\n" para partir la linea a mano.
- * - `apoyo`: una palabra entre asteriscos (*asi*) sale en Instrument Serif italica.
- * - `etiquetas`: 2 o 3, cortas. Los codigos HU-xx / RN-xx salen en mono cobalto.
- * - `momentos`: segundos dentro de la grabacion en que aparece cada etiqueta.
- *   Si se omite, se reparten solas a lo largo del clip.
+ * Textos del video. En `titulo` "\n" parte la linea y en `apoyo` una palabra entre *asteriscos* sale en serif.
+ * `momentos` son los segundos del clip en que entra cada etiqueta; si falta, se reparten solas.
  */
 export type Seccion = {
   numero: string;

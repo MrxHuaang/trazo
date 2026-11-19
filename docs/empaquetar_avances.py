@@ -1,12 +1,8 @@
 """
-Arma el paquete de avances para entregar: informe, documentación, repositorio y código por día.
+Arma la carpeta de avances para entregar. Uso: python docs/empaquetar_avances.py
 
-Uso:  python docs/empaquetar_avances.py
-Salida: entregables/avances/Juan Pantoja/   (no se versiona)
-
-El código de cada día se toma del commit correspondiente con `git show`, así refleja
-lo que existía ese día. Los nombres usan "__" en lugar de "/" porque las carpetas se
-suben planas.
+El código de cada día sale de su commit con `git show`, así muestra lo que existía ese día
+y no la versión actual. Las rutas usan "__" en vez de "/" porque las carpetas se suben planas.
 """
 from __future__ import annotations
 
@@ -17,7 +13,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "entregables" / "avances" / "Juan Pantoja"
 REPO = "https://github.com/MrxHuaang/trazo"
-WT = ROOT / ".claude" / "worktrees"
 
 
 def git(*args: str) -> bytes:
@@ -29,7 +24,7 @@ def plano(ruta: str) -> str:
 
 
 def carpeta(nombre: str, titulo: str, resumen: str, commit: str | None, archivos: list[tuple[str, str]], origen: Path | None = None):
-    """Copia `archivos` (ruta, descripción) desde `commit` (o desde `origen` en disco) y escribe LEEME.md."""
+    """Sin `commit` copia desde disco; sirve para trabajo que todavía no está integrado."""
     destino = OUT / nombre
     destino.mkdir(parents=True, exist_ok=True)
     filas = []
@@ -63,17 +58,17 @@ def main() -> None:
     doc.mkdir()
     shutil.copy(ROOT / "entregables" / "Trazo_Documento_Maestro_v1.0.pdf", doc / "Trazo_Documento_Maestro_v1.0.pdf")
     (doc / "Repositorio_GitHub.url").write_text(f"[InternetShortcut]\nURL={REPO}\n", encoding="utf-8")
-    ramas = git("log", "--format=%h  %ad  %s", "--date=format:%Y-%m-%d %H:%M", "feat/mvp-sprints").decode("utf-8")
+    ramas = git("log", "--no-merges", "--format=%h  %ad  %s", "--date=format:%Y-%m-%d %H:%M", "master").decode("utf-8")
     (doc / "LEEME_Repositorio.md").write_text(
         f"# Repositorio de Trazo\n\n- **URL (público):** {REPO}\n- **Pull request del MVP:** {REPO}/pull/2\n- **Pull request de la base:** {REPO}/pull/1\n"
-        "- **Rama con el trabajo más reciente:** `feat/mvp-sprints`\n"
-        "- **Copia del código:** `trazo_codigo_fuente.zip` (rama `feat/mvp-sprints`, sin `node_modules`)\n\n"
-        "## Cómo ejecutar\n\n```bash\ngit clone https://github.com/MrxHuaang/trazo.git\ncd trazo\ngit switch feat/mvp-sprints\n"
+        "- **Rama principal:** `master`\n"
+        "- **Copia del código:** `trazo_codigo_fuente.zip` (rama `master`, sin `node_modules`)\n\n"
+        "## Cómo ejecutar\n\n```bash\ngit clone https://github.com/MrxHuaang/trazo.git\ncd trazo\n"
         "npm install\nnpx expo start   # tecla \"a\": emulador Android con Expo Go 58\n```\n\n"
-        "## Historial de commits (rama feat/mvp-sprints)\n\n```\n" + ramas + "```\n",
+        "## Historial de commits (rama master)\n\n```\n" + ramas + "```\n",
         encoding="utf-8",
     )
-    git("archive", "--format=zip", "-o", str(doc / "trazo_codigo_fuente.zip"), "feat/mvp-sprints", "--", ".", ":(exclude)entregables")
+    git("archive", "--format=zip", "-o", str(doc / "trazo_codigo_fuente.zip"), "master", "--", ".", ":(exclude)entregables")
     print("OK  01_Documentacion_y_repositorio")
 
     carpeta(
@@ -113,7 +108,6 @@ def main() -> None:
             ("src/features/hoy/hoy-screen.tsx", "Primera versión de la pantalla Hoy (datos fijos de demostración)."),
             ("src/features/hoy/rules.ts", "Reglas puras: próxima cita, nodos del Trazo, formatos."),
             ("src/app/_layout.tsx", "Layout raíz: carga de fuentes y navegación."),
-            ("AGENTS.md", "Reglas del proyecto."),
         ],
     )
 
@@ -214,7 +208,6 @@ def main() -> None:
             ("src/ui/tile.tsx", "Bloque de color con clases de NativeWind."),
             ("src/ui/button.tsx", "Botón con variantes y área táctil cómoda."),
             ("src/ui/trace-line.tsx", "El Trazo con energía en vivo y pulso de la próxima cita."),
-            ("AGENTS.md", "Reglas del proyecto: NativeWind, movimiento, claridad y accesibilidad."),
         ],
     )
 

@@ -6,10 +6,7 @@ type PropsBarrido = Record<string, never>;
 
 const AVANCE = Easing.bezier(0.45, 0, 0.2, 1);
 
-/**
- * Transicion firma: la pluma del sismografo cruza la pantalla de izquierda a derecha,
- * agitada al principio y en calma al llegar. Detras de la pluma aparece la escena nueva.
- */
+/** La pluma cruza la pantalla y va destapando la escena nueva con un clipPath que la sigue. */
 const BarridoTrazoComponente: React.FC<TransitionPresentationComponentProps<PropsBarrido>> = ({
   children,
   presentationDirection,
@@ -17,6 +14,7 @@ const BarridoTrazoComponente: React.FC<TransitionPresentationComponentProps<Prop
 }) => {
   const {width, height} = useVideoConfig();
 
+  // La escena que sale no se anima; la nueva le pasa por encima.
   if (presentationDirection === 'exiting') {
     return <AbsoluteFill>{children}</AbsoluteFill>;
   }

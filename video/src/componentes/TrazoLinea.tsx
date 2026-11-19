@@ -9,19 +9,15 @@ type Opciones = {
   readonly amplitud: number;
   /** Fraccion del ancho donde la linea ya esta en calma (0 a 1). */
   readonly calmaDesde: number;
-  /** Fase de la onda; moverla hace que la linea "respire". */
+  /** Animarla con el frame hace que la linea se mueva sin cambiar de forma. */
   readonly fase?: number;
-  /** Hasta que x se dibuja (para el efecto de pluma). */
+  /** Hasta que x se dibuja, para el efecto de pluma. */
   readonly hasta?: number;
-  /** Escala horizontal de la onda respecto a la app (1 = igual que en el telefono). */
+  /** 1 = misma onda que en el telefono. Por defecto se estira para que a 1920 px no quede apretada. */
   readonly escala?: number;
 };
 
-/**
- * La misma funcion del componente TraceLine de la app:
- * y = medio + amp * envolvente * (sin(x*0.16 + 1.2 + f)*0.8 + sin(x*0.41 + 1.3 + f*1.7)*0.2)
- * con envolvente (1 - x/calma)^1.6. Empieza agitada y se aquieta.
- */
+// Misma formula que tracePoints en src/ui/trace-line.tsx de la app. Si se cambia alla, cambiarla aqui.
 export const trazoY = (x: number, o: Opciones) => {
   const calma = Math.max(1, o.ancho * o.calmaDesde);
   const t = Math.min(x / calma, 1);
@@ -54,7 +50,7 @@ type Props = Opciones & {
   readonly style?: React.CSSProperties;
 };
 
-/** El Trazo: la linea de sismografo, unico elemento decorativo del video. */
+/** Unico elemento decorativo del video. */
 export const TrazoLinea: React.FC<Props> = ({alto, grosor = 3, color = COLOR.acento, pluma = false, opacidad = 1, style, ...o}) => {
   const hasta = Math.min(o.hasta ?? o.ancho, o.ancho);
   return (

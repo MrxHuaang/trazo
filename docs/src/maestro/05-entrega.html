@@ -85,7 +85,7 @@
       <tr><td><strong>ESLint</strong></td><td>Configuración de Expo (<code>eslint-config-expo</code>). Se verifica con <code>npx expo lint</code>.</td><td><span class="tag low">Sin errores</span></td></tr>
       <tr><td><strong>Reglas puras separadas</strong></td><td>Cada módulo tiene su <code>rules.ts</code> sin interfaz: solapes (RN-01), cupos solidarios (RN-03), estados y fechas en hora de Colombia.</td><td>Listas para probarse</td></tr>
       <tr><td><strong>Revisión en el emulador</strong></td><td>Cada pantalla se recorrió en el Pixel 8 con datos de demostración y se guardaron capturas (<code>docs/img/v2-*.png</code>).</td><td>Nueve pantallas con captura</td></tr>
-      <tr><td><strong>Claridad y accesibilidad</strong></td><td>Reglas escritas en <code>AGENTS.md</code>: textos cortos, una acción principal, objetivos de 44 pt, contraste 4,5:1, el color nunca como única señal, etiquetas para lector de pantalla, "Reducir movimiento".</td><td>Aplicadas en los cinco módulos</td></tr>
+      <tr><td><strong>Claridad y accesibilidad</strong></td><td>Reglas del equipo: textos cortos, una acción principal, objetivos de 44 pt, contraste 4,5:1, el color nunca como única señal, etiquetas para lector de pantalla, "Reducir movimiento".</td><td>Aplicadas en los cinco módulos</td></tr>
     </tbody>
   </table>
 
@@ -94,7 +94,7 @@
 
   <h3>Flujo de trabajo con Git</h3>
   <ul>
-    <li><strong>Ramas por módulo en paralelo.</strong> Cada módulo (acceso, hoy y pagos, agenda, pacientes, solidario) se trabajó en su propia rama y solo tocó sus rutas y su carpeta, según la tabla de propiedad de <code>AGENTS.md</code>. Los archivos compartidos eran de solo lectura, por eso la integración no tuvo conflictos.</li>
+    <li><strong>Ramas por módulo en paralelo.</strong> Cada módulo (acceso, hoy y pagos, agenda, pacientes, solidario) se trabajó en su propia rama y solo tocó sus rutas y su carpeta, según la tabla de propiedad de módulos. Los archivos compartidos eran de solo lectura, por eso la integración no tuvo conflictos.</li>
     <li><strong>Integración</strong> en <code>feat/mvp-sprints</code>, con revisión de tipos, lint y emulador después de cada fusión.</li>
     <li><strong>Pull requests</strong> hacia <code>master</code>: n.º 1 con la base del proyecto (<code>feat/base-trazo-suave</code>) y n.º 2 con el MVP (<code>feat/mvp-sprints</code>).</li>
     <li><strong>Commits</strong> con Conventional Commits en español y el módulo como alcance: <code>feat(agenda): línea de tiempo en NativeWind, store de día y arrastre para reprogramar</code>.</li>

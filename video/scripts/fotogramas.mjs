@@ -1,14 +1,12 @@
 // Renderiza fotogramas sueltos para revisar el diseno sin abrir Studio.
-// Uso: node scripts/fotogramas.mjs 120 s4+30 s9+400 stack+200 cierre+90
-//   numero      -> fotograma absoluto
-//   sN+k        -> k cuadros despues del inicio de la seccion N (1 a 11)
-//   portada+k, stack+k, cierre+k
-// Salida: out/fotogramas/<nombre>.png
+// Uso: node scripts/fotogramas.mjs 120 s4+30 stack+200 cierre+90
+// Un numero solo es el fotograma absoluto; sN+k, portada+k, stack+k y cierre+k cuentan desde el inicio de esa escena.
+// Los PNG quedan en out/fotogramas/.
 import {bundle} from '@remotion/bundler';
 import {renderStill, selectComposition} from '@remotion/renderer';
 import path from 'node:path';
 
-// Mismos tiempos que src/tema.ts (en cuadros a 30 fps)
+// Copia de TIEMPO (src/tema.ts) en cuadros a 30 fps. No se importa porque tema.ts es TypeScript.
 const T = {portada: 195, tarjeta: 78, marcador: 240, stack: 300, transicion: 36};
 
 const pedidos = process.argv.slice(2);

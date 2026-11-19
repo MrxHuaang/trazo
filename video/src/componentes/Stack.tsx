@@ -7,7 +7,7 @@ import {Revelar} from './Revelar';
 
 const SALIDA = Easing.bezier(0.16, 1, 0.3, 1);
 
-/** 12 · Como esta hecho: lista breve en mono a la izquierda, tres cifras grandes a la derecha. */
+/** Escena 12: stack a la izquierda y tres cifras a la derecha. */
 export const Stack: React.FC = () => {
   const frame = useCurrentFrame();
   const listas = useFuentesListas();
@@ -39,7 +39,6 @@ export const Stack: React.FC = () => {
         />
       </div>
 
-      {/* Titulo */}
       <Revelar
         texto={STACK.titulo}
         desde={10}
@@ -75,7 +74,7 @@ export const Stack: React.FC = () => {
         }}
       />
 
-      {/* Lista breve en mono */}
+      {/* Cada fila entra 7 cuadros despues de la anterior */}
       <div style={{position: 'absolute', left: LIENZO.margen, top: 520, width: anchoLista}}>
         {STACK.lista.map((item, i) => {
           const d = inicioLista + i * 7;
@@ -111,7 +110,7 @@ export const Stack: React.FC = () => {
         })}
       </div>
 
-      {/* Tres cifras */}
+      {/* Cifras */}
       <div style={{position: 'absolute', left: 1000, top: 664, display: 'flex', gap: 72}}>
         {STACK.cifras.map((cifra, i) => {
           const d = 70 + i * 12;

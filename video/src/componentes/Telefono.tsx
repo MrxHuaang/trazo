@@ -3,14 +3,14 @@ import {Sequence, staticFile} from 'remotion';
 import {FUENTE} from '../fuentes';
 import {COLOR} from '../tema';
 
-/** Pantalla de 405 x 900 (grabaciones 1080 x 2400) dentro de un marco fino tipo Pixel. */
+/** 405 x 900 mantiene la proporcion de las grabaciones del Pixel (1080 x 2400). */
 export const PANTALLA = {ancho: 405, alto: 900} as const;
 const BISEL = 9;
 export const TELEFONO = {ancho: PANTALLA.ancho + BISEL * 2, alto: PANTALLA.alto + BISEL * 2} as const;
 
 type Props = {
   readonly archivo: string;
-  /** false si la grabacion todavia no existe: se muestra un marcador. */
+  /** Sin grabacion se pinta un marcador, asi se puede armar el video antes de grabar. */
   readonly existe: boolean;
   /** Fotograma (local) en que empieza la grabacion. */
   readonly inicio: number;
@@ -32,7 +32,7 @@ export const Telefono: React.FC<Props> = ({archivo, existe, inicio, duracion, st
         ...style,
       }}
     >
-      {/* Botones laterales: dos trazos finos, como en el Pixel */}
+      {/* Botones laterales del Pixel */}
       <div style={{position: 'absolute', right: -4, top: 210, width: 4, height: 64, borderRadius: 2, backgroundColor: COLOR.tinta}} />
       <div style={{position: 'absolute', right: -4, top: 300, width: 4, height: 110, borderRadius: 2, backgroundColor: COLOR.tinta}} />
       <div

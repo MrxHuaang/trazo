@@ -17,16 +17,15 @@ type Props = {
 
 const CAMBIO = Easing.bezier(0.65, 0, 0.35, 1);
 
-/** Reparte las etiquetas a lo largo del clip si la seccion no fija sus momentos. */
+// Si la seccion no fija momentos. Ninguna entra antes de que el telefono termine de llegar.
 const momentosPorDefecto = (n: number, segundos: number) => {
   const fracciones = n >= 3 ? [0.1, 0.38, 0.66] : [0.14, 0.5];
   return fracciones.slice(0, n).map((f) => Math.max(TIEMPO.cambio + 0.6, f * segundos));
 };
 
 /**
- * Una seccion: tarjeta de titulo enorme y, despues, la grabacion en el telefono.
- * La tarjeta no se corta: el panel de color del modulo entra desde un borde,
- * empuja el texto a su columna y trae el telefono.
+ * Primero la tarjeta con el titulo grande y luego la grabacion. No hay corte entre las dos:
+ * el panel de color entra por un lado, empuja el texto a su columna y trae el telefono.
  */
 export const SeccionEscena: React.FC<Props> = ({seccion, orden, total, segundosClip}) => {
   const frame = useCurrentFrame();
@@ -46,7 +45,7 @@ export const SeccionEscena: React.FC<Props> = ({seccion, orden, total, segundosC
     extrapolateRight: 'clamp',
   });
 
-  // Medidas: el titulo vive en una columna de 860 px durante la grabacion.
+  // El titulo se mide para los dos anchos y se interpola con p. En la tarjeta se apoya en pisoTexto, por eso el tope sale desde abajo.
   const {anchoPanel, anchoTexto, topeGrabacion, pisoTexto} = DISPOSICION;
   const anchoTarjeta = LIENZO.ancho - LIENZO.margen * 2;
   const tamanoTarjeta = tamanoTitulo(seccion.titulo, anchoTarjeta, 240);
@@ -64,7 +63,7 @@ export const SeccionEscena: React.FC<Props> = ({seccion, orden, total, segundosC
 
   return (
     <AbsoluteFill style={{backgroundColor: COLOR.lienzo}}>
-      {/* Panel plano del color del modulo, con el telefono dentro */}
+      {/* Panel del color del modulo; el telefono va adentro para moverse con el */}
       <div
         style={{
           position: 'absolute',
@@ -103,7 +102,7 @@ export const SeccionEscena: React.FC<Props> = ({seccion, orden, total, segundosC
         tamano={tamanoTarjeta + (tamanoGrabacion - tamanoTarjeta) * p}
       />
 
-      {/* Etiquetas: aparecen en el momento oportuno de la grabacion */}
+      {/* Etiquetas, sincronizadas con lo que pasa en la grabacion */}
       <div
         style={{
           position: 'absolute',
@@ -127,7 +126,7 @@ export const SeccionEscena: React.FC<Props> = ({seccion, orden, total, segundosC
   );
 };
 
-/** Textura de rayado: en la app, Solidario siempre lleva durazno con trama. */
+// Igual que en la app: Solidario siempre lleva el rayado sobre el durazno.
 const Trama: React.FC<{readonly color: string}> = ({color}) => (
   <svg width="100%" height="100%" style={{position: 'absolute', inset: 0}}>
     <defs>

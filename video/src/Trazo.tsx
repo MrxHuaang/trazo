@@ -11,9 +11,8 @@ import {SECCIONES} from './secciones';
 import {COLOR, TIEMPO} from './tema';
 
 /**
- * Video de exposicion de Trazo. Las secciones salen de src/secciones.ts y su duracion
- * de la grabacion real (calculateMetadata), por eso la serie se arma con un map:
- * para cambiar textos o tiempos se edita secciones.ts / tema.ts, no esta lista.
+ * Las secciones se generan desde secciones.ts y cada una dura lo que dure su grabacion.
+ * Para cambiar textos o tiempos se toca secciones.ts o tema.ts, no este archivo.
  */
 export const Trazo: React.FC<PropsTrazo> = ({duraciones}) => {
   const {fps} = useVideoConfig();

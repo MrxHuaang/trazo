@@ -37,7 +37,7 @@ El video tiene 15 partes. Cada sección muestra primero un título grande (unos 
 | 04 | Agenda | "La agenda muestra la semana y el día. Para reprogramar se mantiene presionada una cita y se arrastra: avanza de 15 en 15 minutos con vibración, y al soltar se valida que no choque con otra cita (regla RN-01). Si algo sale mal, se deshace. El botón del calendario busca el próximo hueco libre." |
 | 05 | Nueva cita | "Para agendar se toca un hueco. Se busca el paciente, y la hoja muestra solo las horas libres según la disponibilidad. Si la cita es solidaria y la semana ya no tiene cupos, la app avisa (RN-03)." |
 | 06 | Pacientes | "La lista se filtra por todos, afectados por el sismo y archivados. El estado de búsqueda vive en Zustand. Las filas se deslizan: a un lado WhatsApp, al otro agendar. Si el nombre no existe, se crea ahí mismo." |
-| 07 | Ficha | "La ficha muestra la asistencia de un vistazo, con formas distintas por estado para no depender solo del color, y la historia del paciente como una línea de tiempo: citas, pagos, la autorización de datos y las jornadas." |
+| 07 | Ficha | "La ficha muestra la asistencia de un vistazo, con formas distintas por estado para no depender solo del color, arriba las próximas citas, de la más cercana a la más lejana, y debajo la historia: lo que ya pasó, de lo más reciente a lo más antiguo, con citas, pagos, la autorización de datos y las jornadas. El Trazo de la historia está agitado abajo, al inicio del proceso, y se calma hacia hoy." |
 | 08 | Solidario | "El módulo solidario tiene el medidor de cupos de la semana, las jornadas, los seguimientos con llamar, hecho y posponer, los sismos recientes y las líneas de ayuda con llamada en un toque." |
 | 09 | Mapa y sismos | "El mapa es Leaflet dentro de un WebView con expo-location, como en el proyecto de mapas del curso. Los sismos vienen del servicio público del USGS con axios y TanStack Query. A ese servicio nunca se envían datos de la app." |
 | 10 | Pagos | "Pagos muestra lo cobrado, lo pendiente y lo donado del mes. Al registrar un pago la fila sale y los totales se actualizan. El mes se exporta a PDF." |
@@ -100,8 +100,7 @@ trazo/
 │  └─ theme/          Paleta (palette.js) y tokens para SVG y animaciones.
 ├─ tailwind.config.js Colores, fuentes y tamaños de NativeWind.
 ├─ docs/              Documento maestro (fuentes HTML) e informe de avances.
-├─ video/             Proyecto Remotion de este video.
-└─ AGENTS.md          Reglas del proyecto (diseño, NativeWind, accesibilidad, módulos).
+└─ video/             Proyecto Remotion de este video.
 ```
 
 **Cómo fluye un dato (ejemplo: crear una cita)**

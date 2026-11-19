@@ -16,10 +16,7 @@ type Props = {
 
 const SALIDA = Easing.bezier(0.16, 1, 0.3, 1);
 
-/**
- * Entrada por mascara palabra por palabra: cada palabra sube desde detras de su
- * propio recorte. Sin opacidad ni desenfoque: solo el recorte.
- */
+/** Cada palabra sube desde detras de su propio recorte, sin fundido de opacidad. */
 export const Revelar: React.FC<Props> = ({texto, desde = 0, paso = 3, duracion = 24, style}) => {
   const frame = useCurrentFrame();
   let indice = 0;
@@ -30,6 +27,7 @@ export const Revelar: React.FC<Props> = ({texto, desde = 0, paso = 3, duracion =
         <div key={l} style={{display: 'block'}}>
           {linea.split(' ').map((palabra, p, todas) => {
             const i = indice++;
+            // En "*sismo*." el punto queda fuera de la italica.
             const italica = palabra.startsWith('*') && palabra.replace(/[.,]$/, '').endsWith('*');
             const signo = italica ? palabra.match(/[.,]$/)?.[0] ?? '' : '';
             const limpia = italica ? palabra.replace(/[.,]$/, '').slice(1, -1) : palabra;
@@ -47,7 +45,7 @@ export const Revelar: React.FC<Props> = ({texto, desde = 0, paso = 3, duracion =
                     verticalAlign: 'top',
                     paddingBottom: '0.16em',
                     marginBottom: '-0.16em',
-                    // Holgura para los rasgos que sobresalen (tracking negativo, italicas)
+                    // Sin esta holgura el recorte se come el borde de las italicas y del tracking negativo
                     paddingRight: '0.12em',
                     marginRight: '-0.12em',
                     paddingLeft: '0.04em',

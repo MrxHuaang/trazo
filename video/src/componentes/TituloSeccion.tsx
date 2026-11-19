@@ -25,7 +25,7 @@ const SALIDA = Easing.bezier(0.16, 1, 0.3, 1);
 export const TAMANO_APOYO = 44;
 export const ESPACIO_APOYO = 30;
 
-/** Cabecera con indice y modulo, titulo enorme y linea de apoyo. */
+/** No anima posicion ni tamano: eso lo interpola Seccion y llega aqui por props. */
 export const TituloSeccion: React.FC<Props> = ({numero, total, modulo, tono, titulo, apoyo, izquierda, ancho, tope, tamano}) => {
   const frame = useCurrentFrame();
   const regla = interpolate(frame, [2, 30], [0, 1], {easing: SALIDA, extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
