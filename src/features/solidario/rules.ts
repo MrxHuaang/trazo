@@ -5,6 +5,7 @@ import { formatoTelefono } from '@/lib/format';
 
 export const plural = (n: number, uno: string, varios: string) => (n === 1 ? uno : varios);
 
+
 export const primerNombre = (nombre?: string | null) => (nombre ?? '').trim().split(/\s+/)[0] ?? '';
 
 // Desde el día 1, sumar 32 días siempre cae en el mes siguiente.
@@ -23,6 +24,12 @@ export function estadoCupos(usados: number, total: number): EstadoCupos {
   else if (restantes === 0) detalle = 'Cupos completos esta semana.';
   else detalle = plural(restantes, 'Queda 1 cupo libre.', `Quedan ${restantes} cupos libres.`);
   return { usados, total, restantes, excedidos, detalle };
+}
+
+export type CapacidadSolidaria = { semanal: number; restante: number };
+export function capacidadSolidaria(cupos: number, usados: number, tarifaSocial: number): CapacidadSolidaria {
+  const libres = Math.max(cupos - usados, 0);
+  return { semanal: cupos * tarifaSocial, restante: libres * tarifaSocial };
 }
 
 /** RN-08: días hasta el seguimiento de un asistente y lo que se corre al posponer. */

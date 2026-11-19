@@ -11,7 +11,7 @@ import { Button, EmptyState, Field, Sheet, SheetHeader, Text, Tile } from '@/ui'
 import { MedidorCupos } from './components/medidor-cupos';
 import { Stepper } from './components/stepper';
 import { avisarError } from './dispositivo';
-import { estadoCupos } from './rules';
+import { capacidadSolidaria, estadoCupos, plural } from './rules';
 
 const MAX_CUPOS = 20;
 
@@ -44,6 +44,8 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
       ? `Debe ser menor o igual a la tarifa normal (${formatoCOP(consultorio.tarifaBase)}).`
       : undefined;
   const estado = estadoCupos(usados, cupos);
+  // Se recalcula en cada render con lo que hay en pantalla. A la base solo van cupos y tarifa, al pulsar Guardar.
+  const capacidad = capacidadSolidaria(cupos, usados, valorTarifa);
 
   const guardar = () => {
     if (errorTarifa) return;
@@ -87,6 +89,43 @@ function CuposForm({ consultorio }: { consultorio: Consultorio }) {
           helper={`${formatoCOP(valorTarifa)} por sesión. La tarifa normal es ${formatoCOP(consultorio.tarifaBase)}.`}
         />
       </View>
+
+      <View className="gap-2">
+        <View className="flex-row gap-3">
+          <Capacidad
+            titulo="Capacidad semanal"
+            valor={capacidad.semanal}
+            operacion={`${cupos} ${plural(cupos, 'cupo', 'cupos')} × ${formatoCOP(valorTarifa)}`}
+          />
+          <Capacidad
+            titulo="Capacidad restante"
+            valor={capacidad.restante}
+            operacion={`${estado.restantes} ${plural(estado.restantes, 'libre', 'libres')} × ${formatoCOP(valorTarifa)}`}
+          />
+        </View>
+        <Text variant="caption" className="text-ink-soft">
+          Se calcula con los cupos y la tarifa de arriba. No se guarda.
+        </Text>
+      </View>
     </Sheet>
+  );
+}
+
+function Capacidad({ titulo, valor, operacion }: { titulo: string; valor: number; operacion: string }) {
+  return (
+    <View
+      className="flex-1 gap-1 rounded-tile border border-line bg-surface p-4"
+      accessible
+      accessibilityLabel={`${titulo}: ${formatoCOP(valor)}. ${operacion.replace('×', 'por')}`}>
+      <Text variant="label" className="text-ink-soft">
+        {titulo}
+      </Text>
+      <Text variant="title" adjustsFontSizeToFit numberOfLines={1}>
+        {formatoCOP(valor)}
+      </Text>
+      <Text variant="mono" className="text-ink-soft">
+        {operacion}
+      </Text>
+    </View>
   );
 }
