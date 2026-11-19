@@ -1,4 +1,3 @@
-import { Stack } from 'expo-router';
 
 import { CuposSheet } from '@/features/solidario/cupos-sheet';
 
@@ -6,7 +5,6 @@ import { CuposSheet } from '@/features/solidario/cupos-sheet';
 export default function CuposRoute() {
   return (
     <>
-      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
       <CuposSheet />
     </>
   );

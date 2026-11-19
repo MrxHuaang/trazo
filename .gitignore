@@ -51,3 +51,8 @@ docs/out/
 # Copias de trabajo de agentes y paquete de avances
 .claude/worktrees/
 entregables/avances/
+
+# video de la exposición (Remotion)
+video/node_modules/
+video/out/
+video/public/clips/

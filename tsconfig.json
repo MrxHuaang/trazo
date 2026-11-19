@@ -27,6 +27,7 @@
     "entregables",
     ".claude",
     "dist",
-    ".expo/web"
+    ".expo/web",
+    "video"
   ]
 }

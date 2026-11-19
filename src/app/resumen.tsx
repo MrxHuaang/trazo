@@ -1,4 +1,3 @@
-import { Stack } from 'expo-router';
 
 import { ResumenScreen } from '@/features/hoy/resumen-screen';
 
@@ -6,7 +5,6 @@ import { ResumenScreen } from '@/features/hoy/resumen-screen';
 export default function ResumenRoute() {
   return (
     <>
-      <Stack.Screen options={{ presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } }} />
       <ResumenScreen />
     </>
   );

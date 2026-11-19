@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { router } from 'expo-router';
+import { useEffect, type ReactNode } from 'react';
+import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SheetProps = {
@@ -15,8 +16,23 @@ type SheetProps = {
  */
 export function Sheet({ header, children, footer }: SheetProps) {
   const insets = useSafeAreaInsets();
+
+  // Android: el botón atrás cierra la hoja desde JS, igual que la X.
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (!router.canGoBack()) return false;
+      router.back();
+      return true;
+    });
+    return () => sub.remove();
+  }, []);
   return (
-    <KeyboardAvoidingView className="flex-1 bg-canvas" behavior="padding">
+    <KeyboardAvoidingView
+      className="flex-1 bg-canvas"
+      behavior="padding"
+      // En Android la hoja es una pantalla completa: deja libre la barra de estado.
+      style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
       {header}
       <ScrollView contentContainerClassName="gap-4 px-5 pb-8" keyboardShouldPersistTaps="handled">
         {children}

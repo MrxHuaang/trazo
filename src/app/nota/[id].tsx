@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 import { NotaScreen } from '@/features/pacientes/nota-screen';
 
@@ -7,7 +7,6 @@ export default function NotaRoute() {
   const { id, pacienteId } = useLocalSearchParams<{ id: string; pacienteId?: string }>();
   return (
     <>
-      <Stack.Screen options={{ presentation: 'formSheet', sheetAllowedDetents: [0.85, 1], sheetGrabberVisible: false }} />
       <NotaScreen key={`${id}-${pacienteId ?? ''}`} id={id} pacienteId={pacienteId} />
     </>
   );
