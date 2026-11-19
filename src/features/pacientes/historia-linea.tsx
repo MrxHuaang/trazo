@@ -10,24 +10,26 @@ import { Aparecer, SolidarioMark, Text } from '@/ui';
 import type { ItemHistoria, NodoHistoria } from './historia';
 import { TrazoVertical } from './trazo-vertical';
 
-/** Ancho de la columna del Trazo (clase `w-7`). */
+/** Ancho de la columna del Trazo; tiene que coincidir con `w-7`. */
 const CANAL = 28;
 
 type HistoriaLineaProps = {
   items: ItemHistoria[];
   onPressItem: (item: ItemHistoria) => void;
   onAbrirNota: (item: ItemHistoria) => void;
-  /** Posición en la cascada de la pantalla a partir de la cual entran los ítems. */
+  /** `orden` de Aparecer desde el que arrancan los ítems, para seguir la cascada de la pantalla. */
   ordenInicial?: number;
+  /** Recta, sin el tramo agitado. Se usa en "Próximas". */
+  enCalma?: boolean;
 };
 
 /** Historia vertical: el Trazo corre por la izquierda y cada evento es un punto sobre él. */
-export function HistoriaLinea({ items, onPressItem, onAbrirNota, ordenInicial = 0 }: HistoriaLineaProps) {
+export function HistoriaLinea({ items, onPressItem, onAbrirNota, ordenInicial = 0, enCalma = false }: HistoriaLineaProps) {
   const [alto, setAlto] = useState(0);
 
   return (
     <View onLayout={(e) => setAlto(Math.round(e.nativeEvent.layout.height))}>
-      {alto > 0 ? <TrazoVertical alto={alto} ancho={CANAL} /> : null}
+      {alto > 0 ? <TrazoVertical alto={alto} ancho={CANAL} enCalma={enCalma} /> : null}
       {items.map((item, i) => (
         <Aparecer key={item.clave} orden={ordenInicial + i} reacomodar className="flex-row">
           <FilaHistoria item={item} onPress={onPressItem} onAbrirNota={onAbrirNota} />
@@ -120,7 +122,7 @@ function Nodo({ tipo }: { tipo: NodoHistoria }) {
   );
 }
 
-/** Onda que sale de la próxima cita cada 2,4 s: lo único que se repite en la pantalla. */
+/** Pulso de la próxima cita cada 2,4 s. Es lo único que se repite en la pantalla. */
 function Pulso() {
   const reducir = useReducedMotion();
   const pulso = useSharedValue(0);

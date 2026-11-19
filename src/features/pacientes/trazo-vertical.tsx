@@ -10,17 +10,20 @@ const AnimatedPolyline = Animated.createAnimatedComponent(Polyline);
 type TrazoVerticalProps = {
   alto: number;
   ancho: number;
+  /** Sin tramo agitado: una recta. */
+  enCalma?: boolean;
 };
 
 /**
- * El Trazo en vertical para la historia del paciente: en calma arriba (lo reciente)
- * y agitado abajo (el inicio del proceso). Al entrar se dibuja de arriba hacia abajo,
- * como la aguja de un sismógrafo (con "Reducir movimiento" aparece completo).
+ * Trazo de la historia: en calma arriba (lo reciente) y agitado abajo (el inicio del proceso).
+ * Se dibuja de arriba hacia abajo al entrar; con Reducir movimiento aparece completo.
  */
-export function TrazoVertical({ alto, ancho }: TrazoVerticalProps) {
+export function TrazoVertical({ alto, ancho, enCalma = false }: TrazoVerticalProps) {
   const reducir = useReducedMotion();
   const avance = useSharedValue(reducir ? 1 : 0);
-  const { puntos, largo } = geometriaTrazo(ancho, alto);
+  const { puntos, largo } = enCalma
+    ? { puntos: `${ancho / 2},0 ${ancho / 2},${alto}`, largo: alto }
+    : geometriaTrazo(ancho, alto);
   // Un poco más que el largo real para que la punta redondeada no asome antes de tiempo.
   const tramo = largo + 4;
 
@@ -53,10 +56,7 @@ export function TrazoVertical({ alto, ancho }: TrazoVerticalProps) {
   );
 }
 
-/**
- * Puntos de la línea y su longitud. El tramo final (inicio del proceso) oscila con amplitud creciente;
- * lo demás es una recta en calma.
- */
+/** Devuelve también el largo porque el dibujado con strokeDasharray lo necesita. */
 function geometriaTrazo(ancho: number, alto: number) {
   if (alto <= 0 || ancho <= 0) return { puntos: '', largo: 0 };
   const cx = ancho / 2;

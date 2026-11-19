@@ -1,7 +1,6 @@
 /**
- * Historia del paciente (HU-09): une citas, pagos, notas, seguimientos, jornadas y consentimientos
- * en una sola línea de tiempo, de lo más reciente a lo más antiguo. Función pura.
- * Las notas nunca aportan contenido: solo "Nota privada" y la fecha (HU-12, RN-10).
+ * Historia del paciente (HU-09) en una sola línea de tiempo.
+ * De las notas solo sale "Nota privada" y la fecha, nunca el contenido (HU-12, RN-10).
  */
 import {
   ESTADOS_CITA,
@@ -24,11 +23,12 @@ export type NodoHistoria = 'proxima' | 'agendada' | 'solicitada' | 'pasada' | 'f
 export type ItemHistoria = {
   clave: string;
   tipo: 'cita' | 'nota' | 'pago' | 'seguimiento' | 'jornada' | 'consentimiento';
-  /** ISO para ordenar. */
   fecha: string;
   titulo: string;
   detalle: string;
   nodo: NodoHistoria;
+  /** Todavía no ocurre: va en "Próximas", no en la historia. */
+  porVenir: boolean;
   solidaria?: boolean;
   citaId?: string;
   /** En una cita: su nota privada, si existe. En una nota: su propio id. */
@@ -123,13 +123,14 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(c.inicio, esFutura || fechaClave(c.inicio) === hoyClave())} · ${concepto}`,
       detalle: partes.join(' · '),
       nodo,
+      porVenir: esFutura,
       solidaria: c.esSolidaria,
       citaId: c.id,
       notaId: notaPorCita.get(c.id) ?? null,
     });
   }
 
-  // Pagos sin su cita en la lista (no debería pasar: cada pago tiene cita).
+  // Pagos cuya cita no vino en la lista. No debería pasar, pero así no se pierden.
   for (const p of pagos) {
     if (idsCitas.has(p.citaId)) continue;
     items.push({
@@ -139,6 +140,7 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(p.citaInicio)} · Pago`,
       detalle: textoPago(p),
       nodo: p.estado === 'pendiente' ? 'pendiente' : 'pasada',
+      porVenir: false,
     });
   }
 
@@ -151,6 +153,7 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(nota.creadoEn)} · Nota privada`,
       detalle: 'Se abre con huella, rostro o código',
       nodo: 'pasada',
+      porVenir: false,
       notaId: nota.id,
     });
   }
@@ -164,6 +167,7 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(isoDesde(s.fechaObjetivo))} · Seguimiento`,
       detalle: `${s.motivo} · ${vencido ? 'vencido' : ESTADO_SEGUIMIENTO[s.estado]}`,
       nodo: s.estado === 'pendiente' ? 'pendiente' : s.estado === 'hecho' ? 'pasada' : 'cancelada',
+      porVenir: s.estado === 'pendiente' && !vencido,
       seguimientoId: s.id,
       seguimientoEstado: s.estado,
     });
@@ -178,6 +182,7 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(j.inicio, porVenir)} · ${TIPO_JORNADA[j.tipo]}`,
       detalle: `${j.titulo} · ${j.lugar}`,
       nodo: porVenir ? 'agendada' : 'pasada',
+      porVenir,
       solidaria: true,
       jornadaId: j.id,
     });
@@ -193,13 +198,22 @@ export function construirHistoria({ citas, pagos, notas, seguimientos, consentim
       titulo: `${fechaHistoria(c.aceptadoEn)} · ${datos ? 'Autorización de datos' : 'Consentimiento informado'}`,
       detalle: `${datos ? 'Ley 1581 · ' : ''}texto ${c.versionTexto}${revocada}`,
       nodo: c.revocadoEn ? 'cancelada' : 'pasada',
+      porVenir: false,
     });
   }
 
   return items.sort((a, b) => b.fecha.localeCompare(a.fecha));
 }
 
-/* ---------- Asistencia de un vistazo ---------- */
+/** Próximas de la más cercana a la más lejana; pasadas de la más reciente a la más antigua. */
+export function separarHistoria(items: ItemHistoria[]) {
+  return {
+    proximas: items.filter((i) => i.porVenir).sort((a, b) => a.fecha.localeCompare(b.fecha)),
+    pasadas: items.filter((i) => !i.porVenir).sort((a, b) => b.fecha.localeCompare(a.fecha)),
+  };
+}
+
+// Asistencia
 
 export type PuntoAsistencia = {
   id: string;
@@ -214,7 +228,7 @@ export type Asistencia = {
   faltas: number;
   canceladas: number;
   futuras: number;
-  /** Asistió / (asistió + no asistió) dentro de la tira; null si aún no hay citas cumplidas. */
+  /** Canceladas y sin marcar no cuentan. null si todavía no hay ninguna asistida ni faltada. */
   porcentaje: number | null;
 };
 

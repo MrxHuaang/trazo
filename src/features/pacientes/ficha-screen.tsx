@@ -40,7 +40,7 @@ import { Aparecer, Button, EmptyState, HatchOverlay, Presionable, Text, Tile, Tr
 
 import { AgregarHistoria } from './agregar-historia';
 import { AsistenciaTira } from './asistencia-tira';
-import { construirHistoria, resumirAsistencia, type ItemHistoria } from './historia';
+import { construirHistoria, resumirAsistencia, separarHistoria, type ItemHistoria } from './historia';
 import { HistoriaLinea } from './historia-linea';
 import { useArchivarPaciente, useConsentimientos, useNotasPaciente, usePagosPaciente } from './hooks';
 import { MenuAcciones } from './menu-acciones';
@@ -48,13 +48,10 @@ import { exportarResumenPdf } from './resumen-pdf';
 import { etiquetaTarifa, etiquetasAfectaciones, saludoWhatsApp } from './rules';
 
 const MOTIVO_SEGUIMIENTO = 'Llamar para saber cómo sigue';
-/** Alto del encabezado grande mientras no se ha medido. */
+/** Alto de respaldo del encabezado hasta que onLayout lo mide. */
 const ALTO_CABECERA = 230;
 
-/**
- * Ficha del paciente (HU-09): encabezado lavanda que se encoge al hacer scroll
- * (el nombre y las acciones pasan a la barra compacta), asistencia de un vistazo y la historia.
- */
+/** Ficha del paciente (HU-09). Con el scroll, el nombre y las acciones pasan a la barra compacta. */
 export function FichaPacienteScreen({ id }: { id: string }) {
   const insets = useSafeAreaInsets();
   const paciente = usePaciente(id);
@@ -71,7 +68,7 @@ export function FichaPacienteScreen({ id }: { id: string }) {
   const [menu, setMenu] = useState(false);
   const [exportando, setExportando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
-  /** La barra compacta ya muestra el nombre y las acciones (para activar sus toques y su lectura). */
+  // Los toques y la lectura de la barra compacta solo se activan cuando ya es visible.
   const [compacta, setCompacta] = useState(false);
 
   const desplazamiento = useSharedValue(0);
@@ -87,7 +84,6 @@ export function FichaPacienteScreen({ id }: { id: string }) {
     },
   );
 
-  // El encabezado grande se encoge y se desvanece; la barra compacta aparece en su lugar.
   const estiloCabecera = useAnimatedStyle(() => {
     const fin = altoCabecera.get() * 0.8;
     return {
@@ -117,6 +113,7 @@ export function FichaPacienteScreen({ id }: { id: string }) {
     consentimientos: consentimientos.data ?? [],
     jornadas: jornadas.data ?? [],
   });
+  const { proximas, pasadas } = separarHistoria(items);
   const asistencia = resumirAsistencia(citas.data ?? []);
 
   const volver = () => (router.canGoBack() ? router.back() : router.replace('/pacientes'));
@@ -217,7 +214,7 @@ export function FichaPacienteScreen({ id }: { id: string }) {
 
   return (
     <View className="flex-1 bg-canvas">
-      {/* Barra superior: al hacer scroll se tiñe de lavanda y recibe el nombre y las acciones. */}
+      {/* Barra compacta: toma el lavanda del encabezado a medida que este desaparece. */}
       <View className="z-10" style={{ paddingTop: insets.top }}>
         <Animated.View pointerEvents="none" className="absolute inset-0 bg-lavanda" style={estiloFondoBarra} />
         <View className="h-[52px] flex-row items-center gap-1 px-3">
@@ -325,18 +322,38 @@ export function FichaPacienteScreen({ id }: { id: string }) {
             </Aparecer>
           ) : null}
 
-          <Aparecer orden={3} reacomodar className="mt-3">
-            <Text variant="heading" accessibilityRole="header">
-              Historia
-            </Text>
-          </Aparecer>
-
           {cargandoHistoria ? (
             <TraceLine height={32} />
-          ) : items.length ? (
-            <HistoriaLinea items={items} onPressItem={abrirItem} onAbrirNota={abrirNotaDeCita} ordenInicial={4} />
-          ) : (
+          ) : !items.length ? (
             <EmptyState title="La historia empieza aquí" body="Agenda la primera cita o programa un seguimiento." />
+          ) : (
+            <>
+              {proximas.length ? (
+                <>
+                  <Aparecer orden={3} reacomodar className="mt-3">
+                    <Text variant="heading" accessibilityRole="header">
+                      Próximas
+                    </Text>
+                  </Aparecer>
+                  <HistoriaLinea items={proximas} onPressItem={abrirItem} onAbrirNota={abrirNotaDeCita} ordenInicial={4} enCalma />
+                </>
+              ) : null}
+              {pasadas.length ? (
+                <>
+                  <Aparecer orden={4 + proximas.length} reacomodar className="mt-3">
+                    <Text variant="heading" accessibilityRole="header">
+                      Historia
+                    </Text>
+                  </Aparecer>
+                  <HistoriaLinea
+                    items={pasadas}
+                    onPressItem={abrirItem}
+                    onAbrirNota={abrirNotaDeCita}
+                    ordenInicial={5 + proximas.length}
+                  />
+                </>
+              ) : null}
+            </>
           )}
 
           <AgregarHistoria
