@@ -11,7 +11,7 @@ import { Aparecer, Button, EmptyState, Field, Presionable, Sheet, Text } from '@
 import { Cabecera, volver } from './cabecera';
 import { mensajeDesdePlantilla, VARIABLES, valoresEjemplo, variablesDesconocidas } from './mensajes';
 
-/** Plantillas de WhatsApp del consultorio (HU-06): recordatorio y confirmación, con vista previa. */
+/** HU-06. La vista previa usa una cita de ejemplo, nunca datos de pacientes. */
 export function PlantillasScreen() {
   const { data: consultorio, isPending } = useConsultorio();
   if (consultorio) return <FormularioPlantillas consultorio={consultorio} />;
@@ -114,7 +114,7 @@ type EditorPlantillaProps = {
 };
 
 function EditorPlantilla({ orden, titulo, ayuda, valor, onChange, original, ejemplo, error }: EditorPlantillaProps) {
-  // Posición del cursor; solo se lee al tocar una variable.
+  // Ref y no estado: el cursor solo se lee al insertar, no vale la pena re-renderizar en cada cambio.
   const seleccion = useRef({ start: valor.length, end: valor.length });
 
   function insertar(clave: string) {

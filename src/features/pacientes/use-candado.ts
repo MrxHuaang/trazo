@@ -3,7 +3,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
-/** bloqueada: pide identidad · sin-seguridad: el teléfono no tiene bloqueo (aviso) · abierta: contenido visible. */
+/** sin-seguridad: el teléfono no tiene bloqueo configurado y se muestra un aviso antes de abrir. */
 export type EstadoCandado = 'bloqueada' | 'sin-seguridad' | 'abierta';
 
 const INACTIVIDAD_MS = 2 * 60 * 1000;
@@ -15,7 +15,7 @@ type Verificacion = 'ok' | 'sin-seguridad' | 'demasiados-intentos' | 'cancelada'
 
 let enCurso: Promise<Verificacion> | null = null;
 
-/** Pide biometría o el código del teléfono. Si ya hay una petición abierta, se reutiliza. */
+/** Reutiliza la petición en curso para no abrir dos diálogos de biometría a la vez. */
 function verificarIdentidad(): Promise<Verificacion> {
   if (enCurso) return enCurso;
   const peticion = (async (): Promise<Verificacion> => {
@@ -40,9 +40,8 @@ function verificarIdentidad(): Promise<Verificacion> {
 }
 
 /**
- * Candado de la nota privada (HU-12): pide biometría o el código del teléfono al abrir,
- * y vuelve a bloquear cuando la app deja de estar al frente o tras 2 minutos sin actividad.
- * `alBloquear` se llama justo antes de cerrar, para guardar el borrador y limpiar el contenido.
+ * Candado de la nota privada (HU-12). Se vuelve a cerrar si la app pasa a segundo plano o tras
+ * 2 min sin actividad. `alBloquear` corre justo antes, para guardar el borrador.
  */
 export function useCandado(alBloquear: () => void) {
   const [estado, setEstado] = useState<EstadoCandado>('bloqueada');
@@ -53,7 +52,6 @@ export function useCandado(alBloquear: () => void) {
   const aplicar = (verificacion: Verificacion) => {
     setVerificando(false);
     if (verificacion === 'ok') {
-      // El candado cede: toque háptico de éxito.
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setMensaje(null);
       setEstado('abierta');

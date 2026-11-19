@@ -2,10 +2,7 @@ import { NativeTabs } from 'expo-router/native-tabs';
 
 import { color, tile } from '@/theme';
 
-/**
- * Pestañas nativas: en iPhone usan SF Symbols (Liquid Glass en iOS 26);
- * en Android, Material Symbols. Mismo código, aspecto propio de cada plataforma.
- */
+// Pestañas nativas: SF Symbols en iOS (Liquid Glass desde iOS 26) y Material Symbols en Android.
 export default function AppTabs() {
   return (
     <NativeTabs

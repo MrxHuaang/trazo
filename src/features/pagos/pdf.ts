@@ -1,6 +1,6 @@
 /**
- * HU-24: resumen del mes en PDF (expo-print) y compartir (expo-sharing).
- * RN-10: el documento solo lleva fechas, montos, estados y nombres abreviados; nunca motivos ni notas.
+ * HU-24: PDF del resumen del mes con expo-print y expo-sharing.
+ * RN-10: solo fechas, montos, estados y nombres abreviados. Nunca motivos ni notas.
  */
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -101,7 +101,7 @@ export function htmlResumenMes(d: DatosResumenPdf) {
 </html>`;
 }
 
-/** Genera el PDF y abre el menú de compartir. En la web abre el diálogo de impresión. */
+/** En web printToFileAsync ya abre el diálogo de impresión, así que no hay nada que compartir. */
 export async function exportarResumenMes(d: DatosResumenPdf) {
   const { uri } = await Print.printToFileAsync({ html: htmlResumenMes(d) });
   if (Platform.OS === 'web') return;

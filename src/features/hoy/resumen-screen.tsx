@@ -37,14 +37,14 @@ import { useResumenSemana } from './hooks';
 import { ProgresoHistorias } from './progreso-historias';
 import { rangoSemana } from './rules';
 
-/** Tiempo que se queda cada historia antes de pasar sola a la siguiente. */
+// Lo que dura cada historia antes de avanzar sola.
 const DURACION_MS = 6500;
-/** Bajar el dedo esta distancia (o soltarlo rápido) cierra el resumen. */
+// Arrastrar hacia abajo esta distancia, o soltar con velocidad, cierra el resumen.
 const CIERRE_PX = 140;
 const RESORTE = { damping: 22, stiffness: 240, mass: 0.8 };
 const ULTIMA = HISTORIAS.length - 1;
 
-/** Transición entre historias: la que sale se desliza, se aleja un poco y se apaga. */
+// Worklet del carrusel: la historia que sale se aleja un poco y se apaga.
 function animacionHistoria(ancho: number) {
   return (valor: number): ViewStyle => {
     'worklet';
@@ -60,9 +60,8 @@ function animacionHistoria(ancho: number) {
 }
 
 /**
- * Resumen de la semana en historias a pantalla completa: una por dato, con su bloque de color y la cifra gigante.
- * Tocar a la derecha avanza, a la izquierda retrocede, mantener pausa, deslizar hacia abajo cierra.
- * Avanza solo cada pocos segundos, salvo con "Reducir movimiento" o lector de pantalla.
+ * Gestos tipo historias: tocar a los lados, mantener para pausar, bajar para cerrar.
+ * Con Reducir movimiento o lector de pantalla no avanza solo.
  */
 export function ResumenScreen() {
   const insets = useSafeAreaInsets();
@@ -79,7 +78,7 @@ export function ResumenScreen() {
   const [pausado, setPausado] = useState(false);
   const avance = useSharedValue(0);
   const bajada = useSharedValue(0);
-  // Tiempo ya visto de la historia actual (para retomar tras una pausa).
+  // Para retomar la historia donde iba después de una pausa.
   const transcurrido = useRef(0);
   const indiceDelReloj = useRef(-1);
 
@@ -101,7 +100,7 @@ export function ResumenScreen() {
 
   const avanzaSola = !reducir && !lector && indice < ULTIMA;
 
-  // Reloj de la historia actual: llena su segmento y pasa a la siguiente. Se detiene al pausar.
+  // El cleanup suma lo transcurrido; así pausar y retomar no reinicia la historia.
   useEffect(() => {
     if (indiceDelReloj.current !== indice) {
       indiceDelReloj.current = indice;

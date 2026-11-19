@@ -1,7 +1,3 @@
-/**
- * Repositorio del programa solidario: jornadas, asistentes, líneas de ayuda y cifras del informe.
- * Usa las tablas del esquema compartido (src/data/schema.ts) con los helpers de src/data/db.ts.
- */
 import { ahoraIso, bit, bool, consultar, consultarUno, db, ejecutar } from '@/data/db';
 import type { Asistente, Jornada, Recurso } from '@/domain/types';
 import { isoDesde } from '@/lib/dates';
@@ -9,15 +5,12 @@ import { nuevoId } from '@/lib/id';
 
 import { mesSiguiente } from './rules';
 
-/* ---------- Jornadas ---------- */
-
 type FilaJornada = {
   id: string; titulo: string; tipo: Jornada['tipo']; lugar: string; barrio: string | null; inicio: string; fin: string;
   cupos: number; descripcion: string | null; latitud: number | null; longitud: number | null; creado_en: string;
   inscritos: number;
 };
 
-/** Jornada con el número de asistentes registrados. */
 export type JornadaConInscritos = Jornada & { inscritos: number };
 
 const SELECT_JORNADA = `SELECT j.*, (SELECT COUNT(*) FROM asistentes a WHERE a.jornada_id = j.id) AS inscritos
@@ -29,13 +22,13 @@ const mapearJornada = (f: FilaJornada): JornadaConInscritos => ({
   inscritos: f.inscritos,
 });
 
-/** Jornadas que aún no terminan, de la más cercana a la más lejana. */
+/** Las que aún no terminan, de la más cercana a la más lejana. */
 export async function listarJornadasProximas() {
   const filas = await consultar<FilaJornada>(`${SELECT_JORNADA} WHERE j.fin >= ? ORDER BY j.inicio`, [ahoraIso()]);
   return filas.map(mapearJornada);
 }
 
-/** Jornadas que ya terminaron, de la más reciente hacia atrás. */
+/** Las que ya terminaron, la más reciente primero. */
 export async function listarJornadasAnteriores(limite = 5) {
   const filas = await consultar<FilaJornada>(`${SELECT_JORNADA} WHERE j.fin < ? ORDER BY j.inicio DESC LIMIT ?`, [
     ahoraIso(),
@@ -44,7 +37,7 @@ export async function listarJornadasAnteriores(limite = 5) {
   return filas.map(mapearJornada);
 }
 
-/** Todas las jornadas (para el mapa), de la más reciente a la más antigua. */
+/** Todas, la más reciente primero. */
 export async function listarJornadas() {
   const filas = await consultar<FilaJornada>(`${SELECT_JORNADA} ORDER BY j.inicio DESC`);
   return filas.map(mapearJornada);
@@ -64,7 +57,7 @@ export type NuevaJornada = {
   fin: string;
   cupos: number;
   descripcion?: string | null;
-  /** Punto elegido en el mapa (grados decimales). */
+  /** Grados decimales. */
   latitud?: number | null;
   longitud?: number | null;
 };
@@ -92,10 +85,7 @@ export async function actualizarJornada(id: string, d: NuevaJornada) {
   return (await obtenerJornada(id))!;
 }
 
-/**
- * Elimina la jornada y su lista de asistentes. Los seguimientos que salieron de ella se conservan
- * (se desligan del asistente antes de borrar, porque el esquema los borraría en cascada).
- */
+/** Los seguimientos se desligan antes de borrar para que la cascada del esquema no se los lleve. */
 export async function eliminarJornada(id: string) {
   const base = db();
   await base.withTransactionAsync(async () => {
@@ -107,8 +97,6 @@ export async function eliminarJornada(id: string) {
   });
 }
 
-/* ---------- Asistentes ---------- */
-
 type FilaAsistente = {
   id: string; jornada_id: string; paciente_id: string | null; nombre: string; telefono: string | null;
   requiere_seguimiento: number; consentimiento_datos: number; creado_en: string;
@@ -119,7 +107,7 @@ const mapearAsistente = (f: FilaAsistente): Asistente => ({
   requiereSeguimiento: bool(f.requiere_seguimiento), consentimientoDatos: bool(f.consentimiento_datos), creadoEn: f.creado_en,
 });
 
-/** Asistentes de una jornada, el último registrado primero. */
+/** El último registrado primero. */
 export async function listarAsistentes(jornadaId: string) {
   const filas = await consultar<FilaAsistente>(
     'SELECT * FROM asistentes WHERE jornada_id = ? ORDER BY creado_en DESC, rowid DESC',
@@ -129,7 +117,7 @@ export async function listarAsistentes(jornadaId: string) {
 }
 
 export type NuevoAsistente = {
-  /** Id generado en el teléfono para que la fila optimista y la guardada coincidan. */
+  /** Se genera en el teléfono para que la fila optimista y la guardada tengan el mismo id. */
   id?: string;
   jornadaId: string;
   nombre: string;
@@ -138,7 +126,7 @@ export type NuevoAsistente = {
   consentimientoDatos: boolean;
 };
 
-/** Normaliza el teléfono a solo dígitos (o null si queda vacío). */
+/** Solo dígitos, o null si no queda nada. */
 export const limpiarTelefono = (telefono?: string | null) => {
   const digitos = (telefono ?? '').replace(/\D/g, '');
   return digitos.length ? digitos : null;
@@ -158,15 +146,12 @@ export async function crearAsistente(d: NuevoAsistente): Promise<Asistente> {
   };
 }
 
-/** Quita un asistente registrado por error (sus seguimientos se borran con él). */
+/** Para registros por error: sus seguimientos se borran en cascada. */
 export async function eliminarAsistente(id: string) {
   await ejecutar('DELETE FROM asistentes WHERE id = ?', [id]);
 }
 
-/**
- * Liga un asistente con su ficha de paciente y le pasa sus seguimientos,
- * para que la historia de la jornada quede en la ficha.
- */
+/** También le pasa sus seguimientos, para que la historia de la jornada quede en la ficha. */
 export async function vincularPaciente(asistenteId: string, pacienteId: string) {
   const base = db();
   await base.withTransactionAsync(async () => {
@@ -178,7 +163,7 @@ export async function vincularPaciente(asistenteId: string, pacienteId: string) 
   });
 }
 
-/** Paciente activo con el mismo teléfono, para no duplicar fichas al convertir un asistente. */
+/** Evita duplicar fichas al convertir un asistente. */
 export async function buscarPacientePorTelefono(telefono?: string | null) {
   const digitos = limpiarTelefono(telefono);
   if (!digitos) return null;
@@ -188,7 +173,6 @@ export async function buscarPacientePorTelefono(telefono?: string | null) {
   );
 }
 
-/** Jornadas a las que asistió un paciente (para su historia en la ficha). */
 export async function jornadasDePaciente(pacienteId: string) {
   const filas = await consultar<FilaJornada>(
     `${SELECT_JORNADA} WHERE j.id IN (SELECT jornada_id FROM asistentes WHERE paciente_id = ?) ORDER BY j.inicio DESC`,
@@ -197,17 +181,15 @@ export async function jornadasDePaciente(pacienteId: string) {
   return filas.map(mapearJornada);
 }
 
-/* ---------- Líneas de ayuda ---------- */
-
 export async function listarRecursos(): Promise<Recurso[]> {
   return consultar<Recurso>('SELECT id, titulo, descripcion, telefono, whatsapp, url, orden FROM recursos ORDER BY orden, titulo');
 }
 
-/* ---------- Informe de impacto (HU-23) ---------- */
+// Cifras del informe de impacto (HU-23)
 
 const rangoMes = (mes: string) => [isoDesde(`${mes}-01`), isoDesde(`${mesSiguiente(mes)}-01`)] as const;
 
-/** Personas afectadas distintas que asistieron a consulta y sesiones solidarias atendidas en el mes. */
+/** Personas afectadas distintas y sesiones solidarias atendidas en el mes. */
 export async function cifrasCitasMes(mes: string) {
   const [desde, hasta] = rangoMes(mes);
   const f = await consultarUno<{ personas: number; solidarias: number }>(
@@ -221,7 +203,7 @@ export async function cifrasCitasMes(mes: string) {
   return { personasAfectadas: f?.personas ?? 0, sesionesSolidarias: f?.solidarias ?? 0 };
 }
 
-/** Sesiones sin costo (pago registrado como donado) de citas del mes. */
+/** Citas del mes cuyo pago quedó como donado. */
 export async function sesionesDonadasMes(mes: string) {
   const [desde, hasta] = rangoMes(mes);
   const f = await consultarUno<{ n: number }>(
@@ -232,7 +214,6 @@ export async function sesionesDonadasMes(mes: string) {
   return f?.n ?? 0;
 }
 
-/** Jornadas realizadas en el mes y personas registradas en ellas. */
 export async function cifrasJornadasMes(mes: string) {
   const [desde, hasta] = rangoMes(mes);
   const f = await consultarUno<{ jornadas: number; asistentes: number }>(
@@ -245,10 +226,7 @@ export async function cifrasJornadasMes(mes: string) {
   return { jornadas: f?.jornadas ?? 0, asistentes: f?.asistentes ?? 0 };
 }
 
-/**
- * Seguimientos hechos con fecha objetivo dentro del mes.
- * El esquema no guarda cuándo se completó, así que se toma la fecha objetivo como referencia.
- */
+/** El esquema no guarda cuándo se completó un seguimiento, así que se filtra por la fecha objetivo. */
 export async function seguimientosHechosMes(mes: string) {
   const f = await consultarUno<{ n: number }>(
     `SELECT COUNT(*) AS n FROM seguimientos WHERE estado = 'hecho' AND fecha_objetivo >= ? AND fecha_objetivo < ?`,

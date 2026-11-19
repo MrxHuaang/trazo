@@ -19,8 +19,8 @@ type Props = {
 };
 
 /**
- * Reprogramar: mismos selectores de fecha y hora que al agendar. Si el nuevo horario choca con
- * otra cita se explica en línea (RN-01); al guardar se mueve también el aviso local.
+ * Reprogramar con los mismos selectores de agendar. Los choques se explican en línea (RN-01)
+ * y al guardar también se mueve el aviso local.
  */
 export function ReprogramarPanel({ cita, ahoraMs, onListo, onCerrar }: Props) {
   const hoy = fechaClave(new Date(ahoraMs));

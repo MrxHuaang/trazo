@@ -18,26 +18,22 @@ import { puntoMasCercano, type PuntoDia } from './rules';
 
 export const ALTO_TRAZO = 44;
 export const ALTO_TRAZO_FINO = 20;
-/** Al soltar a esta distancia (o menos) de un nodo se abre la cita. */
+// Soltar a esta distancia de un nodo, o menos, abre la cita.
 const RADIO_ABRIR = 28;
 const ANCHO_ETIQUETA = 168;
 
 type TrazoInteractivoProps = {
   puntos: PuntoDia[];
-  /** 0 = encabezado abierto (Trazo completo), 1 = colapsado (barra fina). */
+  /** 0 abierto, 1 colapsado en barra fina. */
   colapso: SharedValue<number>;
   onAbrir: (citaId: string) => void;
 };
 
-/**
- * La línea del día, tocable: al arrastrar el dedo muestra la cita más cercana (hora y nombre corto)
- * con un tic háptico al pasar por cada nodo; al soltar sobre una cita, abre su detalle.
- * Al hacer scroll se encoge a una barra fina que conserva los nodos.
- */
+/** Arrastrar muestra la cita más cercana con un tic por nodo; soltar encima la abre. */
 export function TrazoInteractivo({ puntos, colapso, onAbrir }: TrazoInteractivoProps) {
   const [ancho, setAncho] = useState(0);
   const [activo, setActivo] = useState<PuntoDia | null>(null);
-  // Último nodo bajo el dedo y qué tan cerca está (solo se leen en los eventos del gesto).
+  // Ref porque solo se lee dentro del gesto; no hace falta re-renderizar.
   const ultimo = useRef<{ id: string; distancia: number } | null>(null);
 
   function mover(x: number) {
@@ -50,7 +46,7 @@ export function TrazoInteractivo({ puntos, colapso, onAbrir }: TrazoInteractivoP
     ultimo.current = { id: cercano.punto.id, distancia: cercano.distancia };
   }
 
-  // También cuenta un toque quieto sobre un nodo (el gesto termina sin haberse movido).
+  // Con minDistance 0 un toque quieto también termina aquí y abre la cita.
   function soltar() {
     const final = ultimo.current;
     ultimo.current = null;

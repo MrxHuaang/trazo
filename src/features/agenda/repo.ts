@@ -1,12 +1,9 @@
-/**
- * Repositorio del módulo agenda: disponibilidad semanal y bloqueos (HU-13).
- * Usa las tablas `disponibilidad` y `bloqueos` del esquema compartido.
- */
+// Disponibilidad semanal y bloqueos (HU-13).
 import { consultar, consultarUno, ejecutar } from '@/data/db';
 import type { Bloqueo, Disponibilidad, Modalidad } from '@/domain/types';
 import { nuevoId } from '@/lib/id';
 
-/* ---------- Disponibilidad ---------- */
+// Disponibilidad
 
 type FilaFranja = { id: string; dia_semana: number; hora_inicio: string; hora_fin: string; modalidad: Modalidad };
 
@@ -63,7 +60,7 @@ export async function borrarFranja(id: string) {
   await ejecutar('DELETE FROM disponibilidad WHERE id = ?', [id]);
 }
 
-/* ---------- Bloqueos ---------- */
+// Bloqueos
 
 type FilaBloqueo = { id: string; inicio: string; fin: string; motivo: string | null };
 

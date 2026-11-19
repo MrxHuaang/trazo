@@ -32,7 +32,7 @@ module.exports = {
         field: '14px',
       },
       fontSize: {
-        // Escala tipográfica de Trazo suave: [tamaño, interlínea]
+        // Mantener igual a `type` en src/theme/tokens.ts
         display: ['34px', { lineHeight: '38px', letterSpacing: '-1px' }],
         number: ['40px', { lineHeight: '42px', letterSpacing: '-1.2px' }],
         title: ['26px', { lineHeight: '30px', letterSpacing: '-0.6px' }],

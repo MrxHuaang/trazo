@@ -25,14 +25,11 @@ const horasTexto = (min: number) => {
   return `${Number.isInteger(h) ? h : h.toFixed(1).replace('.', ',')} h`;
 };
 
-/** Las filas y editores se reacomodan con resorte al abrir, guardar o borrar. */
+// Transición compartida: filas y editores se reacomodan al abrir, guardar o borrar.
 const REACOMODO = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
 const ENTRADA = FadeIn.duration(200).reduceMotion(ReduceMotion.System);
 
-/**
- * Disponibilidad (HU-13): la semana como siete carriles de 7:00 a 20:00. Las franjas y los bloqueos
- * se agregan con la fila "+" y se editan en el sitio, sin salir de la pantalla.
- */
+/** Disponibilidad semanal (HU-13). Franjas y bloqueos se crean con la fila "+" y se editan en línea. */
 export function DisponibilidadScreen() {
   const insets = useSafeAreaInsets();
   const hoy = fechaClave(new Date(useAhoraMs()));
@@ -178,7 +175,7 @@ export function DisponibilidadScreen() {
   );
 }
 
-/** Carril del día de 7:00 a 20:00 con las franjas en tinta: la semana se lee de un vistazo. */
+/** Carril de 7:00 a 20:00 con las franjas del día en tinta. */
 function Carril({ franjas }: { franjas: Disponibilidad[] }) {
   const total = VENTANA_FIN - VENTANA_INICIO;
   return (
@@ -204,7 +201,7 @@ function Carril({ franjas }: { franjas: Disponibilidad[] }) {
   );
 }
 
-/** Fila fantasma "+": crea en contexto, sin botón "Nuevo" suelto. */
+/** Fila "+" para crear en contexto. */
 function FilaAgregar({ etiqueta, accessibilityLabel, onPress }: { etiqueta: string; accessibilityLabel?: string; onPress: () => void }) {
   return (
     <Animated.View layout={REACOMODO}>

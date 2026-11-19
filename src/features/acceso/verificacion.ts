@@ -1,26 +1,20 @@
-/**
- * Verificación de identidad con expo-local-authentication (HU-01, RNF-01).
- * En Expo Go para iPhone Face ID no está disponible: el sistema pide el código del teléfono.
- * En Android la huella funciona en Expo Go; el PIN o patrón queda como respaldo.
- */
+// HU-01, RNF-01. En Expo Go para iPhone no hay Face ID, así que el sistema pide el código.
+// En Android la huella sí funciona en Expo Go.
 import * as LocalAuthentication from 'expo-local-authentication';
 
 export type ResultadoVerificacion =
   | { tipo: 'ok' }
-  /** El teléfono no tiene huella, rostro ni código configurado: se permite entrar con aviso. */
+  /** Teléfono sin ningún bloqueo configurado: se deja entrar con aviso. */
   | { tipo: 'sin-proteccion' }
   | { tipo: 'cancelado' }
   | { tipo: 'error'; mensaje: string };
 
 let enCurso = false;
 
-/**
- * Hay un diálogo de verificación abierto. En Android el PIN abre otra pantalla y la app pasa
- * a segundo plano; ese viaje no debe contar como "salir de la app".
- */
+/** En Android el PIN abre otra pantalla y la app pasa a segundo plano; eso no cuenta como salir. */
 export const verificacionEnCurso = () => enCurso;
 
-/** El teléfono tiene al menos un código, PIN o patrón configurado (o biometría). */
+/** Basta con un código, PIN o patrón; no exige biometría. */
 export async function telefonoProtegido(): Promise<boolean> {
   try {
     const nivel = await LocalAuthentication.getEnrolledLevelAsync();
@@ -32,6 +26,7 @@ export async function telefonoProtegido(): Promise<boolean> {
 }
 
 export async function verificarIdentidad(): Promise<ResultadoVerificacion> {
+  // Un doble toque no debe abrir dos diálogos del sistema.
   if (enCurso) return { tipo: 'cancelado' };
   if (!(await telefonoProtegido())) return { tipo: 'sin-proteccion' };
 

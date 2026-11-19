@@ -9,7 +9,7 @@ import { Text, Tile } from '@/ui';
 
 type Lamina = { tono: TileTone; texto: string; etiqueta: string; titulo: string; cuerpo: string };
 
-/** Cada lámina usa el bloque de color de su tema: consulta, solidario (con textura) y confirmación. */
+// `texto` va completo por lámina porque NativeWind no resuelve clases armadas en tiempo de ejecución.
 const LAMINAS: Lamina[] = [
   {
     tono: 'consulta',
@@ -36,7 +36,6 @@ const LAMINAS: Lamina[] = [
 
 const ALTO = 184;
 
-/** Tres láminas breves (react-native-reanimated-carousel) con indicador por segmentos. */
 export function LaminasBienvenida() {
   const { width } = useWindowDimensions();
   const carrusel = useRef<CarouselRef>(null);
@@ -45,7 +44,7 @@ export function LaminasBienvenida() {
 
   return (
     <View className="gap-1">
-      {/* El carrusel necesita su propia raíz de gestos: el layout raíz no monta una. */}
+      {/* El layout raíz no monta GestureHandlerRootView, así que el carrusel trae la suya. */}
       <GestureHandlerRootView style={{ width, height: ALTO }}>
         <Carousel
           ref={carrusel}
@@ -98,7 +97,7 @@ type SegmentoProps = {
   onPress: () => void;
 };
 
-/** Segmento del indicador: se alarga y se oscurece a medida que su lámina se acerca. */
+// Sigue el progreso continuo del carrusel, así crece mientras se arrastra y no solo al soltar.
 function Segmento({ indice, progreso, activo, etiqueta, onPress }: SegmentoProps) {
   const estilo = useAnimatedStyle(() => {
     const cerca = Math.max(0, 1 - Math.abs(progreso.get() - indice));

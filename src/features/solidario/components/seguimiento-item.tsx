@@ -22,21 +22,19 @@ import { Accion } from './accion';
 type SeguimientoItemProps = {
   seguimiento: Seguimiento;
   hoy: string;
-  /** Muestra la acción WhatsApp (en la lista completa). */
   conWhatsApp?: boolean;
-  /** El botón "Hecho" abre un panel con nota opcional y la opción de programar otro (RN-08). */
+  /** "Hecho" abre un panel con nota y la opción de programar otro (RN-08). */
   conNota?: boolean;
   profesional?: string | null;
-  /** Se conserva por compatibilidad: las filas se separan con aire, sin divisores. */
+  /** Ya no se usa (las filas se separan con aire); se deja para no romper a quien la pasa. */
   last?: boolean;
 };
 
 const exito = () => void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
 /**
- * Seguimiento pendiente o hecho. Acciones: Llamar, WhatsApp, Hecho y Posponer 7 días.
- * La fila también se desliza: a la derecha marca Hecho, a la izquierda pospone. Al resolverse
- * sale hacia el lado del gesto y las demás filas se reacomodan.
+ * Deslizar a la derecha marca Hecho y a la izquierda pospone 7 días. Los botones hacen lo mismo
+ * para quien no usa el gesto.
  */
 export function SeguimientoItem({ seguimiento: s, hoy, conWhatsApp, conNota, profesional }: SeguimientoItemProps) {
   const actualizar = useActualizarSeguimiento();

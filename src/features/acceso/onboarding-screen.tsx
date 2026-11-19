@@ -16,7 +16,7 @@ type Paso = 'inicio' | 'crear';
 
 const ENTRADA = FadeIn.duration(260).reduceMotion(ReduceMotion.System);
 
-/** Bienvenida (HU-26, HU-27): crear el consultorio o explorar con datos ficticios. */
+/** HU-26, HU-27: crear el consultorio o entrar con la demo. */
 export function OnboardingScreen() {
   const consulta = useConsultorio();
   const demo = useCargarDemo();
@@ -24,7 +24,7 @@ export function OnboardingScreen() {
   const [creando, setCreando] = useState(false);
   const reducir = useReducedMotion();
   const enfocada = useIsFocused();
-  // El sismógrafo solo escucha el sensor mientras la bienvenida está a la vista.
+  // Fuera de la bienvenida el sensor se apaga para no gastar batería.
   const { energia } = useSismografo({ activo: enfocada && paso === 'inicio' && !reducir, impulso: 0.85 });
 
   // En el formulario, el botón atrás de Android vuelve a la bienvenida en vez de cerrar la app.
@@ -39,12 +39,12 @@ export function OnboardingScreen() {
 
   const irALaApp = () => router.replace('/');
 
-  // Si ya hay consultorio (p. ej. un enlace directo a esta ruta) no se crea otro.
+  // Ya hay consultorio, p. ej. por un enlace directo. `creando` evita redirigir en medio del alta.
   if (consulta.data && demo.isIdle && !creando) return <Redirect href="/" />;
 
   return (
     <SafeAreaView className="flex-1 bg-canvas" edges={paso === 'inicio' ? ['top', 'bottom'] : ['top']}>
-      {/* Sin animación: la bienvenida reemplaza a las pestañas y no debe dejar ver lo que había debajo. */}
+      {/* Sin animación para que al reemplazar las pestañas no se alcance a ver lo de abajo. */}
       <Stack.Screen options={{ animation: 'none', gestureEnabled: false }} />
 
       {paso === 'crear' ? (
@@ -63,7 +63,7 @@ export function OnboardingScreen() {
               </Text>
             </Aparecer>
 
-            {/* Sismógrafo vivo de borde a borde: entra agitado, se calma y responde al movimiento del teléfono. */}
+            {/* Con Reducir movimiento se dibuja quieto y sin sensor. */}
             <Aparecer orden={1} className="w-full">
               {reducir ? (
                 <TraceLine height={104} agitation={0.85} calmFrom={0.55} strokeWidth={2.4} animate={false} />

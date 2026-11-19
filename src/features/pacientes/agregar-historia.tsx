@@ -13,7 +13,7 @@ type AgregarHistoriaProps = {
   onSeguimiento: () => void;
 };
 
-/** Fila fantasma al final de la historia: se abre en el mismo lugar con lo que se puede agregar. */
+/** Fila fantasma al final de la historia; las opciones se despliegan ahí mismo. */
 export function AgregarHistoria({ onAgendar, onNota, onSeguimiento }: AgregarHistoriaProps) {
   const [abierta, setAbierta] = useState(false);
   const elegir = (accion: () => void) => () => {

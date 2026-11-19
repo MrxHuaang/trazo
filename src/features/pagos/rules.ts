@@ -1,4 +1,4 @@
-/** Reglas puras de Pagos (HU-10, HU-16, HU-24). */
+// Lógica de Pagos sin React ni base de datos (HU-10, HU-16, HU-24).
 import type { ResumenMes } from '@/data/repos/pagos';
 import { METODOS_PAGO, type EstadoPago, type MetodoPago, type PagoConCita } from '@/domain/types';
 import { fechaClave, mesTexto } from '@/lib/dates';
@@ -48,7 +48,7 @@ export const ETIQUETA_ESTADO: Record<EstadoPago, string> = {
 
 export type DiaDePagos = { clave: string; inicio: string; pagos: PagoConCita[] };
 
-/** Agrupa por día de la cita (hora de Colombia), en el orden en que aparece cada día. */
+/** Agrupa por día en hora de Colombia, respetando el orden de entrada. */
 export function agruparPorDia(pagos: PagoConCita[]): DiaDePagos[] {
   const dias = new Map<string, DiaDePagos>();
   for (const p of pagos) {

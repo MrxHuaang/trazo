@@ -16,9 +16,8 @@ type Props = {
 };
 
 /**
- * Bloque de una cita en la línea de tiempo. El tipo se lee por color y por texto:
- * consulta en lavanda, solidaria en durazno con textura, solicitada con borde punteado cobalto,
- * asistió atenuada y no asistió con borde de error.
+ * Bloque de cita en la línea de tiempo. El estado no depende solo del color: solidaria lleva
+ * textura, solicitada borde punteado y no asistió borde de error.
  */
 export function CitaBloque({ cita, alto, onPress }: Props) {
   const solicitada = cita.estado === 'solicitada';

@@ -6,24 +6,22 @@ import { cn } from '@/lib/cn';
 import { Text } from './text';
 
 type ListRowProps = {
-  /** Hora o etiqueta corta en Geist Mono a la izquierda. */
+  /** Hora o etiqueta corta, en mono. */
   lead?: string;
   title: string;
   subtitle?: string;
-  /** Marca a la derecha del título (p. ej. textura solidaria). */
+  /** Va pegado al título, p. ej. la marca solidaria. */
   badge?: ReactNode;
   trailing?: ReactNode;
   onPress?: () => void;
   last?: boolean;
   className?: string;
-  /** Lo que lee el lector de pantalla en lugar del texto visible. */
   accessibilityLabel?: string;
-  /** Acciones de los gestos (p. ej. deslizar) para el lector de pantalla. */
+  /** Equivalente de los gestos (deslizar) para el lector de pantalla. */
   accessibilityActions?: AccessibilityActionInfo[];
   onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
 };
 
-/** Fila de lista: hora en mono, título y una acción a la derecha. */
 export function ListRow({
   lead,
   title,

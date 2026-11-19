@@ -23,7 +23,7 @@ type Entrada = {
   duracion: number;
   ahoraMs: number;
   todas: boolean;
-  /** Al reprogramar, la cita no choca consigo misma. */
+  /** Al reprogramar, para que la cita no choque consigo misma. */
   excluirCitaId?: string;
 };
 

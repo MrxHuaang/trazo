@@ -10,7 +10,7 @@ import { fraseSemana, horasDonadas, plural, porcentajeInasistencias, type Resume
 
 export type ClaveHistoria = 'atendidas' | 'inasistencias' | 'cobros' | 'donado' | 'afectadas' | 'cierre';
 
-/** Orden de las historias del resumen: una por dato y el cierre con el Trazo. */
+// Una historia por dato; el cierre con el Trazo siempre va de último.
 export const HISTORIAS: ClaveHistoria[] = ['atendidas', 'inasistencias', 'cobros', 'donado', 'afectadas', 'cierre'];
 
 const FONDO: Record<ClaveHistoria, string> = {
@@ -33,7 +33,7 @@ const TINTA: Record<ClaveHistoria, string> = {
 
 const PUNTOS_MAX = 40;
 
-/** Lo que lee el lector de pantalla de cada historia (las cifras animadas no se anuncian solas). */
+/** Texto para el lector de pantalla: las cifras animadas no se anuncian solas. */
 export function descripcionHistoria(clave: ClaveHistoria, r: ResumenSemana) {
   switch (clave) {
     case 'atendidas':
@@ -56,13 +56,12 @@ const textoHoras = (minutos: number) => `${horasDonadas(minutos)} ${horasDonadas
 type HistoriaProps = {
   clave: ClaveHistoria;
   resumen: ResumenSemana;
-  /** "lun 9 nov al dom 15 nov". */
+  /** Ej.: lun 9 nov al dom 15 nov. */
   rango: string;
   /** Solo la historia visible cuenta sus cifras; las demás esperan en cero. */
   activa: boolean;
 };
 
-/** Una historia del resumen: bloque de color a pantalla completa con su cifra gigante. */
 export function Historia({ clave, resumen: r, rango, activa }: HistoriaProps) {
   const tinta = TINTA[clave];
   const solidaria = clave === 'donado' || clave === 'afectadas';
@@ -175,7 +174,7 @@ function Contenido({ clave, r, activa, tinta }: { clave: ClaveHistoria; r: Resum
       return (
         <View className="flex-1 justify-end gap-6">
           <View className="flex-1 justify-center">
-            {/* Al llegar al cierre el Trazo se agita y se calma: la semana terminó. */}
+            {/* El key remonta el Trazo para que la animación arranque justo al llegar al cierre. */}
             {activa ? (
               <TraceLine key="activa" height={120} calmFrom={0.55} strokeWidth={2.2} />
             ) : (
@@ -207,7 +206,7 @@ function Bloque({ cifra, titulo, tinta, pie, children }: { cifra: ReactNode; tit
   );
 }
 
-/** Cifra gigante: cuenta desde cero cuando su historia queda a la vista. */
+// Cuenta desde cero cuando su historia queda a la vista.
 function Cifra({ valor, activa, formato, className }: { valor: number; activa: boolean; formato?: (n: number) => string; className?: string }) {
   return (
     <NumeroAnimado
@@ -222,7 +221,7 @@ function Cifra({ valor, activa, formato, className }: { valor: number; activa: b
   );
 }
 
-/** Un punto por sesión atendida (hasta 40): la semana se ve, no solo se lee. */
+// Un punto por sesión, con tope para que no desborde la tarjeta.
 function Puntos({ cantidad, className }: { cantidad: number; className?: string }) {
   if (cantidad <= 0) return null;
   const visibles = Math.min(cantidad, PUNTOS_MAX);

@@ -17,7 +17,7 @@ type Valores = { nombre: string; profesional: string; correo: string; tarifaBase
 
 const INICIALES: Valores = { nombre: '', profesional: '', correo: '', tarifaBase: '70.000', tarifaSocial: '35.000' };
 
-/** HU-26: registro local del consultorio. Sin servidor ni contraseña: todo queda en el teléfono. */
+/** HU-26. Sin servidor ni contraseña: todo queda en el teléfono. */
 export function FormularioConsultorio({ onVolver, onCreado }: FormularioConsultorioProps) {
   const crear = useCrearConsultorio();
   const [valores, setValores] = useState<Valores>(INICIALES);
@@ -25,6 +25,7 @@ export function FormularioConsultorio({ onVolver, onCreado }: FormularioConsulto
   const [intentado, setIntentado] = useState(false);
 
   const validacion = validarConsultorio(valores);
+  // No se marcan errores hasta el primer intento de enviar; antes solo estorban.
   const errores = intentado && !validacion.ok ? validacion.errores : {};
 
   const cambiar = (campo: keyof Valores, formatear?: (t: string) => string) => (texto: string) =>

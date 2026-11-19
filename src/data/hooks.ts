@@ -1,7 +1,4 @@
-/**
- * Hooks compartidos de datos (TanStack Query) para las entidades que usan varios módulos.
- * Cada módulo puede crear sus propios hooks en su carpeta usando `qk` y los repositorios.
- */
+// Hooks de las entidades que usan varias features. Los de una sola feature viven en su carpeta.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { EstadoCita, MetodoPago } from '@/domain/types';
@@ -14,7 +11,7 @@ import * as pacientes from './repos/pacientes';
 import * as pagos from './repos/pagos';
 import * as seguimientos from './repos/seguimientos';
 
-/* ---------- Consultorio ---------- */
+// Consultorio
 export const useConsultorio = () => useQuery({ queryKey: qk.consultorio, queryFn: consultorio.obtenerConsultorio });
 
 export function useActualizarConsultorio() {
@@ -25,7 +22,7 @@ export function useActualizarConsultorio() {
   });
 }
 
-/* ---------- Pacientes ---------- */
+// Pacientes
 export const usePacientes = (filtro: pacientes.FiltroPacientes = {}) =>
   useQuery({ queryKey: [...qk.pacientes, 'lista', filtro], queryFn: () => pacientes.listarPacientes(filtro) });
 
@@ -40,6 +37,7 @@ export function useCrearPaciente() {
   });
 }
 
+// También invalida citas porque las consultas de citas traen el nombre y la tarifa del paciente.
 export function useActualizarPaciente() {
   const qc = useQueryClient();
   return useMutation({
@@ -48,7 +46,7 @@ export function useActualizarPaciente() {
   });
 }
 
-/* ---------- Citas ---------- */
+// Citas
 export const useCitasEntre = (desde: string, hasta: string) =>
   useQuery({ queryKey: [...qk.citas, 'rango', desde, hasta], queryFn: () => citas.listarCitasEntre(desde, hasta) });
 
@@ -74,6 +72,7 @@ export const useCitasSolicitadas = () =>
 export const useCuposSolidariosSemana = (clave = fechaClave()) =>
   useQuery({ queryKey: [...qk.citas, 'cupos', clave], queryFn: () => citas.contarSolidariasSemana(clave) });
 
+// Pagos va incluido: marcar una cita como asistida crea su pago (RN-05).
 const useInvalidarCitas = () => {
   const qc = useQueryClient();
   return () => Promise.all([qc.invalidateQueries({ queryKey: qk.citas }), qc.invalidateQueries({ queryKey: qk.pagos })]);
@@ -105,7 +104,7 @@ export function useMarcarRecordada() {
   return useMutation({ mutationFn: citas.marcarRecordada, onSuccess: invalidar });
 }
 
-/* ---------- Pagos ---------- */
+// Pagos
 export const usePagosMes = (mes: string) =>
   useQuery({ queryKey: [...qk.pagos, 'mes', mes], queryFn: () => pagos.listarPagosMes(mes) });
 
@@ -125,7 +124,7 @@ export function useRegistrarPago() {
   });
 }
 
-/* ---------- Seguimientos ---------- */
+// Seguimientos
 export const useSeguimientos = (filtro: seguimientos.FiltroSeguimientos = {}) =>
   useQuery({ queryKey: [...qk.seguimientos, filtro], queryFn: () => seguimientos.listarSeguimientos(filtro) });
 

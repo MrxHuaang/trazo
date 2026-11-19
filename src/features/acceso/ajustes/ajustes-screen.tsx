@@ -28,7 +28,7 @@ type Confirmacion = 'demo' | 'borrar';
 
 const DURACIONES = [30, 45, 50, 60, 90];
 
-/** Ajustes: datos del consultorio editables en línea, seguridad, Calma, accesos y datos del teléfono. */
+/** Cada dato se edita en su sitio, sin abrir otra pantalla. */
 export function AjustesScreen() {
   const { data: consultorio } = useConsultorio();
   const actualizar = useActualizarConsultorio();
@@ -42,7 +42,7 @@ export function AjustesScreen() {
 
   const volver = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-  // Sin consultorio (recién borrado) el AccessGate ya está llevando a la bienvenida.
+  // Recién borrado: el AccessGate ya va camino a la bienvenida.
   if (!consultorio) return <View className="flex-1 bg-canvas" />;
 
   const guardar = (cambios: Partial<Omit<Consultorio, 'id' | 'creadoEn'>>) => actualizar.mutateAsync(cambios);
@@ -52,6 +52,7 @@ export function AjustesScreen() {
   };
   const cerrar = () => setEditando(null);
 
+  // validarCampo no ve la otra tarifa, así que la regla entre las dos se revisa aquí.
   const validarTarifa = (campo: 'tarifaBase' | 'tarifaSocial') => (texto: string) => {
     const valor = pesosDesdeTexto(texto);
     const error = validarCampo(campo, valor);
@@ -70,7 +71,7 @@ export function AjustesScreen() {
       setErrorBloqueo(resultado.mensaje);
       return;
     }
-    // La sesión queda abierta: activar el bloqueo no debe bloquear la pantalla en la que se está.
+    // Se abre la sesión para que activar el bloqueo no bloquee esta misma pantalla.
     abrirSesion();
     actualizar.mutate(
       { bloqueoActivo: activo },
@@ -102,7 +103,6 @@ export function AjustesScreen() {
             </Text>
           </Aparecer>
 
-          {/* Consultorio: la identidad va en un bloque y cada dato se edita donde está. */}
           <Aparecer orden={1} reacomodar className="mt-4">
             <Tile tone="consulta" contentClassName="gap-1">
               <TraceLine height={24} agitation={0.7} calmFrom={0.3} stroke={tile.consulta.fg} />

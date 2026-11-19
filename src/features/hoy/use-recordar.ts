@@ -9,10 +9,7 @@ import { abrirWhatsApp } from '@/lib/whatsapp';
 
 import { mensajeRecordatorio } from './mensajes';
 
-/**
- * HU-06: abre WhatsApp con la plantilla de recordatorio ya escrita y marca la cita como recordada
- * (RN-04: con eso sale de "Por confirmar"). De paso asegura el aviso local de 15 minutos antes.
- */
+/** HU-06. Marcarla recordada la saca de Por confirmar (RN-04); de paso programa el aviso local. */
 export function useRecordar() {
   const { data: consultorio } = useConsultorio();
   const marcar = useMarcarRecordada();
@@ -43,10 +40,7 @@ export function useRecordar() {
   };
 }
 
-/**
- * Marca "asistió" desde la lista (RN-05: crea el pago según la tarifa) y quita el aviso local.
- * Si la cita aún no empieza, pide confirmación para no registrar una sesión por error.
- */
+/** RN-05: marcar asistió crea el cobro, por eso se pide confirmar si la cita aún no empieza. */
 export function useAsistio() {
   const cambiar = useCambiarEstadoCita();
 

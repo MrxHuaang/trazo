@@ -28,8 +28,8 @@ type Props = {
 const FILA = 'min-h-[52px] flex-row items-center gap-3 py-2 active:opacity-60';
 
 /**
- * Paciente de la cita: buscador por nombre o teléfono y creación en contexto.
- * Si el nombre no existe aparece "Crear paciente «…»"; los demás datos se completan en su ficha.
+ * Busca por nombre o teléfono. Si no existe, se crea aquí solo con el nombre
+ * y el resto se completa después en la ficha.
  */
 export function PacienteSelector({ valor, onChange, nuevo, autoFocus }: Props) {
   const [busqueda, setBusqueda] = useState('');

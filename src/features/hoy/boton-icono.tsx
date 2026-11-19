@@ -8,11 +8,9 @@ type BotonIconoProps = {
   etiqueta: string;
   onPress: () => void;
   disabled?: boolean;
-  /** Clases del círculo (p. ej. un fondo). */
   className?: string;
 };
 
-/** Botón redondo solo con ícono: área táctil de 44 y etiqueta para el lector de pantalla. */
 export function BotonIcono({ icono, etiqueta, onPress, disabled, className }: BotonIconoProps) {
   return (
     <Presionable

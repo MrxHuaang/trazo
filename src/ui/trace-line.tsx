@@ -14,25 +14,22 @@ import Svg, { Circle, Polyline } from 'react-native-svg';
 import { color } from '@/theme';
 
 export type TraceNode = {
-  /** Posición horizontal de 0 (inicio) a 1 (fin). */
+  /** 0 a 1 sobre el ancho. */
   at: number;
-  /** past: ya pasó · next: la próxima (cobalto, con pulso) · scheduled: más tarde · pending: solicitada. */
+  /** next es la próxima cita (lleva pulso); pending es una solicitada sin confirmar. */
   kind: 'past' | 'next' | 'scheduled' | 'pending';
 };
 
 type TraceLineProps = {
   height?: number;
-  /** Qué tanto se agita el inicio de la línea (0 = plana, 1 = sismo). */
+  /** 0 = plana, 1 = sismo. */
   agitation?: number;
-  /** Fracción del ancho donde la línea ya está en calma. 1 = agitada de punta a punta. */
+  /** Fracción del ancho desde la que la línea queda en calma (1 = agitada de punta a punta). */
   calmFrom?: number;
   nodes?: TraceNode[];
-  /** Anima la línea de agitada a calma al montarse (respeta "Reducir movimiento"). */
+  /** Arranca agitada y se calma al montar. */
   animate?: boolean;
-  /**
-   * Energía externa en vivo (0 = calma, 1 = sismo): se suma a `agitation`. Con ella la línea
-   * también se desplaza, como el papel de un sismógrafo. La usa el acelerómetro (bienvenida y bloqueo).
-   */
+  /** Energía en vivo del acelerómetro; se suma a agitation y hace correr la línea como papel de sismógrafo. */
   energia?: SharedValue<number>;
   strokeWidth?: number;
   stroke?: string;
@@ -41,15 +38,12 @@ type TraceLineProps = {
 };
 
 const ARRANQUE_MS = 1400;
-/** Un cuadro de cada dos (unos 30 por segundo): fluido y sin trabajo de más. */
+// ~30 fps: los puntos se recalculan en JS y a 60 no se nota la diferencia.
 const CADA_MS = 32;
 
 /**
- * Trazo: línea de sismógrafo que empieza agitada y termina en calma.
- * Es la firma de la marca: línea del día en Hoy, carga, estados vacíos, bienvenida y bloqueo.
- *
- * Los puntos se calculan en JS cuadro a cuadro solo mientras hay movimiento (arranque o energía en vivo):
- * los `animatedProps` de react-native-svg no se actualizaban con esta versión de Reanimated.
+ * Línea de sismógrafo que arranca agitada y termina en calma.
+ * Los puntos se calculan en JS porque los animatedProps de react-native-svg no se actualizaban con esta versión de Reanimated.
  */
 export function TraceLine({
   height = 40,
@@ -69,9 +63,8 @@ export function TraceLine({
   const conArranque = animate && !reduceMotion;
   const [puntos, setPuntos] = useState('');
 
-  // Bucle de animación: arranque (agitada → calma) y, con energía, el papel que avanza.
   useEffect(() => {
-    // Sin movimiento no hay bucle: se dibuja la línea estática (ver `estatica` más abajo).
+    // Sin movimiento no hace falta el bucle; el render pinta la línea estática.
     if (width <= 0 || (!conArranque && !enVivo)) return;
     let cuadro = 0;
     let ultimo = 0;
@@ -86,7 +79,7 @@ export function TraceLine({
         const extra = energia ? energia.get() : 0;
         const fase = enVivo ? (t / 60_000) * Math.PI * 40 : 0;
         setPuntos(tracePoints(width, height, agitation * arranque + extra, calmFrom, fase));
-        if (!enVivo && avance >= 1) return; // el arranque terminó: la línea queda quieta
+        if (!enVivo && avance >= 1) return; // terminó el arranque y no hay sensor: se corta el bucle
       }
       cuadro = requestAnimationFrame(paso);
     };
@@ -139,7 +132,7 @@ export function TraceLine({
   );
 }
 
-/** Onda que sale del punto de la próxima cita cada 2,4 s (estilo animado en el hilo de la interfaz). */
+// Pulso de la próxima cita. Es el único bucle permitido en la interfaz.
 function Pulso({ x, y, radio, activo }: { x: number; y: number; radio: number; activo: boolean }) {
   const p = useSharedValue(0);
   useEffect(() => {
@@ -161,12 +154,12 @@ function Pulso({ x, y, radio, activo }: { x: number; y: number; radio: number; a
   );
 }
 
-/** Genera los puntos de la línea: oscilación amortiguada al inicio, calma después. */
+// Dos senos de distinta frecuencia para que no se vea como una onda perfecta, con una envolvente que se apaga en calmFrom.
 function tracePoints(width: number, height: number, agitation: number, calmFrom: number, fase: number) {
   if (width <= 0) return '';
   const mid = height / 2;
   const tope = height / 2 - 2;
-  // Un sensor puede entregar valores no finitos: la línea nunca debe desaparecer por eso.
+  // Si el sensor manda NaN o Infinity, la polyline entera deja de pintarse.
   const segura = Number.isFinite(agitation) ? Math.max(agitation, 0) : 0;
   const f = Number.isFinite(fase) ? fase : 0;
   const maxAmp = Math.min(tope, tope * 0.9 * segura);

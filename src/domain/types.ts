@@ -1,7 +1,4 @@
-/**
- * Entidades del dominio (capítulo 9 del documento maestro). Fechas en ISO UTC (RN-02);
- * `*Clave` = 'yyyy-MM-dd' en hora de Colombia.
- */
+// Entidades del capítulo 9 del documento maestro. Las fechas van en ISO UTC (RN-02).
 
 export type Tarifa = 'normal' | 'social' | 'gratuita';
 export type EstadoCita = 'solicitada' | 'confirmada' | 'asistio' | 'no_asistio' | 'cancelada';
@@ -82,7 +79,7 @@ export type Cita = {
   actualizadoEn: string;
 };
 
-/** Cita con los datos del paciente que casi todas las vistas necesitan. */
+/** Lo mínimo del paciente que piden casi todas las vistas de citas, para no hacer otra consulta. */
 export type CitaConPaciente = Cita & {
   paciente: Pick<Paciente, 'id' | 'nombre' | 'telefono' | 'tarifa' | 'afectadoSismo'>;
 };
@@ -120,7 +117,7 @@ export type Consentimiento = {
 
 export type Disponibilidad = {
   id: string;
-  /** 1 = lunes … 7 = domingo */
+  /** 1 = lunes, 7 = domingo (no como Date.getDay). */
   diaSemana: number;
   horaInicio: string;
   horaFin: string;
@@ -139,7 +136,7 @@ export type Jornada = {
   fin: string;
   cupos: number;
   descripcion: string | null;
-  /** Punto en el mapa (opcional): grados decimales. */
+  /** Grados decimales. No toda jornada tiene punto en el mapa. */
   latitud?: number | null;
   longitud?: number | null;
   creadoEn: string;

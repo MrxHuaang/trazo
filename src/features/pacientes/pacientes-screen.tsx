@@ -45,8 +45,8 @@ const escribir = (p: Paciente) => {
 };
 
 /**
- * Pestaña Pacientes (HU-08): el buscador también crea; si nadie se llama así, ofrece crearlo.
- * La búsqueda y el filtro viven en Zustand para conservarse al ir a una ficha y volver.
+ * Pestaña Pacientes (HU-08). Si la búsqueda no encuentra a nadie, ofrece crear el paciente.
+ * Búsqueda y filtro van en Zustand para no perderlos al entrar a una ficha y volver.
  */
 export function PacientesScreen() {
   const consulta = usePacientesStore((s) => s.consulta);
@@ -157,7 +157,7 @@ export function PacientesScreen() {
           ) : null}
 
           {visibles.map((p, i) => (
-            // La cascada es solo para la primera carga: al buscar o filtrar, las filas que vuelven entran de inmediato.
+            // Cascada solo en la primera carga; al buscar o filtrar las filas entran de una.
             <Aparecer key={p.id} orden={texto || filtro !== 'todos' ? 0 : i + 3} reacomodar>
               <FilaPaciente
                 paciente={p}

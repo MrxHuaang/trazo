@@ -10,12 +10,11 @@ type SegmentedProps<T extends string> = {
   value: T;
   onChange: (valor: T) => void;
   accessibilityLabel?: string;
-  /** Ocupa todo el ancho y reparte las opciones por igual (sin partirse en dos filas). */
+  /** Reparte el ancho por igual; sin esto las opciones pueden partirse en dos filas. */
   completo?: boolean;
   className?: string;
 };
 
-/** Selector de opciones excluyentes en píldora (p. ej. presencial / virtual). */
 export function Segmented<T extends string>({ options, value, onChange, accessibilityLabel, completo, className }: SegmentedProps<T>) {
   return (
     <View

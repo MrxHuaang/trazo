@@ -15,8 +15,8 @@ import { appFonts, color } from '@/theme';
 void SplashScreen.preventAutoHideAsync();
 
 /**
- * Hojas: en iPhone, hoja nativa (formSheet). En Android, pantalla que sube desde abajo: el formSheet de
- * react-native-screens 4.30 en Expo Go fallaba al cerrarse o se abría invisible.
+ * iPhone usa formSheet nativo. En Android va como modal que sube desde abajo porque el formSheet
+ * de react-native-screens 4.30 en Expo Go se caía al cerrar o abría invisible.
  */
 const HOJA =
   Platform.OS === 'ios'
@@ -40,7 +40,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <DatabaseGate>
         <AccessGate>
-          {/* Las hojas se declaran aquí, no dentro de cada ruta, para que cada pantalla nazca con su presentación. */}
+          {/* Las hojas van aquí y no en cada ruta para que abran con su presentación desde el primer render. */}
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.canvas } }}>
             <Stack.Screen name="por-confirmar" options={HOJA} />
             <Stack.Screen name="cita/nueva" options={HOJA} />

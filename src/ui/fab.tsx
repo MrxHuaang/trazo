@@ -11,7 +11,7 @@ type FabProps = {
   onPress: () => void;
 };
 
-/** Botón flotante principal (único en la pantalla): píldora en tinta con círculo cobalto. */
+/** Acción principal flotante, una por pantalla. Es lo único del sistema que lleva sombra. */
 export function Fab({ label, onPress }: FabProps) {
   return (
     <View pointerEvents="box-none" className="absolute left-5 right-5" style={{ bottom: tabBarInset + space.lg }}>

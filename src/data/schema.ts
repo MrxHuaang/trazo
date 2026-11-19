@@ -1,7 +1,5 @@
-/**
- * Esquema local (SQLite). Cada migración sube PRAGMA user_version en 1.
- * Nunca editar una migración ya publicada: agregar una nueva al final.
- */
+// Cada posición del arreglo es una versión de PRAGMA user_version.
+// Solo se agregan migraciones al final: editar una vieja no corre en los equipos que ya la aplicaron.
 export const MIGRACIONES: string[] = [
   /* v1 */ `
   CREATE TABLE consultorio (
@@ -145,11 +143,11 @@ export const MIGRACIONES: string[] = [
     orden INTEGER NOT NULL DEFAULT 0
   );
   `,
-  /* v2: coordenadas de la jornada para el mapa solidario */ `
+  /* v2: coordenadas para el mapa de jornadas */ `
   ALTER TABLE jornadas ADD COLUMN latitud REAL;
   ALTER TABLE jornadas ADD COLUMN longitud REAL;
   `,
-  /* v3: fechas guardadas con desfase '-05:00' pasan a UTC ('Z') para que las comparaciones de texto sean correctas */ `
+  /* v3: fechas viejas con '-05:00' pasan a UTC; las consultas comparan ISO como texto y mezclar ambos formatos falla */ `
   UPDATE citas SET inicio = CASE WHEN inicio LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', inicio) ELSE inicio END, fin = CASE WHEN fin LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', fin) ELSE fin END, recordada_en = CASE WHEN recordada_en LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', recordada_en) ELSE recordada_en END
     WHERE inicio LIKE '%-05:00' OR fin LIKE '%-05:00' OR recordada_en LIKE '%-05:00';
   UPDATE bloqueos SET inicio = CASE WHEN inicio LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', inicio) ELSE inicio END, fin = CASE WHEN fin LIKE '%-05:00' THEN strftime('%Y-%m-%dT%H:%M:%fZ', fin) ELSE fin END

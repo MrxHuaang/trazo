@@ -4,15 +4,13 @@ import { FullWindowOverlay } from 'react-native-screens';
 
 type CapaSuperiorProps = {
   children: ReactNode;
-  /** VoiceOver no recorre lo que queda debajo (bloqueo). */
+  /** Que VoiceOver no recorra lo que queda debajo. */
   modal?: boolean;
 };
 
 /**
- * Capa opaca por encima de toda la app.
- * En iPhone las hojas (formSheet) se presentan en un controlador nativo por encima de la vista raíz,
- * así que una vista absoluta no las taparía: se usa FullWindowOverlay (react-native-screens, incluido
- * en Expo Go). En Android y web las hojas viven dentro de la vista raíz y basta una vista absoluta.
+ * En iOS las formSheet van en un controlador nativo encima de la raíz y una vista absoluta no las tapa,
+ * por eso FullWindowOverlay (viene en Expo Go). En Android basta una vista absoluta.
  */
 export function CapaSuperior({ children, modal = false }: CapaSuperiorProps) {
   if (Platform.OS === 'ios') {

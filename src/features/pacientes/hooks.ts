@@ -1,7 +1,4 @@
-/**
- * Hooks de datos del módulo pacientes (TanStack Query). Toda llave empieza por una base de `qk`
- * para que las mutaciones de otros módulos las invaliden sin conocerlas.
- */
+// Todas las llaves cuelgan de una base de `qk`: así las mutaciones de otros módulos las invalidan sin conocerlas.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { qk } from '@/data/keys';
@@ -10,13 +7,13 @@ import { pagosPaciente } from '@/data/repos/pagos';
 
 import * as repo from './repo';
 
-/* ---------- Lista ---------- */
+// Lista
 
 /** Próxima y última cita por paciente. Cuelga de `qk.citas` para refrescarse cuando cambia la agenda. */
 export const useResumenCitasPacientes = () =>
   useQuery({ queryKey: [...qk.citas, 'resumen-pacientes'], queryFn: () => repo.resumenCitasPacientes() });
 
-/* ---------- Ficha ---------- */
+// Ficha
 
 export const usePagosPaciente = (pacienteId?: string) =>
   useQuery({
@@ -33,7 +30,7 @@ export function useArchivarPaciente() {
   });
 }
 
-/* ---------- Consentimientos (HU-11) ---------- */
+// Consentimientos (HU-11)
 
 export const useConsentimientos = (pacienteId?: string) =>
   useQuery({
@@ -50,7 +47,7 @@ export function useRegistrarConsentimiento() {
   });
 }
 
-/* ---------- Notas de sesión (HU-12) ---------- */
+// Notas de sesión (HU-12)
 
 /** Notas del paciente sin contenido: la historia solo muestra "Nota privada" y la fecha. */
 export const useNotasPaciente = (pacienteId?: string) =>
@@ -67,10 +64,10 @@ export const useContextoNota = (id?: string, pacienteId?: string) =>
     enabled: !!id,
   });
 
-/** Llave del contenido: se borra de la caché al bloquear la nota. */
+/** Se borra de la caché al bloquear la nota. */
 export const llaveContenidoNota = [...qk.notas, 'contenido'] as const;
 
-/** El contenido solo se consulta con la nota abierta y no se guarda en caché al cerrarla. */
+/** Solo consulta con la nota abierta; gcTime 0 para que el texto no quede en caché al cerrarla. */
 export const useContenidoNota = (notaId: string | null, abierta: boolean) =>
   useQuery({
     queryKey: [...llaveContenidoNota, notaId],

@@ -15,10 +15,10 @@ import { abrirSesion } from './sesion';
 import { useEstadoApp } from './use-estado-app';
 import { verificarIdentidad } from './verificacion';
 
-/** Espera breve antes de pedir la verificación al volver: iOS cancela el diálogo si la app aún no está activa. */
+// iOS cancela el diálogo si se pide antes de que la app esté activa del todo.
 const PAUSA_ANTES_DE_PEDIR = 350;
 
-/** Pantalla completa de bloqueo (HU-01). No muestra ningún dato del consultorio. */
+/** HU-01. A propósito no muestra ningún dato del consultorio. */
 export function PantallaBloqueo() {
   const estadoApp = useEstadoApp();
   const reducir = useReducedMotion();
@@ -49,7 +49,7 @@ export function PantallaBloqueo() {
     }
   }, []);
 
-  // Al aparecer, pide la verificación una sola vez sin esperar el toque (cuando la app ya está activa).
+  // El primer intento es automático; si se cancela, los siguientes van por el botón.
   useEffect(() => {
     if (estadoApp !== 'active') return;
     const t = setTimeout(() => {
@@ -75,7 +75,7 @@ export function PantallaBloqueo() {
           </View>
         </Aparecer>
 
-        {/* Sismógrafo vivo de borde a borde: se agita si mueves el teléfono y se calma al dejarlo quieto. */}
+        {/* Sin sensor si está activo Reducir movimiento. */}
         <Aparecer orden={1} className="w-full">
           {reducir ? (
             <TraceLine height={96} agitation={0.8} calmFrom={0.5} strokeWidth={2} animate={false} />

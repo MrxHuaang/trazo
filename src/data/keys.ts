@@ -1,7 +1,5 @@
-/**
- * Llaves base de TanStack Query por entidad. Toda consulta empieza con una de estas,
- * así una mutación invalida por entidad sin conocer las consultas de otros módulos.
- */
+// Toda query key empieza con una de estas. Así una mutación invalida la entidad completa
+// sin tener que conocer las consultas que arma cada feature.
 export const qk = {
   consultorio: ['consultorio'] as const,
   pacientes: ['pacientes'] as const,

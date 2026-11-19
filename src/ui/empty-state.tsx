@@ -8,7 +8,7 @@ type EmptyStateProps = {
   body: string;
 };
 
-/** Estado vacío: el Trazo casi plano dice "aquí está tranquilo". */
+/** El Trazo va casi plano: vacío también es calma. */
 export function EmptyState({ title, body }: EmptyStateProps) {
   return (
     <View className="gap-2 py-6">

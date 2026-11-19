@@ -4,7 +4,7 @@ import { MIGRACIONES } from './schema';
 
 let instancia: SQLiteDatabase | null = null;
 
-/** Base de datos local única de la app. */
+/** Conexión única y perezosa; WAL y foreign_keys se activan una sola vez al abrir. */
 export function db(): SQLiteDatabase {
   if (!instancia) {
     instancia = openDatabaseSync('trazo.db');
@@ -13,7 +13,7 @@ export function db(): SQLiteDatabase {
   return instancia;
 }
 
-/** Aplica las migraciones pendientes según PRAGMA user_version. */
+/** Corre las migraciones que faltan según PRAGMA user_version, cada una en su transacción. */
 export async function migrar() {
   const base = db();
   const fila = await base.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -28,7 +28,7 @@ export async function migrar() {
   }
 }
 
-/** Borra todos los datos (conserva el esquema). */
+/** Vacía las tablas sin tocar el esquema. Las hijas van primero por las foreign keys. */
 export async function borrarTodo() {
   const base = db();
   await base.withTransactionAsync(async () => {
@@ -47,7 +47,7 @@ export const consultar = <T>(sql: string, params: Params = []) => db().getAllAsy
 export const consultarUno = <T>(sql: string, params: Params = []) => db().getFirstAsync<T>(sql, params);
 export const ejecutar = (sql: string, params: Params = []) => db().runAsync(sql, params);
 
-/** Convierte 0/1 de SQLite a boolean. */
+// SQLite no tiene booleanos: se guardan como 0/1.
 export const bool = (v: unknown) => v === 1 || v === true;
 export const bit = (v: boolean) => (v ? 1 : 0);
 export const ahoraIso = () => new Date().toISOString();

@@ -1,17 +1,15 @@
-/**
- * Reglas de los datos del consultorio (HU-26). Las comparten la bienvenida y los ajustes.
- */
+// Reglas del consultorio (HU-26), compartidas por la bienvenida y los ajustes.
 import { z } from 'zod';
 
 const MAX_TARIFA = 5_000_000;
 
-/** Deja solo dígitos y los muestra con puntos de miles mientras se escribe: "70000" → "70.000". */
+/** Puntos de miles mientras se escribe: 70000 queda como 70.000. */
 export function pesosEnEdicion(texto: string) {
   const digitos = texto.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 7);
   return digitos ? Number(digitos).toLocaleString('es-CO') : '';
 }
 
-/** "70.000" → 70000. Vacío → NaN (lo rechaza la validación). */
+/** Vacío da NaN a propósito, para que lo rechace la validación. */
 export function pesosDesdeTexto(texto: string) {
   const digitos = texto.replace(/\D/g, '');
   return digitos ? Number(digitos) : Number.NaN;
@@ -57,7 +55,7 @@ export type DatosConsultorio = z.infer<typeof esquemaConsultorio>;
 export type CampoConsultorio = keyof typeof campos;
 export type ErroresConsultorio = Partial<Record<CampoConsultorio, string>>;
 
-/** Valida y devuelve los datos limpios o el primer error de cada campo. */
+/** Solo guarda el primer error de cada campo, que es el que muestra el formulario. */
 export function validarConsultorio(entrada: {
   nombre: string;
   profesional: string;
@@ -79,7 +77,7 @@ export function validarConsultorio(entrada: {
   return { ok: false, errores };
 }
 
-/** Valida un solo campo (edición en línea de ajustes). Devuelve el mensaje de error o null. */
+/** Para la edición en línea de ajustes; null si el valor es válido. */
 export function validarCampo<C extends CampoConsultorio>(campo: C, valor: unknown): string | null {
   const r = campos[campo].safeParse(valor);
   return r.success ? null : (r.error.issues[0]?.message ?? 'Revisa este dato.');

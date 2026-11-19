@@ -1,6 +1,6 @@
 /**
- * Resumen del paciente en PDF (HU-24, HU-25): datos básicos, autorizaciones, citas y pagos.
- * Nunca incluye notas de sesión ni notas generales (pueden tener información clínica).
+ * Resumen del paciente en PDF (HU-24, HU-25).
+ * No lleva notas de sesión ni notas generales porque pueden tener información clínica.
  */
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -41,7 +41,7 @@ const esc = (v: string | number | null | undefined) =>
 /** Fecha corta con año: "lun 9 nov 2026". */
 const fechaConAnio = (iso: string) => `${fechaCorta(iso)} ${fechaClave(iso).slice(0, 4)}`;
 
-/** El Trazo de la marca en SVG: agitado al inicio, en calma al final. */
+/** El Trazo de la marca como SVG en texto, para meterlo en el HTML que imprime expo-print. */
 function trazoSvg(ancho = 160, alto = 18) {
   const mid = alto / 2;
   let puntos = '';

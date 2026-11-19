@@ -11,7 +11,6 @@ import { compartirTexto, llamarA } from '../dispositivo';
 import { textoRecurso } from '../rules';
 import { Accion, BotonIcono } from './accion';
 
-/** Línea de ayuda: nombre, para qué sirve, Llamar (con el número) y Compartir. */
 export function RecursoItem({ recurso: r }: { recurso: Recurso }) {
   return (
     <Tile tone="neutral" contentClassName="gap-3">

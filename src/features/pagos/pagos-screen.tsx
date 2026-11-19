@@ -24,11 +24,7 @@ import { usePagosStore } from './store';
 
 const sesiones = (n: number) => `${n} ${n === 1 ? 'sesión' : 'sesiones'}`;
 
-/**
- * Pagos: arriba lo que falta cobrar (todas las sesiones pendientes, HU-10);
- * debajo el resumen de un mes con selector (HU-16), su exportación en PDF (HU-24) y las sesiones del mes por día.
- * Al registrar un pago, la fila sale de "Por cobrar", aparece como pagada en el mes y los totales cuentan.
- */
+/** Pendientes por cobrar arriba (HU-10); debajo, el resumen del mes (HU-16) y su PDF (HU-24). */
 export function PagosScreen() {
   const insets = useSafeAreaInsets();
   const [mesActual] = useState(() => mesClave());
@@ -214,7 +210,7 @@ function SelectorMes({ mes, puedeAvanzar, onCambiar }: { mes: string; puedeAvanz
   );
 }
 
-/** Sesión del mes. Cuando cambia de estado (p. ej. se paga) vuelve a entrar para que el cambio se note. */
+// La key por estado hace que la fila vuelva a entrar al pagarse, así el cambio se nota.
 function FilaMovimiento({ pago: p, last }: { pago: PagoConCita; last: boolean }) {
   const subtitulo =
     p.estado === 'pagado' ? `Pagado · ${etiquetaMetodo(p.metodo)}` : p.estado === 'pendiente' ? 'Pendiente' : 'Sesión donada';

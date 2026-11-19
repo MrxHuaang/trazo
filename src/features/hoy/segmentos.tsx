@@ -8,10 +8,7 @@ type SegmentosProps = {
   className?: string;
 };
 
-/**
- * Contador por segmentos (sin barra de progreso): un segmento por cupo solidario, relleno si está usado.
- * Es decorativo: el número del bloque ya lo anuncia el lector de pantalla.
- */
+/** Un segmento por cupo. Decorativo: el lector ya anuncia el número del bloque. */
 export function Segmentos({ usados, total, className }: SegmentosProps) {
   if (total <= 0) return null;
   return (

@@ -6,7 +6,7 @@ import { HatchOverlay, NumeroAnimado, Text } from '@/ui';
 
 type Props = { usados: number; total: number };
 
-/** Contador por segmentos (sin barra de progreso): cada cupo usado lleva el durazno con textura. */
+/** Un segmento por cupo. Los usados llevan textura además del durazno, para no depender solo del color. */
 export function CuposSemana({ usados, total }: Props) {
   const segmentos = Math.min(Math.max(total, usados), 10);
   const excedido = usados > total;

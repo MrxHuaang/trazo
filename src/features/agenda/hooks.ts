@@ -1,7 +1,6 @@
 /**
- * Hooks de datos del módulo agenda (disponibilidad y bloqueos).
- * Las llaves empiezan con `qk.disponibilidad` y `qk.bloqueos` para que otros módulos
- * (p. ej. la página de reservas) puedan invalidarlas por entidad.
+ * Hooks de disponibilidad y bloqueos. Las llaves cuelgan de `qk.disponibilidad` y `qk.bloqueos`
+ * para que cualquier mutación pueda invalidarlas por entidad.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -10,23 +9,20 @@ import { listarCitasEntre } from '@/data/repos/citas';
 
 import * as repo from './repo';
 
-/* ---------- Citas (consulta propia para avisos) ---------- */
+// Citas
 
-/** Citas del rango, incluidas las canceladas, para alinear los avisos locales. */
+/** Incluye canceladas porque hacen falta para quitar sus avisos locales. */
 export const useCitasParaAvisos = (desde: string, hasta: string) =>
   useQuery({ queryKey: [...qk.citas, 'avisos', desde, hasta], queryFn: () => listarCitasEntre(desde, hasta, true) });
 
-/**
- * Lo necesario para buscar el próximo hueco libre en un rango largo, pasando por la caché
- * de TanStack Query (mismas llaves que los hooks, así no se consulta dos veces).
- */
+/** Mismas llaves que los hooks, así la búsqueda del próximo hueco reutiliza la caché. */
 export const consultasDeHuecos = (desde: string, hasta: string) => ({
   disponibilidad: { queryKey: [...qk.disponibilidad, 'lista'], queryFn: repo.listarDisponibilidad },
   bloqueos: { queryKey: [...qk.bloqueos, 'rango', desde, hasta], queryFn: () => repo.listarBloqueosEntre(desde, hasta) },
   citas: { queryKey: [...qk.citas, 'rango', desde, hasta], queryFn: () => listarCitasEntre(desde, hasta) },
 });
 
-/* ---------- Disponibilidad ---------- */
+// Disponibilidad
 
 export const useDisponibilidad = () =>
   useQuery({ queryKey: [...qk.disponibilidad, 'lista'], queryFn: repo.listarDisponibilidad });
@@ -48,7 +44,7 @@ export function useBorrarFranja() {
   });
 }
 
-/* ---------- Bloqueos ---------- */
+// Bloqueos
 
 /** Bloqueos que terminan después de `desde` (ISO). */
 export const useBloqueosVigentes = (desde: string) =>

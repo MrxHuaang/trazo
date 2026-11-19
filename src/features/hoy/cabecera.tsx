@@ -7,16 +7,13 @@ import { color } from '@/theme';
 
 import { BotonIcono } from './boton-icono';
 
-/** Vuelve a la pantalla anterior; si se abrió directo (enlace), va a "Hoy". */
+/** Si la pantalla se abrió por enlace no hay historial, así que cae en Hoy. */
 export function volver() {
   if (router.canGoBack()) router.back();
   else router.replace('/');
 }
 
-/**
- * Barra superior de las pantallas apiladas del módulo (Pagos, Plantillas): botón Volver y una acción.
- * El título grande va en el contenido, como en "Hoy".
- */
+// Sin título a propósito: el título grande va en el contenido, igual que en Hoy.
 export function Cabecera({ accion }: { accion?: ReactNode }) {
   return (
     <View className="flex-row items-center justify-between px-3 py-1">

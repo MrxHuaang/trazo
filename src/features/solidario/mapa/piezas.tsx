@@ -16,11 +16,11 @@ type ControlesProps = {
   top: number;
   buscando: boolean;
   onMiUbicacion: () => void;
-  /** Controles propios de la pantalla (encuadrar, capas…). */
+  /** Controles extra de cada pantalla, como encuadrar. */
   children?: ReactNode;
 };
 
-/** Controles del mapa: reemplazan los de Leaflet para verse y sentirse como el resto de la app. */
+/** Reemplazan los controles de Leaflet para que se vean como el resto de la app. */
 export function ControlesMapa({ mapa, top, buscando, onMiUbicacion, children }: ControlesProps) {
   return (
     <View className="absolute right-4 gap-2" style={{ top }}>
@@ -38,7 +38,6 @@ export function ControlesMapa({ mapa, top, buscando, onMiUbicacion, children }: 
   );
 }
 
-/** Título flotante del mapa. */
 export function TituloMapa({ titulo, detalle }: { titulo: string; detalle?: string }) {
   return (
     <View className="mx-3 flex-1 items-center rounded-tile border border-line bg-surface px-4 py-2">
@@ -108,7 +107,7 @@ type SinMapaProps = {
   onReintentar: () => void;
 };
 
-/** El mapa no cargó (sin internet): el Trazo en calma, qué pasa y cómo seguir. */
+/** Estado sin mapa, casi siempre por falta de internet. */
 export function SinMapa({ top, onReintentar }: SinMapaProps) {
   return (
     <View className="absolute inset-0 justify-center gap-3 bg-canvas px-6" style={{ paddingTop: top }}>
@@ -122,7 +121,7 @@ export function SinMapa({ top, onReintentar }: SinMapaProps) {
   );
 }
 
-/** Marca de leyenda: el mismo dibujo que el punto del mapa. */
+/** Mismo dibujo que el punto del mapa, para que la leyenda se reconozca. */
 export function Leyenda({ tipo, texto }: { tipo: 'proxima' | 'pasada' | 'sismo'; texto: string }) {
   return (
     <View className="flex-row items-center gap-1.5">

@@ -7,17 +7,14 @@ import { Presionable, Text } from '@/ui';
 type AccionProps = {
   label: string;
   onPress: () => void;
-  /** Texto que lee el lector de pantalla cuando la etiqueta sola no basta (p. ej. "Recordar a Laura"). */
+  /** Para el lector de pantalla cuando la etiqueta sola no dice a quién afecta. */
   accessibilityLabel?: string;
   accessibilityHint?: string;
   disabled?: boolean;
   loading?: boolean;
 };
 
-/**
- * Botón en píldora cobalto suave para el final de una fila, con área táctil de 44 pt
- * y estado desactivado/ocupado. Es la alternativa visible a los gestos de deslizar.
- */
+/** Píldora al final de la fila; es la alternativa visible a deslizar. */
 export function Accion({ label, onPress, accessibilityLabel, accessibilityHint, disabled, loading }: AccionProps) {
   const inactiva = disabled || loading;
   return (

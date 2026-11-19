@@ -1,7 +1,4 @@
-/**
- * Reglas puras del programa solidario (sin React ni base de datos): cupos (RN-03),
- * seguimientos (RN-08), fechas y horas de jornadas, textos para compartir.
- */
+// Reglas puras del programa solidario: nada de React ni de base de datos aquí.
 import type { Jornada, Recurso, Seguimiento } from '@/domain/types';
 import { diasEntre, fechaClave, fechaCorta, isoDesde, sumarDias } from '@/lib/dates';
 import { formatoTelefono } from '@/lib/format';
@@ -10,18 +7,13 @@ export const plural = (n: number, uno: string, varios: string) => (n === 1 ? uno
 
 export const primerNombre = (nombre?: string | null) => (nombre ?? '').trim().split(/\s+/)[0] ?? '';
 
-/* ---------- Meses ---------- */
-
-/** 'yyyy-MM' del mes siguiente. */
+// Desde el día 1, sumar 32 días siempre cae en el mes siguiente.
 export const mesSiguiente = (mes: string) => sumarDias(`${mes}-01`, 32).slice(0, 7);
-/** 'yyyy-MM' del mes anterior. */
 export const mesAnterior = (mes: string) => sumarDias(`${mes}-01`, -1).slice(0, 7);
-
-/* ---------- Cupos solidarios (RN-03) ---------- */
 
 export type EstadoCupos = { usados: number; total: number; restantes: number; excedidos: number; detalle: string };
 
-/** Cupos de la semana (lunes a domingo): cuántos quedan o cuántos se pasaron. */
+/** RN-03: semana de lunes a domingo; si se pasan, `excedidos` dice por cuántos. */
 export function estadoCupos(usados: number, total: number): EstadoCupos {
   const restantes = Math.max(total - usados, 0);
   const excedidos = Math.max(usados - total, 0);
@@ -33,18 +25,16 @@ export function estadoCupos(usados: number, total: number): EstadoCupos {
   return { usados, total, restantes, excedidos, detalle };
 }
 
-/* ---------- Seguimientos (RN-08) ---------- */
-
-/** Días hasta el seguimiento de un asistente o hasta el siguiente al posponer. */
+/** RN-08: días hasta el seguimiento de un asistente y lo que se corre al posponer. */
 export const DIAS_SEGUIMIENTO = 7;
 
-/** RN-08: 7 días después de hoy, o de la jornada si todavía no ocurre. */
+/** 7 días desde hoy, o desde la jornada si todavía no ocurre. */
 export function fechaSeguimientoAsistente(jornadaInicio: string, hoy: string) {
   const dia = fechaClave(jornadaInicio);
   return sumarDias(dia > hoy ? dia : hoy, DIAS_SEGUIMIENTO);
 }
 
-/** Posponer 7 días desde la fecha objetivo, o desde hoy si ya pasó. */
+/** Desde la fecha objetivo, o desde hoy si ya pasó. */
 export function fechaPospuesta(fechaObjetivo: string, hoy: string) {
   return sumarDias(fechaObjetivo > hoy ? fechaObjetivo : hoy, DIAS_SEGUIMIENTO);
 }
@@ -62,7 +52,7 @@ export const GRUPOS: { clave: ClaveGrupo; titulo: string }[] = [
 
 const porFecha = (a: Seguimiento, b: Seguimiento) => a.fechaObjetivo.localeCompare(b.fechaObjetivo);
 
-/** Agrupa en Vencidos · Hoy · Próximos (de lo más urgente a lo más lejano) y Hechos (lo más reciente primero). */
+/** Pendientes del más urgente al más lejano; hechos, el más reciente primero. */
 export function agruparSeguimientos(lista: Seguimiento[], hoy: string): Record<ClaveGrupo, Seguimiento[]> {
   const grupos: Record<ClaveGrupo, Seguimiento[]> = { vencidos: [], hoy: [], proximos: [], hechos: [] };
   for (const s of lista) {
@@ -78,16 +68,16 @@ export function agruparSeguimientos(lista: Seguimiento[], hoy: string): Record<C
   return grupos;
 }
 
-/** Los pendientes más urgentes (los vencidos más antiguos primero). */
+/** Por fecha, así los vencidos más viejos quedan arriba. */
 export const masUrgentes = (lista: Seguimiento[], n = 3) =>
   lista.filter((s) => s.estado === 'pendiente').sort(porFecha).slice(0, n);
 
-/** 'jue' a partir de 'yyyy-MM-dd'. */
+/** 'jue' */
 export const diaCorto = (clave: string) => fechaCorta(isoDesde(clave)).split(' ')[0] ?? '';
-/** '12 nov' a partir de 'yyyy-MM-dd'. */
+/** '12 nov' */
 export const diaMes = (clave: string) => fechaCorta(isoDesde(clave)).split(' ').slice(1).join(' ');
 
-/** 'hoy', 'mañana', 'ayer', 'jue' (en los próximos días) o '12 nov'. */
+/** 'hoy', 'mañana', 'ayer', el día de la semana si está cerca, o '12 nov'. */
 export function etiquetaDia(clave: string, hoy: string) {
   const d = diasEntre(hoy, clave);
   if (d === 0) return 'hoy';
@@ -97,20 +87,17 @@ export function etiquetaDia(clave: string, hoy: string) {
   return diaMes(clave);
 }
 
-/** Línea secundaria de un seguimiento. */
 export function detalleSeguimiento(s: Seguimiento, hoy: string) {
   if (s.estado === 'hecho') return s.nota ? `Hecho · ${s.nota}` : 'Hecho';
   if (s.fechaObjetivo < hoy) return `Pendiente desde el ${diaMes(s.fechaObjetivo)} · ${s.motivo}`;
   return s.motivo;
 }
 
-/** Mensaje de WhatsApp para retomar contacto, sin motivos ni datos sensibles. */
+/** Sin motivo de consulta ni datos sensibles. */
 export function mensajeSeguimiento(nombre: string, profesional?: string | null) {
   const quien = primerNombre(profesional);
   return `Hola ${primerNombre(nombre)}, ${quien ? `soy ${quien}. ` : ''}Te escribo para saber cómo sigues. Si quieres, podemos hablar esta semana.`;
 }
-
-/* ---------- Jornadas: tipos, fechas y horas ---------- */
 
 export const TIPOS_JORNADA: { valor: Jornada['tipo']; etiqueta: string }[] = [
   { valor: 'taller', etiqueta: 'Taller' },
@@ -122,7 +109,7 @@ export const etiquetaTipo = (tipo: Jornada['tipo']) => TIPOS_JORNADA.find((t) =>
 
 export const capitalizar = (texto: string) => (texto ? texto[0]!.toUpperCase() + texto.slice(1) : texto);
 
-/** Próximos `n` días como 'yyyy-MM-dd', empezando hoy. Incluye `extra` (p. ej. la fecha de una jornada que se edita). */
+/** `extra` mete la fecha de una jornada que se edita aunque ya haya quedado atrás. */
 export function diasParaElegir(hoy: string, n = 30, extra?: string) {
   const dias = Array.from({ length: n }, (_, i) => sumarDias(hoy, i));
   if (extra && !dias.includes(extra)) return [extra, ...dias].sort();
@@ -136,7 +123,7 @@ export const aMinutos = (hora: string) => {
 
 export const aHora = (min: number) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
 
-/** Franjas 'HH:mm' cada `paso` minutos, ambos extremos incluidos. */
+/** 'HH:mm' cada `paso` minutos, con ambos extremos incluidos. */
 export function franjas(desde: string, hasta: string, paso = 30) {
   const lista: string[] = [];
   for (let m = aMinutos(desde); m <= aMinutos(hasta); m += paso) lista.push(aHora(m));
@@ -153,8 +140,6 @@ export function finConservandoDuracion(inicioNuevo: string, inicioPrevio: string
   const duracion = Math.max(aMinutos(finPrevio) - aMinutos(inicioPrevio), 30);
   return aHora(Math.min(aMinutos(inicioNuevo) + duracion, aMinutos(HORA_ULTIMA)));
 }
-
-/* ---------- Líneas de ayuda ---------- */
 
 export function textoRecurso(r: Recurso) {
   const lineas = [r.titulo];

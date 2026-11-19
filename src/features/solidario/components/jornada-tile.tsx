@@ -15,7 +15,6 @@ type JornadaTileProps = {
   className?: string;
 };
 
-/** Bloque menta de una jornada: fecha, título, lugar e inscritos de cupos. Abre la jornada. */
 export function JornadaTile({ jornada: j, className }: JornadaTileProps) {
   return (
     <Tile
@@ -48,11 +47,11 @@ type TarjetaFantasmaProps = {
   detalle?: string;
   onPress: () => void;
   className?: string;
-  /** Alto mínimo menor para usarla dentro de formularios. */
+  /** Menos alta, para usarla dentro de formularios. */
   compacta?: boolean;
 };
 
-/** Tarjeta punteada para crear en contexto, en el lugar donde aparecerá lo creado. */
+/** Crear en contexto: ocupa el lugar donde va a aparecer lo creado. */
 export function TarjetaFantasma({ label, detalle, onPress, className, compacta }: TarjetaFantasmaProps) {
   return (
     <Presionable

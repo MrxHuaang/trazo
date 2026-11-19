@@ -16,10 +16,7 @@ type BloqueProximaProps = {
   onAbrir: (citaId: string) => void;
 };
 
-/**
- * Bloque de la próxima cita: hora grande y un anillo que se vacía según falta.
- * Cuando faltan 10 minutos o menos pasa de lavanda a cobalto con texto blanco: es hora de prepararse.
- */
+/** A 10 minutos o menos de la cita el bloque pasa a cobalto para avisar que toca prepararse. */
 export function BloqueProxima({ cita, ahoraMs, cargando, onAbrir }: BloqueProximaProps) {
   if (!cita) {
     return (

@@ -13,15 +13,15 @@ type StepperProps = {
   onChange: (valor: number) => void;
   min?: number;
   max?: number;
-  /** Paso al mantener presionado (p. ej. 5 para cupos de una jornada). */
+  /** Paso al mantener presionado, p. ej. 5. */
   pasoLargo?: number;
-  /** Texto bajo el número (p. ej. "por semana"). */
+  /** Texto bajo el número, p. ej. "por semana". */
   unidad?: string;
-  /** ink: sobre el lienzo · durazno: dentro del bloque solidario. */
+  /** `durazno` cuando va dentro del bloque solidario. */
   tono?: 'ink' | 'durazno';
 };
 
-/** Contador − / + con el número grande en el centro. Ajustable con lectores de pantalla. */
+/** Es `adjustable`: el lector de pantalla sube y baja el valor sin tocar los botones. */
 export function Stepper({ label, value, onChange, min = 0, max = 99, pasoLargo, unidad, tono = 'ink' }: StepperProps) {
   const texto = tono === 'durazno' ? 'text-durazno-ink' : 'text-ink';
   const borde = tono === 'durazno' ? 'border-durazno-ink' : 'border-ink';

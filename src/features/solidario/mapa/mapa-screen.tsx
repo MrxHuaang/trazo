@@ -31,16 +31,12 @@ type Seleccion = { tipo: 'jornada'; id: string } | { tipo: 'sismo'; id: string }
 const tienePunto = (j: JornadaConInscritos): j is JornadaConInscritos & { latitud: number; longitud: number } =>
   typeof j.latitud === 'number' && typeof j.longitud === 'number';
 
-/** Tiempo máximo de espera a que Leaflet cargue antes de avisar que no hay mapa. */
 const ESPERA_MAPA_MS = 15_000;
 
 const entrada = FadeInDown.springify().damping(18).stiffness(190).reduceMotion(ReduceMotion.System);
 const salida = FadeOutDown.duration(160).reduceMotion(ReduceMotion.System);
 
-/**
- * Mapa solidario: jornadas próximas y pasadas, sismos recientes y la ubicación propia sobre
- * OpenStreetMap. Tocar un punto abre su tarjeta con "Ver jornada" y "Cómo llegar".
- */
+/** Tocar un punto abre su tarjeta con "Ver jornada" y "Cómo llegar". */
 export function MapaScreen({ jornadaId }: { jornadaId?: string }) {
   const insets = useSafeAreaInsets();
   const mapa = useRef<MapaLeafletHandle>(null);
@@ -66,14 +62,14 @@ export function MapaScreen({ jornadaId }: { jornadaId?: string }) {
   const jornadaActiva = seleccion?.tipo === 'jornada' ? conPunto.find((j) => j.id === seleccion.id) : undefined;
   const sismoActivo = seleccion?.tipo === 'sismo' ? sismos.find((s) => s.id === seleccion.id) : undefined;
 
-  // Si Leaflet no responde a tiempo (sin internet), se muestra el estado sin mapa.
+  // Si Leaflet no responde a tiempo se asume que no hay internet.
   useEffect(() => {
     if (listo || sinMapa) return;
     const espera = setTimeout(() => setSinMapa(true), ESPERA_MAPA_MS);
     return () => clearTimeout(espera);
   }, [listo, sinMapa, intento]);
 
-  // Jornadas en el mapa. La primera vez se encuadran (o se centra la que llegó por parámetro).
+  // Solo la primera vez se encuadran todas, o se centra la que llegó por parámetro.
   useEffect(() => {
     if (!listo || !jornadasQ.data) return;
     const puntos = jornadasQ.data.filter(tienePunto);
@@ -89,7 +85,6 @@ export function MapaScreen({ jornadaId }: { jornadaId?: string }) {
     }
   }, [listo, jornadasQ.data, jornadaId, ahoraIso]);
 
-  // Sismos como círculos según magnitud.
   useEffect(() => {
     if (!listo || !sismosQ.data) return;
     mapa.current?.setSismos(sismosQ.data.map((s) => ({ id: s.id, lat: s.latitud, lng: s.longitud, mag: s.magnitud })));
@@ -242,8 +237,6 @@ export function MapaScreen({ jornadaId }: { jornadaId?: string }) {
     </View>
   );
 }
-
-/* ---------- Tarjetas inferiores ---------- */
 
 type TarjetaJornadaProps = {
   jornada: JornadaConInscritos & { latitud: number; longitud: number };

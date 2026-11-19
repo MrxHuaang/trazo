@@ -29,7 +29,7 @@ const REACOMODO = LinearTransition.springify().damping(20).reduceMotion(ReduceMo
 const CAMBIO = FadeIn.duration(220).reduceMotion(ReduceMotion.System);
 const LLEGA = FadeInDown.springify().damping(18).reduceMotion(ReduceMotion.System);
 
-/** Detalle de una cita (HU-05): estado, recordatorio por WhatsApp, reprogramar, pago y nota. */
+/** Detalle de una cita (HU-05). */
 export function CitaDetalleSheet() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const citaQ = useCita(id);
@@ -124,7 +124,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
     }
   };
 
-  // Las hojas son modales: para ir a otra pantalla se reemplaza la hoja en vez de apilar encima.
+  // Desde una hoja modal se reemplaza la ruta en vez de apilar otra pantalla encima.
   const abrirFicha = () => router.replace({ pathname: '/paciente/[id]', params: { id: cita.pacienteId } });
   const abrirNota = () => router.replace({ pathname: '/nota/[id]', params: { id: cita.id } });
   const agendarDeNuevo = () => router.replace({ pathname: '/cita/nueva', params: { pacienteId: cita.pacienteId } });
@@ -361,7 +361,7 @@ function Detalle({ cita }: { cita: CitaConPaciente }) {
           />
         </Animated.View>
       ) : null}
-      {/* La hoja no tiene pie fijo: deja libre el indicador de inicio del iPhone. */}
+      {/* Sin pie fijo para no pisar el home indicator del iPhone. */}
       <View style={{ height: insets.bottom }} />
     </Sheet>
   );

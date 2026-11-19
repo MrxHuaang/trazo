@@ -16,7 +16,7 @@ import { formatoHoras, fraseHoras, frasesInforme, informeVacio } from './informe
 import { exportarInformePdf } from './informe-pdf';
 import { capitalizar, mesAnterior, mesSiguiente } from './rules';
 
-/** Informe de impacto (HU-23): cifras del mes que cuentan al cambiar de mes y exportación a PDF sin nombres. */
+/** Informe de impacto (HU-23). El PDF lleva solo cifras, nunca nombres. */
 export function InformeScreen() {
   const mesActual = mesClave();
   const [mes, setMes] = useState(mesActual);

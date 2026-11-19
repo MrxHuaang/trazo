@@ -1,7 +1,5 @@
-/**
- * Mensajes de WhatsApp a partir de las plantillas del consultorio (HU-06).
- * RN-10: los mensajes nunca incluyen motivos de consulta ni notas.
- */
+// Mensajes de WhatsApp a partir de las plantillas (HU-06).
+// RN-10: nunca llevan motivos de consulta ni notas.
 import type { CitaConPaciente } from '@/domain/types';
 import { fechaCorta, horaTexto, isoDesde, sumarDias } from '@/lib/dates';
 import { rellenarPlantilla } from '@/lib/whatsapp';
@@ -18,7 +16,7 @@ const CLAVES: readonly string[] = VARIABLES.map((v) => v.clave);
 
 export const primerNombre = (nombre: string) => nombre.trim().split(/\s+/)[0] ?? nombre;
 
-/** Quita espacios dobles y espacios sobrantes que dejan las variables vacías (p. ej. {enlace} en presencial). */
+/** Una variable vacía, como {enlace} en presencial, deja espacios dobles sueltos. */
 export const limpiarMensaje = (texto: string) =>
   texto
     .split('\n')
@@ -43,17 +41,17 @@ export const mensajeDesdePlantilla = (plantilla: string, valores: Record<string,
 
 export const mensajeRecordatorio = (plantilla: string, cita: DatosCita) => mensajeDesdePlantilla(plantilla, valoresCita(cita));
 
-/** RN-06: mensaje para retomar el contacto tras dos inasistencias (sin mencionar las inasistencias). */
+/** RN-06. A propósito no menciona las inasistencias. */
 export const mensajeContacto = (nombre: string) =>
   `Hola ${primerNombre(nombre)}, ¿cómo vas? Quería saber cómo estás y si quieres que agendemos una nueva cita.`;
 
-/** Variables escritas en la plantilla que no existen (p. ej. {nombres}). */
+/** Para avisar de errores de dedo como {nombres}. */
 export function variablesDesconocidas(plantilla: string) {
   const encontradas = [...plantilla.matchAll(/\{([^{}\s]*)\}/g)].map((m) => m[1] ?? '');
   return [...new Set(encontradas.filter((clave) => !CLAVES.includes(clave)))];
 }
 
-/** Datos ficticios para la vista previa: una cita virtual mañana a las 10:00. */
+/** Cita ficticia y virtual para que la vista previa también muestre el enlace. */
 export function valoresEjemplo(hoy: string) {
   const inicio = isoDesde(sumarDias(hoy, 1), '10:00');
   return valoresCita({

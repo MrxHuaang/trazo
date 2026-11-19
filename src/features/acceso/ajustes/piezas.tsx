@@ -1,8 +1,4 @@
-/**
- * Piezas de la pantalla de ajustes. Solo las usa este módulo, por eso no viven en src/ui.
- * Movimiento: las filas que crecen (edición en línea, confirmaciones) cambian de tamaño con una
- * transición de layout y lo que sigue se reacomoda con el mismo resorte.
- */
+// Piezas que solo usa ajustes, por eso no viven en src/ui.
 import * as Haptics from 'expo-haptics';
 import { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
 import { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
@@ -21,15 +17,13 @@ import { cn } from '@/lib/cn';
 import { color, type TextVariant } from '@/theme';
 import { Aparecer, Button, Field, Presionable, Text } from '@/ui';
 
-/** Mismo resorte que `Aparecer reacomodar`, para que filas y secciones se muevan juntas. */
+/** Mismo resorte que `Aparecer reacomodar` para que filas y secciones se muevan juntas. */
 export const ACOMODO = LinearTransition.springify().damping(20).reduceMotion(ReduceMotion.System);
 const ENTRA = FadeIn.duration(200).reduceMotion(ReduceMotion.System);
 const SALE = FadeOut.duration(120).reduceMotion(ReduceMotion.System);
 const DESPLIEGA = FadeInDown.duration(220).reduceMotion(ReduceMotion.System);
 
 const DIVISOR = 'border-b border-line';
-
-/* ---------- Sección ---------- */
 
 type SeccionProps = { titulo: string; nota?: string; orden: number; children: ReactNode };
 
@@ -46,13 +40,13 @@ export function Seccion({ titulo, nota, orden, children }: SeccionProps) {
           </Text>
         ) : null}
       </View>
-      {/* La sección ya entra en cascada: sus filas solo se animan cuando cambian después. */}
+      {/* La sección ya entra en cascada; sin skipEntering las filas animarían su entrada otra vez. */}
       <LayoutAnimationConfig skipEntering>{children}</LayoutAnimationConfig>
     </Aparecer>
   );
 }
 
-/** Bloque dentro de una sección que debe correrse cuando una fila vecina crece. */
+/** Para lo que tiene que correrse cuando una fila vecina crece. */
 export function Acomodable({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <Animated.View layout={ACOMODO} className={className}>
@@ -61,13 +55,11 @@ export function Acomodable({ children, className }: { children: ReactNode; class
   );
 }
 
-/* ---------- Valor editable en línea ---------- */
-
 type ValorEditableProps = {
   etiqueta: string;
-  /** Texto que se muestra (ya formateado). */
+  /** Ya formateado. */
   valor: string;
-  /** Texto cuando el valor está vacío. */
+  /** Lo que se muestra si no hay valor. */
   vacio?: string;
   variante?: TextVariant;
   abierto: boolean;
@@ -76,7 +68,7 @@ type ValorEditableProps = {
   editor: Omit<EditorEnLineaProps, 'etiqueta'>;
 };
 
-/** Fila que muestra un dato y, al tocarla, se expande en un campo con Guardar y Cancelar. */
+/** Al tocarla se convierte en un campo con Guardar y Cancelar, sin salir de la pantalla. */
 export function ValorEditable({ etiqueta, valor, vacio, variante = 'bodyMedium', abierto, onAbrir, ultimo, editor }: ValorEditableProps) {
   const texto = valor || vacio || '';
   return (
@@ -110,14 +102,12 @@ export function ValorEditable({ etiqueta, valor, vacio, variante = 'bodyMedium',
   );
 }
 
-/* ---------- Editor en línea ---------- */
-
 type EditorEnLineaProps = {
   etiqueta: string;
   inicial: string;
-  /** Da formato mientras se escribe (p. ej. pesos con puntos de miles). */
+  /** Se aplica mientras se escribe, p. ej. puntos de miles. */
   formatear?: (texto: string) => string;
-  /** Devuelve el mensaje de error o null. */
+  /** Mensaje de error o null. */
   validar: (texto: string) => string | null;
   guardar: (texto: string) => Promise<unknown>;
   onCerrar: () => void;
@@ -171,8 +161,6 @@ export function EditorEnLinea({ etiqueta, inicial, formatear, validar, guardar, 
   );
 }
 
-/* ---------- Acceso a otra pantalla ---------- */
-
 type FilaEnlaceProps = {
   icono: ReactNode;
   titulo: string;
@@ -209,13 +197,11 @@ export function FilaEnlace({ icono, titulo, detalle, marca, onPress, ultimo }: F
   );
 }
 
-/* ---------- Acción con confirmación en el mismo lugar ---------- */
-
 type AccionConfirmadaProps = {
   icono: ReactNode;
   titulo: string;
   detalle: string;
-  /** Explica qué pasa al confirmar. */
+  /** Qué pasa al confirmar. */
   aviso: string;
   confirmar: string;
   destructiva?: boolean;
@@ -228,10 +214,7 @@ type AccionConfirmadaProps = {
   ultimo?: boolean;
 };
 
-/**
- * Fila de acción que, al tocarla, despliega la confirmación justo debajo (sin diálogos del sistema,
- * que en web no existen). Las acciones destructivas usan el tono de error.
- */
+/** La confirmación se despliega bajo la fila y no en un Alert, que en web no existe. */
 export function AccionConfirmada({
   icono, titulo, detalle, aviso, confirmar, destructiva, abierta, onAbrir, onCerrar, onConfirmar, cargando, error, ultimo,
 }: AccionConfirmadaProps) {

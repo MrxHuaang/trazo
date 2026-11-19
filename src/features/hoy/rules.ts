@@ -1,32 +1,29 @@
-/**
- * Reglas puras de la bandeja "Hoy" (HU-02). Reciben la hora de referencia en milisegundos
- * para que sean fáciles de probar y no dependan del reloj.
- */
+// Reglas puras de Hoy (HU-02). Reciben la hora en ms en vez de leer el reloj, para poder probarlas.
 import type { CitaConPaciente, EstadoCita } from '@/domain/types';
 import { fechaClave, fechaCorta, horaTexto, isoDesde, minutosDelDia, sumarDias, tiempoRelativo } from '@/lib/dates';
 import { formatoCOP, nombreCorto } from '@/lib/format';
 import type { TraceNode } from '@/ui';
 
-/** Ventana mínima del día que representa el Trazo (se amplía si hay citas por fuera). */
+// Ventana mínima del Trazo en minutos; se amplía si hay citas por fuera.
 const DIA_INICIO = 7 * 60;
 const DIA_FIN = 19 * 60;
-/** El Trazo está agitado hasta este punto; las citas se dibujan en la parte en calma. */
+// Hasta aquí el Trazo va agitado; las citas se dibujan en la parte en calma.
 const CALMA_DESDE = 0.3;
 
 const ms = (iso: string) => new Date(iso).getTime();
 
-/** Una cita ya terminó si pasó su hora de fin o si ya se registró la asistencia. */
+/** Si ya se registró la asistencia cuenta como terminada aunque no haya llegado la hora de fin. */
 export const citaTerminada = (c: CitaConPaciente, ahoraMs: number) =>
   ms(c.fin) <= ahoraMs || c.estado === 'asistio' || c.estado === 'no_asistio';
 
-/** Primera cita confirmada que aún no termina (puede estar en curso). */
+/** Puede devolver una cita que ya está en curso. */
 export function proximaCita(citas: CitaConPaciente[], ahoraMs: number) {
   return citas
     .filter((c) => c.estado === 'confirmada' && !citaTerminada(c, ahoraMs))
     .sort((a, b) => ms(a.inicio) - ms(b.inicio))[0];
 }
 
-/** Citas confirmadas posteriores a la próxima, en orden (las solicitadas van en "Solicitudes"). */
+/** Solo confirmadas: las solicitadas tienen su propia sección. */
 export function siguientesCitas(citas: CitaConPaciente[], ahoraMs: number) {
   const proxima = proximaCita(citas, ahoraMs);
   return citas
@@ -42,15 +39,15 @@ export function etiquetaProxima(cita: CitaConPaciente, ahoraMs: number) {
 
 const ACTIVAS: EstadoCita[] = ['solicitada', 'confirmada', 'asistio', 'no_asistio'];
 
-/** Nodo del Trazo con los datos que muestra la etiqueta al arrastrar el dedo. */
+/** hora y nombre son lo que muestra la etiqueta al arrastrar el dedo. */
 export type PuntoDia = TraceNode & { id: string; hora: string; nombre: string };
 
-/** Nodos del Trazo: cobalto la próxima, tinta lo agendado, vacío lo solicitado, gris lo pasado. */
 export function nodosDelDia(citas: CitaConPaciente[], ahoraMs: number): PuntoDia[] {
   const visibles = citas.filter((c) => ACTIVAS.includes(c.estado));
   if (visibles.length === 0) return [];
   const proxima = proximaCita(visibles, ahoraMs);
   const inicio = Math.min(DIA_INICIO, ...visibles.map((c) => minutosDelDia(c.inicio)));
+  // El +60 deja espacio para que la última cita del día quepa completa.
   const fin = Math.max(DIA_FIN, ...visibles.map((c) => minutosDelDia(c.inicio) + 60));
   return visibles.map((c): PuntoDia => {
     const kind: TraceNode['kind'] =
@@ -71,7 +68,7 @@ export function nodosDelDia(citas: CitaConPaciente[], ahoraMs: number): PuntoDia
   });
 }
 
-/** Nodo más cercano a una posición horizontal (en puntos) y su distancia. */
+/** x y ancho van en puntos de pantalla; `at` de cada nodo está normalizado de 0 a 1. */
 export function puntoMasCercano(puntos: PuntoDia[], x: number, ancho: number) {
   let mejor: PuntoDia | undefined;
   let distancia = Infinity;
@@ -85,17 +82,17 @@ export function puntoMasCercano(puntos: PuntoDia[], x: number, ancho: number) {
   return mejor ? { punto: mejor, distancia } : null;
 }
 
-/** Ventana de la cuenta regresiva: el anillo empieza a vaciarse una hora antes. */
+// El anillo empieza a vaciarse una hora antes de la cita.
 const VENTANA_MIN = 60;
-/** Desde aquí el bloque pasa a cobalto: es hora de prepararse. */
+// Desde aquí el bloque pasa a cobalto.
 const INMINENTE_MIN = 10;
 
 export type CuentaRegresiva = {
   enCurso: boolean;
   inminente: boolean;
-  /** 1 = anillo lleno, 0 = vacío. Antes de la cita mide lo que falta; en curso, lo que queda de sesión. */
+  /** 1 lleno, 0 vacío. Antes de la cita mide lo que falta; en curso, lo que queda de sesión. */
   progreso: number;
-  /** Cifra y unidad del centro del anillo ("25" + "min", "2" + "h"). */
+  /** Centro del anillo, p. ej. 25 min o 2 h. */
   cifra: string;
   unidad: string;
 };
@@ -108,6 +105,7 @@ export function cuentaRegresiva(cita: Pick<CitaConPaciente, 'inicio' | 'fin'>, a
   const progreso = enCurso
     ? Math.min(1, Math.max(0, (fin - ahoraMs) / Math.max(fin - inicio, 1)))
     : Math.min(1, minutos / VENTANA_MIN);
+  // Tres cifras no caben en el anillo; desde 100 min se muestra en horas.
   const enHoras = minutos >= 100;
   return {
     enCurso,
@@ -118,6 +116,7 @@ export function cuentaRegresiva(cita: Pick<CitaConPaciente, 'inicio' | 'fin'>, a
   };
 }
 
+/** Ubica un minuto en la parte en calma; el 0.03 final evita que el último nodo quede cortado. */
 export function posicionEnDia(min: number, inicio = DIA_INICIO, fin = DIA_FIN) {
   const t = (Math.min(Math.max(min, inicio), fin) - inicio) / Math.max(fin - inicio, 1);
   return CALMA_DESDE + t * (1 - CALMA_DESDE - 0.03);
@@ -133,7 +132,7 @@ export function diaRelativo(iso: string, hoy: string) {
 
 export const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 
-/* ---------- RN-06: dos inasistencias seguidas ---------- */
+// RN-06: dos inasistencias seguidas
 
 export type Asistencia = {
   pacienteId: string;
@@ -150,11 +149,7 @@ export type ParaContactar = {
   ultimaInasistencia: string;
 };
 
-/**
- * Pacientes cuyas dos últimas citas resueltas (asistió / no asistió) fueron inasistencias.
- * Se omiten si ya hay un seguimiento creado después de la última inasistencia
- * (alguien ya los contactó o tiene la llamada programada).
- */
+/** Si ya hay un seguimiento posterior a la última inasistencia, alguien se está encargando y se omite. */
 export function pacientesParaContactar(asistencias: Asistencia[], ultimoSeguimiento: Map<string, string>): ParaContactar[] {
   const porPaciente = new Map<string, Asistencia[]>();
   for (const a of [...asistencias].sort((x, y) => ms(y.inicio) - ms(x.inicio))) {
@@ -172,7 +167,7 @@ export function pacientesParaContactar(asistencias: Asistencia[], ultimoSeguimie
   return resultado.sort((a, b) => ms(b.ultimaInasistencia) - ms(a.ultimaInasistencia));
 }
 
-/* ---------- Resumen de la semana ---------- */
+// Resumen de la semana
 
 export type ResumenSemana = {
   atendidas: number;
@@ -195,22 +190,22 @@ export const RESUMEN_VACIO: ResumenSemana = {
   minutosDonados: 0,
 };
 
-/** Porcentaje de inasistencias sobre las citas con resultado (asistió o no asistió). */
+/** Sobre las citas con resultado, no sobre todas las agendadas. */
 export function porcentajeInasistencias(r: Pick<ResumenSemana, 'atendidas' | 'inasistencias'>) {
   const total = r.atendidas + r.inasistencias;
   return total === 0 ? 0 : Math.round((r.inasistencias / total) * 100);
 }
 
-/** Horas donadas con un decimal como máximo: 2, 2,5. */
+/** Máximo un decimal y con coma: 2 o 2,5. */
 export function horasDonadas(minutos: number) {
   const horas = Math.round((minutos / 60) * 10) / 10;
   return Number.isInteger(horas) ? String(horas) : horas.toFixed(1).replace('.', ',');
 }
 
-/** "lun 9 nov al dom 15 nov". */
+/** Ej.: lun 9 nov al dom 15 nov. */
 export const rangoSemana = (lunes: string) => `${fechaCorta(isoDesde(lunes))} al ${fechaCorta(isoDesde(sumarDias(lunes, 6)))}`;
 
-/** Frase final del resumen: lo que pasó en la semana, en una línea. */
+/** La última parte se une con "y" para que se lea como una frase natural. */
 export function fraseSemana(r: ResumenSemana) {
   if (r.atendidas === 0 && r.inasistencias === 0) return 'Aún no hay citas atendidas esta semana. El Trazo está en calma.';
   const partes = [`Atendiste ${plural(r.atendidas, 'cita', 'citas')}`];

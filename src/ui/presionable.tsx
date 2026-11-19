@@ -8,18 +8,18 @@ const RESORTE = { damping: 16, stiffness: 320, mass: 0.5 };
 export type PresionableProps = Omit<PressableProps, 'children' | 'style'> & {
   children: ReactNode;
   className?: string;
-  /** Clases del contenido animado (el que se hunde). */
+  /** Clases de la vista interna, que es la que se escala. */
   contentClassName?: string;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
-  /** Cuánto se hunde al presionar (0.97 = 3 %). */
+  /** Escala al presionar (0.97 = se hunde 3 %). */
   hundir?: number;
   haptico?: boolean;
 };
 
 /**
- * Base táctil de Trazo: se hunde con resorte al presionar y da un toque háptico leve.
- * Todos los elementos tocables (bloques, botones, filas) la usan para sentirse iguales.
+ * Base de todo lo tocable: se hunde con resorte y da un háptico leve.
+ * La animación va en una vista interna porque NativeWind ignora `style` como función en Pressable.
  */
 export function Presionable({
   children,

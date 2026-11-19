@@ -1,7 +1,4 @@
-/**
- * Selectores propios con chips (no hay datetimepicker en Expo Go sin compilar):
- * fecha en tira horizontal, hora en cuadrícula de 30 min y opciones sueltas.
- */
+// Selectores propios con chips porque el datetimepicker nativo no viene en Expo Go.
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
@@ -50,7 +47,7 @@ export function Opcion({ etiqueta, seleccionada, onPress, deshabilitada, tachada
   );
 }
 
-/* ---------- Fecha ---------- */
+// Fecha
 
 const PASO_FECHA = 52 + 8;
 
@@ -111,7 +108,7 @@ export function FechaChips({ dias, valor, onChange, hoy }: FechaChipsProps) {
   );
 }
 
-/* ---------- Hora ---------- */
+// Hora
 
 type HoraChipsProps = {
   horas: OpcionHora[];

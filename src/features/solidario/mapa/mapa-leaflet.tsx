@@ -6,17 +6,15 @@ import WebViewOriginal, { type WebViewMessageEvent } from 'react-native-webview'
 import { htmlMapa } from './leaflet-html';
 import type { LatLng } from './ubicacion';
 
-/**
- * Los tipos de react-native-webview 14 declaran `WebView<P = undefined>` y `props & undefined`
- * se vuelve `never`. Se fija P = object para recuperar las props sin tocar el componente.
- */
+// En react-native-webview 14 `WebView<P = undefined>` deja las props en `never`.
+// Fijar P = object lo arregla sin tocar el componente.
 const WebView = WebViewOriginal as unknown as typeof WebViewOriginal<object>;
 type WebViewRef = WebViewOriginal<object>;
 
 export type PuntoJornada = { id: string; lat: number; lng: number; proxima: boolean };
 export type PuntoSismo = { id: string; lat: number; lng: number; mag: number };
 
-/** Métodos para mover el mapa sin recargar la WebView. */
+/** Mueven el mapa sin recargar la WebView. */
 export type MapaLeafletHandle = {
   setJornadas: (lista: PuntoJornada[]) => void;
   setSismos: (lista: PuntoSismo[]) => void;
@@ -42,10 +40,10 @@ type MapaLeafletProps = {
   ref?: Ref<MapaLeafletHandle>;
   centro: LatLng;
   zoom?: number;
-  /** Modo selección: tocar el mapa fija un punto y avisa con `onPunto`. */
+  /** Tocar el mapa fija un punto y avisa con `onPunto`. */
   elegir?: boolean;
   onListo?: () => void;
-  /** Leaflet o la página no cargaron (casi siempre, sin internet). */
+  /** Leaflet no cargó; casi siempre es falta de internet. */
   onSinMapa?: () => void;
   onJornada?: (id: string) => void;
   onSismo?: (id: string) => void;
@@ -53,11 +51,10 @@ type MapaLeafletProps = {
   onPunto?: (punto: LatLng) => void;
 };
 
-/** Mapa de Leaflet + OpenStreetMap dentro de una WebView. */
 export function MapaLeaflet({ ref, centro, zoom = 13, elegir = false, onListo, onSinMapa, onJornada, onSismo, onTocarMapa, onPunto }: MapaLeafletProps) {
   const web = useRef<WebViewRef>(null);
   const reducir = useReducedMotion();
-  // El documento se arma una sola vez: los cambios posteriores llegan por `injectJavaScript`.
+  // El HTML se arma una sola vez; si cambiara, la WebView recargaría el mapa entero.
   const [html] = useState(() => htmlMapa({ latitud: centro.latitud, longitud: centro.longitud, zoom, elegir, animar: !reducir }));
 
   const correr = (script: string) => web.current?.injectJavaScript(`${script};true;`);

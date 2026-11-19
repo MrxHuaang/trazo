@@ -1,7 +1,4 @@
-/**
- * Reglas puras del módulo pacientes: filtros, búsqueda, validación del formulario y textos derivados.
- * Sin React ni base de datos, para poder probarlas aisladas.
- */
+// Reglas puras de pacientes. Sin React ni base de datos para poder probarlas aisladas.
 import { z } from 'zod';
 
 import type { NuevoPaciente } from '@/data/repos/pacientes';
@@ -77,7 +74,7 @@ export const primerNombre = (nombre: string) => nombre.trim().split(/\s+/)[0] ??
 
 export const saludoWhatsApp = (nombre: string) => `Hola ${primerNombre(nombre)}, ¿cómo estás?`;
 
-/* ---------- Fechas del formulario ---------- */
+// Fechas del formulario
 
 /** 'yyyy-MM-dd' que existe en el calendario (2026-02-30 no pasa). */
 export function esFechaClave(v: string) {
@@ -98,7 +95,7 @@ export function esMenorDeEdad(fechaNacimiento: string | null | undefined, hoy = 
   return `${anio + 18}${fechaNacimiento.slice(4)}` > hoy;
 }
 
-/* ---------- Formulario ---------- */
+// Formulario
 
 const VALORES_AFECTACION = AFECTACIONES.map((a) => a.valor) as [Afectacion, ...Afectacion[]];
 
@@ -151,7 +148,7 @@ export function valoresIniciales(p?: Paciente | null, nombre = ''): ValoresPacie
   };
 }
 
-/** Valores del formulario → datos del repositorio (vacíos como null, teléfono en 10 dígitos). */
+/** Convierte el formulario al formato del repositorio: vacíos como null y teléfono en 10 dígitos. */
 export function aPaciente(v: ValoresPaciente): NuevoPaciente {
   const vacioANull = (s: string) => (s.trim() ? s.trim() : null);
   return {

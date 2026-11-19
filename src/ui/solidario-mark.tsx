@@ -4,7 +4,7 @@ import { tile } from '@/theme';
 
 import { HatchOverlay } from './hatch';
 
-/** Marca pequeña de "cupo solidario": color durazno + textura rayada. */
+/** Marca del cupo solidario para filas y listas. */
 export function SolidarioMark() {
   return (
     <View className="h-3.5 w-3.5 overflow-hidden rounded border border-durazno-ink bg-durazno" accessibilityLabel="Cupo solidario">

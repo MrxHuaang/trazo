@@ -1,7 +1,5 @@
-/**
- * Fechas en la zona de Colombia (RN-02): se guardan en ISO UTC y se muestran en America/Bogota.
- * "fechaClave" = 'yyyy-MM-dd' en hora de Colombia; "mesClave" = 'yyyy-MM'.
- */
+// RN-02: se guarda en ISO UTC y se muestra en America/Bogota.
+// Una "clave" es 'yyyy-MM-dd' (o 'yyyy-MM' para meses) en hora de Colombia, no del teléfono.
 import { TZDate } from '@date-fns/tz';
 import { addDays, addMinutes, differenceInCalendarDays, format, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale/es';
@@ -14,9 +12,8 @@ export const enZona = (valor: string | Date | number) =>
   new TZDate(typeof valor === 'string' ? new Date(valor).getTime() : new Date(valor).getTime(), ZONA);
 
 /**
- * ISO UTC ('...Z') a partir de fecha 'yyyy-MM-dd' y hora 'HH:mm' de Colombia.
- * Siempre en UTC: SQLite compara las fechas como texto (RN-01), así que todas deben tener el mismo formato.
- * (TZDate.toISOString() devolvería el desfase '-05:00' y rompería esas comparaciones).
+ * Fecha y hora de Colombia a ISO terminado en Z. No usar TZDate.toISOString(): deja '-05:00'
+ * y SQLite compara las fechas como texto, así que mezclar formatos rompe los rangos.
  */
 export function isoDesde(fechaClave: string, hora = '00:00') {
   const [y, m, d] = fechaClave.split('-').map(Number);
@@ -24,7 +21,7 @@ export function isoDesde(fechaClave: string, hora = '00:00') {
   return new Date(new TZDate(y ?? 1970, (m ?? 1) - 1, d ?? 1, h ?? 0, mi ?? 0, ZONA).getTime()).toISOString();
 }
 
-/** Acepta una clave 'yyyy-MM-dd' o un ISO completo y devuelve la fecha en la zona de Colombia. */
+// Una clave suelta se lee como medianoche en Colombia; new Date('yyyy-MM-dd') la tomaría en UTC.
 const deClave = (valor: string) => enZona(valor.length === 10 ? isoDesde(valor) : valor);
 
 export const fechaClave = (valor: string | Date = new Date()) => format(enZona(valor), 'yyyy-MM-dd');
@@ -34,14 +31,14 @@ export const hoyClave = () => fechaClave(new Date());
 export const sumarDias = (clave: string, dias: number) => fechaClave(addDays(deClave(clave), dias));
 export const sumarMinutos = (iso: string, minutos: number) => addMinutes(new Date(iso), minutos).toISOString();
 
-/** Lunes de la semana de la fecha dada (RN-03: semanas de lunes a domingo). */
+/** RN-03 cuenta semanas de lunes a domingo. */
 export const inicioSemana = (clave: string) =>
   fechaClave(startOfWeek(deClave(clave), { weekStartsOn: 1 }));
 
 export const diasEntre = (desde: string, hasta: string) =>
   differenceInCalendarDays(deClave(hasta), deClave(desde));
 
-/** Minutos desde la medianoche en Colombia. */
+/** Minutos desde la medianoche en Colombia, para ubicar citas en la línea del día. */
 export function minutosDelDia(iso: string) {
   const d = enZona(iso);
   return d.getHours() * 60 + d.getMinutes();
@@ -54,13 +51,13 @@ export const mesTexto = (clave: string) => format(enZona(isoDesde(`${clave}-01`)
 export const diaSemanaCorto = (clave: string) => format(deClave(clave), 'EEEEE', { locale: es });
 export const numeroDia = (clave: string) => format(deClave(clave), 'd');
 
-/** 1 = lunes … 7 = domingo. */
+/** 1 = lunes, 7 = domingo, igual que disponibilidad.dia_semana. */
 export const diaSemana = (clave: string) => {
   const d = deClave(clave).getDay();
   return d === 0 ? 7 : d;
 };
 
-/** "en 25 min", "en 2 h", "ahora", "hace 1 h". */
+/** Ej: 'en 25 min', 'hace 1 h'. */
 export function tiempoRelativo(iso: string, referencia = new Date()) {
   const diff = Math.round((new Date(iso).getTime() - referencia.getTime()) / 60000);
   if (Math.abs(diff) < 1) return 'ahora';

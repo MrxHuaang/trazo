@@ -8,7 +8,7 @@ type PermisosState = {
   pedirUbicacion: () => Promise<EstadoPermiso>;
 };
 
-/** Estado del permiso de ubicación (Zustand). El mapa funciona con cualquier estado. */
+// El mapa funciona con cualquier estado del permiso; esto solo decide qué aviso mostrar.
 export const usePermisosStore = create<PermisosState>()((set) => ({
   ubicacion: 'comprobando',
 

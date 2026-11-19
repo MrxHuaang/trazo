@@ -4,18 +4,15 @@ import Animated, { FadeInDown, LinearTransition, ReduceMotion } from 'react-nati
 
 type AparecerProps = {
   children: ReactNode;
-  /** Posición en la secuencia: cada elemento entra 45 ms después del anterior. */
+  /** Cada posición entra 45 ms después de la anterior. */
   orden?: number;
   className?: string;
   style?: StyleProp<ViewStyle>;
-  /** Anima también los cambios de posición (listas que se reordenan o pierden filas). */
+  /** Para listas que se reordenan o pierden filas. */
   reacomodar?: boolean;
 };
 
-/**
- * Entrada en cascada: el contenido sube 14 px y aparece con resorte, en orden.
- * Se usa una sola vez por pantalla al montarla; respeta "Reducir movimiento".
- */
+/** Entrada en cascada al montar. El orden se topa en 10 para que una lista larga no tarde en aparecer. */
 export function Aparecer({ children, orden = 0, className, style, reacomodar }: AparecerProps) {
   return (
     <Animated.View

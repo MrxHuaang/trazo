@@ -13,7 +13,7 @@ type FieldProps = ComponentProps<typeof TextInput> & {
   className?: string;
 };
 
-/** Campo de texto: etiqueta arriba, ayuda y error abajo (nunca placeholder como etiqueta). */
+/** La etiqueta siempre va visible arriba; el placeholder no la reemplaza. */
 export function Field({ label, error, helper, className, multiline, onFocus, onBlur, ...rest }: FieldProps) {
   const [enfocado, setEnfocado] = useState(false);
   return (

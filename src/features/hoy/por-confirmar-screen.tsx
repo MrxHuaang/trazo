@@ -9,10 +9,7 @@ import { FilaCita } from './filas';
 import { diaRelativo, plural } from './rules';
 import { useAhora } from './use-ahora';
 
-/**
- * "Por confirmar" (RN-04, HU-06): citas confirmadas de las próximas 24 horas que aún no se han recordado.
- * "Recordar" (botón o deslizar a la derecha) abre WhatsApp con la plantilla y la cita sale de la lista.
- */
+/** RN-04, HU-06: citas de las próximas 24 h sin recordar. Al recordarlas salen de la lista. */
 export function PorConfirmarScreen() {
   const hoy = fechaClave(useAhora());
   const { data: citas = [], isPending } = useCitasPorConfirmar();

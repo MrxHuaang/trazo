@@ -30,7 +30,7 @@ import {
   type Rango,
 } from './rules';
 
-/** 30 minutos = 44 px: cada hueco libre es un área táctil de al menos 44. */
+// 30 min = 44 px, así cada hueco libre cumple el mínimo táctil.
 export const ALTO_HUECO = 44;
 const PX_MIN = ALTO_HUECO / PASO_MIN;
 const MARGEN = 10;
@@ -53,14 +53,10 @@ type Props = {
   onMover: (bloque: CitaEnDia, nuevoIni: number) => Promise<boolean>;
 };
 
-/** Posición vertical (px) de un minuto del día dentro de la línea de tiempo. */
+/** Y en px de un minuto del día. */
 export const yDeMinuto = (ventana: Rango, min: number) => MARGEN + (min - ventana.ini) * PX_MIN;
 
-/**
- * Línea de tiempo vertical del día: horas en Geist Mono, cuadrícula de 30 min, horas fuera de la
- * disponibilidad sombreadas, bloqueos con su motivo, un hueco tocable por cada media hora libre
- * y las citas, que se pueden arrastrar para cambiarles la hora.
- */
+/** Línea de tiempo del día: cuadrícula de 30 min, bloqueos, huecos tocables y citas arrastrables. */
 export function LineaDeTiempo({
   ventana,
   huecos,
@@ -197,7 +193,7 @@ export function LineaDeTiempo({
   );
 }
 
-/** Línea de "ahora": cobalto, con un punto que respira despacio para ubicar el momento sin alarmar. */
+// El punto respira despacio: marca el ahora sin llamar demasiado la atención.
 function LineaAhora({ top }: { top: number }) {
   const reducir = useReducedMotion();
   const pulso = useSharedValue(0);
@@ -227,7 +223,7 @@ function LineaAhora({ top }: { top: number }) {
   );
 }
 
-/** Hueco señalado por "Próximo hueco libre": tres pulsos de cobalto y se queda quieto. */
+// Tres pulsos y queda quieto; un pulso infinito distraería.
 function HuecoResaltado({ hora }: { hora: string }) {
   const reducir = useReducedMotion();
   const pulso = useSharedValue(0);

@@ -10,7 +10,7 @@ type ProgresoHistoriasProps = {
   avance: SharedValue<number>;
 };
 
-/** Barra por segmentos de las historias: llenos los vistos, el actual se llena con el tiempo. */
+/** Solo el segmento actual se anima; los demás están llenos o vacíos. */
 export function ProgresoHistorias({ total, actual, avance }: ProgresoHistoriasProps) {
   return (
     <View className="flex-1 flex-row gap-1" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">

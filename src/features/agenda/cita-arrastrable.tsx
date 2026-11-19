@@ -25,11 +25,11 @@ import { CitaBloque } from './cita-bloque';
 import { aHora, esActiva, PASO_ARRASTRE } from './rules';
 
 const RESORTE = { damping: 20, stiffness: 240, mass: 0.7 };
-/** Vuelve a su sitio con un rebote corto: dice "aquí no" sin sobresaltar. */
+// Rebote corto al volver a su sitio: se entiende como "aquí no" sin asustar.
 const REBOTE = { damping: 9, stiffness: 190, mass: 0.7 };
 const ESPERA_MS = 300;
 
-/** Sombra tenue solo mientras la cita está levantada (el resto de la app no usa sombras). */
+// La app no usa sombras; esta solo aparece mientras la cita está levantada.
 const SOMBRA = {
   shadowColor: color.ink,
   shadowOpacity: 0.18,
@@ -48,24 +48,22 @@ type Props = {
   /** Columna cuando hay bloques que se cruzan. */
   col: number;
   cols: number;
-  /** Píxeles por minuto de la línea de tiempo. */
   pxMin: number;
-  /** Cuántos minutos puede subir o bajar sin salirse de la ventana visible. */
+  /** Límites del arrastre en minutos para no salir de la ventana visible. */
   minMinutos: number;
   maxMinutos: number;
-  /** Desplazamiento del scroll de la agenda: el bloque sigue al dedo aunque la lista se mueva sola. */
+  /** Se compensa para que el bloque siga al dedo durante el autoscroll. */
   scrollOffset: SharedValue<number>;
-  /** Posición del dedo en pantalla mientras se arrastra (-1 en reposo), para el scroll automático. */
+  /** Y del dedo en pantalla (-1 en reposo); la lee el autoscroll. */
   dedoY: SharedValue<number>;
   onPress: () => void;
   onArrastre: (activo: boolean) => void;
-  /** Recibe los minutos de diferencia. Resuelve false si no se pudo mover (el bloque rebota a su sitio). */
+  /** Recibe la diferencia en minutos. Si resuelve false, el bloque rebota a su sitio. */
   onSoltar: (minutos: number) => Promise<boolean>;
 };
 
 /**
- * Cita de la línea de tiempo que se puede reprogramar arrastrándola: se mantiene presionada,
- * se levanta, sigue al dedo en pasos de 15 min con un tic por paso y muestra la hora destino.
+ * Cita que se reprograma con long press y arrastre, en pasos de 15 min.
  * La alternativa sin gesto es el panel Reprogramar del detalle.
  */
 export function CitaArrastrable({
@@ -94,7 +92,7 @@ export function CitaArrastrable({
   const dedo = useSharedValue(0);
   const scrollInicio = useSharedValue(0);
   const activo = useSharedValue(false);
-  /** Desplazamiento que conserva el bloque al soltarlo, hasta que llega la cita actualizada. */
+  // Deja el bloque donde se soltó hasta que llega la cita actualizada.
   const fijo = useSharedValue(0);
   const levante = useSharedValue(0);
 
@@ -102,7 +100,7 @@ export function CitaArrastrable({
   const [pasos, setPasos] = useState(0);
   const recienArrastrada = useRef(false);
 
-  // Cuando cambia la hora (por arrastre, panel o deshacer) el bloque viaja desde donde se ve hasta su nuevo lugar.
+  // Si la hora cambia (arrastre, panel o deshacer), se anima desde donde se ve, no desde la posición vieja.
   useEffect(() => {
     const visible = base.get() + fijo.get();
     fijo.set(0);
@@ -163,7 +161,7 @@ export function CitaArrastrable({
     },
   });
 
-  // Un tic por cada paso de 15 min que cruza el bloque (también cuando la lista se desplaza sola).
+  // Un tic háptico por paso de 15 min, también mientras corre el autoscroll.
   useAnimatedReaction(
     () => (activo.get() ? Math.round(clamp(dedo.get() + scrollOffset.get() - scrollInicio.get(), minPx, maxPx) / pxPaso) : null),
     (p, previo) => {

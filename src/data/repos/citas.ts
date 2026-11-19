@@ -44,7 +44,7 @@ export async function obtenerCita(id: string) {
   return f ? mapear(f) : null;
 }
 
-/** RN-01: dos citas activas no pueden solaparse. */
+/** RN-01: dos citas activas no pueden solaparse. Comparar como texto sirve porque todo se guarda en UTC. */
 export async function haySolape(inicio: string, fin: string, excluirId?: string) {
   const f = await consultarUno<{ n: number }>(
     `SELECT COUNT(*) AS n FROM citas WHERE estado IN ('solicitada','confirmada') AND inicio < ? AND fin > ? AND id != ?`,
@@ -95,10 +95,7 @@ export async function actualizarCita(id: string, cambios: Partial<Omit<Cita, 'id
   return (await obtenerCita(id))!;
 }
 
-/**
- * Cambia el estado. RN-05: al marcar "asistió" se crea el pago según la tarifa del paciente
- * (gratuita o cita solidaria gratuita → donado, no deuda).
- */
+/** RN-05: al marcar asistió se crea el pago con la tarifa del paciente. Si es gratis queda donado, no como deuda. */
 export async function cambiarEstadoCita(id: string, estado: EstadoCita) {
   const cita = await actualizarCita(id, { estado });
   if (estado === 'asistio') {

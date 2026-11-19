@@ -18,12 +18,12 @@ const VARIANTE: Record<TextVariant, string> = {
 
 export type TextProps = RNTextProps & {
   variant?: TextVariant;
-  /** Color puntual (valor de los tokens). Para lo demás, usa clases: `className="text-ink-soft"`. */
+  /** Color dinámico desde tokens. Si es fijo, mejor una clase (`text-ink-soft`). */
   tone?: string;
   className?: string;
 };
 
-/** Texto con la escala tipográfica de Trazo suave. Nunca usar <Text> de react-native directo. */
+/** Usar siempre este en lugar del Text de react-native, para no salirse de la escala. */
 export function Text({ variant = 'body', tone, className, style, ...rest }: TextProps) {
   return (
     <RNText

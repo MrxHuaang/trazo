@@ -9,22 +9,18 @@ import { BotonIcono } from './accion';
 
 type PantallaDetalleProps = {
   children: ReactNode;
-  /** Botones de ícono a la derecha de la barra (editar, eliminar…). */
+  /** Botones de ícono a la derecha de la barra. */
   acciones?: ReactNode;
 };
 
 export const volverASolidario = () => (router.canGoBack() ? router.back() : router.replace('/solidario'));
 
-/**
- * Pantalla apilada (fuera de las pestañas): barra con Volver respetando la zona segura,
- * contenido con scroll y espacio inferior para el indicador de inicio y el teclado.
- * Incluye la raíz de gestos para las filas que se deslizan.
- */
+/** Pantalla apilada con Volver y scroll. Trae su propia raíz de gestos para las filas deslizables. */
 export function PantallaDetalle({ children, acciones }: PantallaDetalleProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    // GestureHandlerRootView no recibe className: es un componente nativo de la librería de gestos.
+    // GestureHandlerRootView no acepta className, por eso va con style.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView className="flex-1 bg-canvas" behavior="padding">
         <View className="flex-row items-center justify-between px-4 pb-1" style={{ paddingTop: insets.top + 4 }}>

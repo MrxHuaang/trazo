@@ -10,12 +10,12 @@ import { Text } from './text';
 type SheetHeaderProps = {
   title: string;
   subtitle?: string;
-  /** Acción a la derecha (p. ej. botón Guardar). */
+  /** Acción a la derecha, p. ej. Guardar. */
   action?: ReactNode;
+  /** Por defecto vuelve atrás en el router. */
   onClose?: () => void;
 };
 
-/** Encabezado de hojas (formSheet): título, cerrar y una acción. */
 export function SheetHeader({ title, subtitle, action, onClose }: SheetHeaderProps) {
   return (
     <View className="gap-2 px-5 pb-3 pt-2">

@@ -22,7 +22,7 @@ import { useAsistio, useRecordar } from './use-recordar';
 
 export const abrirCita = (id: string) => router.push({ pathname: '/cita/[id]', params: { id } });
 
-/** Fila de una lista viva: al salir se desvanece y las demás se reacomodan con resorte. */
+/** Al salir de la lista la fila se desvanece y las de abajo suben con resorte. */
 export function FilaAnimada({ children }: { children: ReactNode }) {
   return (
     <Animated.View
@@ -39,10 +39,7 @@ type FilaCitaProps = {
   last: boolean;
 };
 
-/**
- * Cita en "Siguientes" y "Por confirmar". Deslizar a la derecha envía el recordatorio por WhatsApp (HU-06);
- * a la izquierda marca "asistió". Tocar la fila abre el detalle, donde están todas las acciones.
- */
+/** HU-06. Deslizar a la derecha recuerda por WhatsApp; a la izquierda marca que asistió. */
 export function FilaCita({ cita: c, subtitulo, last }: FilaCitaProps) {
   const { recordar, marcando, disponible } = useRecordar();
   const { asistio } = useAsistio();
@@ -146,7 +143,7 @@ export function FilaSeguimiento({ seguimiento: s, hoy, last }: { seguimiento: Se
   );
 }
 
-/** RN-06: dos inasistencias seguidas. El contacto queda como seguimiento hecho y la fila sale de la lista. */
+/** RN-06. Escribir deja el contacto como seguimiento hecho, y por eso la fila sale de la lista. */
 export function FilaContacto({ paciente: p, last }: { paciente: ParaContactar; last: boolean }) {
   const registrar = useRegistrarContacto();
   const telefono = p.telefono;

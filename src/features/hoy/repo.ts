@@ -1,7 +1,5 @@
-/**
- * Consultas propias del módulo "Hoy" sobre las tablas compartidas (solo lectura, salvo el contacto
- * que se registra con el repositorio compartido de seguimientos).
- */
+// Consultas de Hoy sobre tablas compartidas. Lo único que escribe es el contacto,
+// y lo hace por el repo de seguimientos.
 import { consultar, consultarUno } from '@/data/db';
 import { actualizarSeguimiento, crearSeguimiento } from '@/data/repos/seguimientos';
 import { hoyClave, isoDesde, sumarDias } from '@/lib/dates';
@@ -12,10 +10,7 @@ export const MOTIVO_CONTACTO = 'Contacto tras dos inasistencias';
 
 type FilaAsistencia = { paciente_id: string; nombre: string; telefono: string | null; estado: Asistencia['estado']; inicio: string };
 
-/**
- * RN-06: pacientes con dos inasistencias seguidas, sin citas activas por delante
- * (si ya reagendaron, no hace falta escribirles).
- */
+/** RN-06. Se excluye a quien ya tiene una cita por delante: si reagendó, no hace falta escribirle. */
 export async function listarParaContactar(referencia = new Date()) {
   const ahora = referencia.toISOString();
   const filas = await consultar<FilaAsistencia>(
@@ -40,7 +35,7 @@ export async function listarParaContactar(referencia = new Date()) {
   );
 }
 
-/** Deja constancia del contacto como un seguimiento hecho (aparece en la historia del paciente). */
+/** Se guarda como seguimiento hecho para que quede en la historia del paciente. */
 export async function registrarContacto(d: { pacienteId: string; nombre: string; telefono: string | null }) {
   const id = await crearSeguimiento({
     pacienteId: d.pacienteId,
@@ -52,11 +47,11 @@ export async function registrarContacto(d: { pacienteId: string; nombre: string;
   await actualizarSeguimiento(id, { estado: 'hecho' });
 }
 
-/* ---------- Resumen de la semana (lunes a domingo, hora de Colombia) ---------- */
+// Resumen semanal: de lunes a domingo en hora de Colombia.
 
 const rangoSemana = (lunes: string) => [isoDesde(lunes), isoDesde(sumarDias(lunes, 7))];
 
-/** Citas con resultado de la semana y personas afectadas atendidas. */
+/** Las afectadas se cuentan por persona, no por cita. */
 export async function resumenCitasSemana(lunes: string) {
   const f = await consultarUno<{ atendidas: number | null; inasistencias: number | null; afectadas: number | null }>(
     `SELECT
@@ -70,7 +65,7 @@ export async function resumenCitasSemana(lunes: string) {
   return { atendidas: f?.atendidas ?? 0, inasistencias: f?.inasistencias ?? 0, personasAfectadas: f?.afectadas ?? 0 };
 }
 
-/** Pagos de las citas de la semana: cobrado, por cobrar y tiempo donado. */
+/** El tiempo donado sale de la duración de cada cita (julianday da días, por eso el * 1440). */
 export async function resumenPagosSemana(lunes: string) {
   const f = await consultarUno<{ cobrado: number | null; por_cobrar: number | null; donadas: number | null; minutos: number | null }>(
     `SELECT

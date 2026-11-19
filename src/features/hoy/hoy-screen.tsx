@@ -40,18 +40,15 @@ import { Segmentos } from './segmentos';
 import { ALTO_TRAZO, TrazoInteractivo } from './trazo-interactivo';
 import { useAhora } from './use-ahora';
 
-/** Medidas del encabezado abierto: aire, fila del título, Trazo y aire. */
+// El encabezado es absoluto, así que el scroll necesita su alto exacto como padding.
 const AIRE_ARRIBA = 4;
 const FILA_TITULO = 48;
 const AIRE_ABAJO = 8;
 const ALTO_ENCABEZADO = AIRE_ARRIBA + FILA_TITULO + ALTO_TRAZO + AIRE_ABAJO;
-/** Desplazamiento con el que el encabezado termina de encogerse. */
+// Scroll necesario para que el encabezado quede del todo colapsado.
 const RECORRIDO = 72;
 
-/**
- * "Hoy" (HU-02): la línea del día y un bloque por cada pendiente; debajo, lo que pide acción.
- * Al hacer scroll el título se encoge y el Trazo queda fijo arriba como barra fina.
- */
+/** HU-02. Al hacer scroll el título se encoge y el Trazo queda arriba como barra fina. */
 export function HoyScreen() {
   const insets = useSafeAreaInsets();
   const ahora = useAhora();
@@ -68,7 +65,7 @@ export function HoyScreen() {
   const contactarQ = useParaContactar();
   const { data: consultorio } = useConsultorio();
 
-  // Las listas que dependen de la hora (próximas 24 h, solicitudes futuras) se recalculan al volver a "Hoy".
+  // Estas dos listas dependen de la hora actual; si no se invalidan al volver, quedan viejas.
   useFocusEffect(
     useCallback(() => {
       void qc.invalidateQueries({ queryKey: [...qk.citas, 'por-confirmar'] });
@@ -259,7 +256,7 @@ export function HoyScreen() {
   );
 }
 
-/** Sección de lista: entra en cascada y se reacomoda cuando las de arriba pierden filas. */
+// reacomodar: la sección se desliza cuando las de arriba pierden filas.
 function Seccion({ titulo, orden, children }: { titulo: string; orden: number; children: ReactNode }) {
   return (
     <Aparecer orden={orden} reacomodar className="mt-3 gap-1">

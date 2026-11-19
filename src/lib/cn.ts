@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
 
-/** tailwind-merge debe saber que estas clases `text-*` son tamaños, no colores. */
+// Sin esto tailwind-merge toma text-body como color y borra el text-ink que venga al lado.
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
@@ -10,7 +10,7 @@ const twMerge = extendTailwindMerge({
   },
 });
 
-/** Une clases de NativeWind; si dos chocan (p. ej. dos colores de texto), gana la última. */
+/** Une clases; si dos chocan gana la última, así className puede sobrescribir los defaults. */
 export function cn(...clases: ClassValue[]) {
   return twMerge(clsx(clases));
 }

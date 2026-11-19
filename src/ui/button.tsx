@@ -12,7 +12,7 @@ type Variante = 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger';
 type ButtonProps = {
   label: string;
   onPress: () => void;
-  /** primary: tinta (acción principal de la pantalla) · accent: cobalto · secondary: borde · ghost: solo texto · danger */
+  /** primary va en tinta y es la acción principal; solo debería haber uno por pantalla. */
   variant?: Variante;
   size?: 'md' | 'sm';
   icon?: ReactNode;

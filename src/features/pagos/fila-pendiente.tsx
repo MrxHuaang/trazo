@@ -18,10 +18,7 @@ type FilaPendienteProps = {
   last?: boolean;
 };
 
-/**
- * Sesión por cobrar (HU-10). "Registrar" despliega la fila: método con Segmented y Guardar.
- * Se edita en contexto; al guardar, la fila sale de la lista y pasa a las sesiones pagadas del mes.
- */
+/** Sesión por cobrar (HU-10). El pago se registra desplegando la misma fila, sin abrir otra hoja. */
 export function FilaPendiente({ pago, last }: FilaPendienteProps) {
   const abierta = usePagosStore((s) => s.filaAbierta === pago.id);
   const abrirFila = usePagosStore((s) => s.abrirFila);

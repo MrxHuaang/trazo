@@ -15,7 +15,7 @@ import { aHora, aMinutos, MODALIDADES, NOMBRES_DIA, PASO_MIN, seCruzan, VENTANA_
 import { HoraTira } from './selectores';
 
 type Props = {
-  /** 1 = lunes … 7 = domingo */
+  /** 1 = lunes, 7 = domingo */
   dia: number;
   /** Franja que se edita; sin ella se crea una nueva. */
   franja?: Disponibilidad;
@@ -30,7 +30,7 @@ const horasEntre = (desde: number, hasta: number) => {
   return res;
 };
 
-/** Tramo sugerido para una franja nueva: 8:00 a 12:00 en un día vacío; si no, el último espacio libre de al menos una hora. */
+/** Propuesta para una franja nueva: 8:00 a 12:00 si el día está vacío; si no, el último hueco de al menos una hora. */
 function sugerir(otras: Disponibilidad[]) {
   if (otras.length === 0) return { ini: 8 * 60, fin: 12 * 60 };
   const ocupadas = otras
@@ -48,7 +48,7 @@ function sugerir(otras: Disponibilidad[]) {
   return { ini: libre.ini, fin: Math.min(libre.fin, libre.ini + 240) };
 }
 
-/** Editor en el sitio de una franja: inicio, fin y modalidad. */
+/** Editor en línea de una franja. */
 export function EditorFranja({ dia, franja, otras, onCerrar }: Props) {
   const inicial = franja ? { ini: aMinutos(franja.horaInicio), fin: aMinutos(franja.horaFin) } : sugerir(otras);
   const [ini, setIni] = useState(inicial.ini);

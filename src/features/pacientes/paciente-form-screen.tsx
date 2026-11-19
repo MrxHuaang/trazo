@@ -229,7 +229,7 @@ function Formulario({
             control={control}
             name="afectaciones"
             render={({ field, fieldState }) => (
-              // Los tipos aparecen al activar el interruptor; lo que sigue en el formulario se reacomoda.
+              // Los tipos aparecen con el interruptor y el resto del formulario se reacomoda sin salto.
               <Animated.View
                 entering={FadeInDown.duration(240).reduceMotion(ReduceMotion.System)}
                 exiting={FadeOut.duration(140).reduceMotion(ReduceMotion.System)}
@@ -329,7 +329,7 @@ function Formulario({
 const alternar = (lista: Afectacion[], valor: Afectacion) =>
   lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor];
 
-/** Chip de selección múltiple: activo = durazno con marca de verificación (no depende solo del color). */
+/** Chip de selección múltiple. Activo lleva marca de verificación además del durazno. */
 function ChipAfectacion({ etiqueta, activo, onPress }: { etiqueta: string; activo: boolean; onPress: () => void }) {
   return (
     <Presionable

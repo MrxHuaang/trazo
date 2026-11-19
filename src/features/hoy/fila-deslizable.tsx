@@ -15,24 +15,20 @@ export type AccionDeslizar = {
 
 type FilaDeslizableProps = {
   children: ReactNode;
-  /** Acción al deslizar hacia la derecha (aparece a la izquierda de la fila). */
+  /** Al deslizar hacia la derecha; se pinta a la izquierda de la fila. */
   derecha?: AccionDeslizar;
-  /** Acción al deslizar hacia la izquierda (aparece a la derecha de la fila). */
+  /** Al deslizar hacia la izquierda; se pinta a la derecha de la fila. */
   izquierda?: AccionDeslizar;
-  /** Fondo de la fila; debe ser opaco para tapar las acciones. */
+  /** El fondo tiene que ser opaco o se ven las acciones de abajo. */
   className?: string;
 };
 
-/** Distancia que confirma la acción al soltar. */
+// Pasado el umbral, soltar ejecuta la acción.
 const UMBRAL = 84;
 const TOPE = 128;
 const RESORTE = { damping: 24, stiffness: 280, mass: 0.7 };
 
-/**
- * Fila que se desliza para actuar: a la derecha una acción (menta), a la izquierda otra (lavanda).
- * Al cruzar el umbral da un toque háptico; al soltar pasado el umbral ejecuta la acción y vuelve a su sitio.
- * Los gestos son un atajo: la fila conserva sus botones visibles.
- */
+/** Deslizar es solo un atajo: quien la use debe dejar los botones visibles en la fila. */
 export function FilaDeslizable({ children, derecha, izquierda, className }: FilaDeslizableProps) {
   const x = useSharedValue(0);
   // Lado cuyo umbral ya se cruzó en el gesto en curso (1 derecha, -1 izquierda).

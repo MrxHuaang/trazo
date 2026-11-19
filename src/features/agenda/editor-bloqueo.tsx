@@ -18,7 +18,7 @@ import { FechaChips, HoraTira } from './selectores';
 const DIAS_INICIO = 120;
 const DIAS_FIN = 60;
 
-/** Un bloqueo de día completo va de las 00:00 a las 00:00 del día siguiente al último. */
+// Día completo: de 00:00 del primer día a 00:00 del día siguiente al último (fin exclusivo).
 export function esDiaCompleto(b: Pick<Bloqueo, 'inicio' | 'fin'>) {
   return minutosDelDia(b.inicio) === 0 && minutosDelDia(b.fin) === 0;
 }
@@ -52,7 +52,7 @@ type Props = {
   onCerrar: () => void;
 };
 
-/** Editor en el sitio de un bloqueo: desde, hasta, todo el día o por horas, y motivo. */
+/** Editor en línea de un bloqueo, de día completo o por horas. */
 export function EditorBloqueo({ bloqueo, hoy, onCerrar }: Props) {
   const completoInicial = bloqueo ? esDiaCompleto(bloqueo) : true;
   const [desde, setDesde] = useState(bloqueo ? fechaClave(bloqueo.inicio) : hoy);

@@ -33,8 +33,8 @@ export const textoCoordenadas = ({ latitud, longitud }: LatLng) => {
 const volver = () => (router.canGoBack() ? router.back() : router.replace('/solidario'));
 
 /**
- * Modo selección del mapa: tocar el mapa marca dónde será la jornada. "Usar este punto" lo deja
- * en el formulario (store de Zustand) y vuelve. Funciona sin permiso de ubicación.
+ * Tocar el mapa marca el punto de la jornada; "Usar este punto" lo deja en el store y vuelve.
+ * No necesita permiso de ubicación.
  */
 export function ElegirPuntoScreen() {
   const insets = useSafeAreaInsets();
@@ -55,7 +55,7 @@ export function ElegirPuntoScreen() {
     return () => clearTimeout(espera);
   }, [listo, sinMapa, intento]);
 
-  // Si la jornada ya tenía punto, se muestra y se centra al cargar el mapa.
+  // Al editar, el punto que ya tenía la jornada se muestra centrado.
   useEffect(() => {
     if (!listo || !inicial) return;
     mapa.current?.setPunto(inicial);

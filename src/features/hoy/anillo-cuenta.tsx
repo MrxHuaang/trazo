@@ -8,17 +8,13 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 type AnilloCuentaProps = {
   /** 1 = lleno, 0 = vacío. */
   progreso: number;
-  /** Color del anillo (token del bloque donde se dibuja). */
   color: string;
   size?: number;
   grosor?: number;
   children?: ReactNode;
 };
 
-/**
- * Anillo de cuenta regresiva: se vacía a medida que se acerca la cita.
- * Es decorativo; el texto del bloque ya dice cuánto falta.
- */
+/** Decorativo (oculto al lector): el texto del bloque ya dice cuánto falta. */
 export function AnilloCuenta({ progreso, color, size = 72, grosor = 6, children }: AnilloCuentaProps) {
   const reducir = useReducedMotion();
   const radio = (size - grosor) / 2;

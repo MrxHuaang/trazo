@@ -13,13 +13,8 @@ import { appOculta, useEstadoApp } from './use-estado-app';
 import { verificacionEnCurso } from './verificacion';
 
 /**
- * Puerta de acceso (HU-01, HU-26, RNF-01). Se monta dentro de DatabaseGate, así que la base ya migró.
- *
- * - Sin consultorio: lleva a la bienvenida. El navegador se monta desde el primer render (children)
- *   y la redirección corre en un efecto, nunca antes; una cortina tapa el cambio para que no parpadee.
- * - Con `bloqueoActivo`: bloquea al abrir en frío y al volver tras 2 minutos o más en segundo plano.
- * - En segundo plano o inactiva: cortina neutra para que el selector de apps no muestre datos.
- * - Nunca bloquea en la bienvenida.
+ * HU-01, HU-26, RNF-01. Va dentro de DatabaseGate. La redirección a la bienvenida corre en un efecto
+ * porque el navegador tiene que montarse antes; mientras tanto la cortina tapa el salto.
  */
 export function AccessGate({ children }: { children: ReactNode }) {
   const consulta = useConsultorio();
@@ -35,7 +30,7 @@ export function AccessGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!navegadorListo || !sinConsultorio || enBienvenida) return;
-    // Desde ajustes (borrar todo) puede haber pantallas apiladas: se vuelve a la raíz y se reemplaza.
+    // Tras borrar todo desde ajustes quedan pantallas apiladas; hay que cerrarlas antes del replace.
     if (router.canDismiss()) router.dismissAll();
     router.replace('/onboarding');
   }, [navegadorListo, sinConsultorio, enBienvenida]);
@@ -43,7 +38,7 @@ export function AccessGate({ children }: { children: ReactNode }) {
   const cargando = consulta.isPending || (sinConsultorio && !enBienvenida);
   const bloqueada =
     !cargando && !errorSinDatos && !enBienvenida && sesionBloqueada && consulta.data?.bloqueoActivo === true;
-  // Con el bloqueo a la vista no hace falta la cortina: evita un parpadeo mientras iOS muestra el código.
+  // La cortina esconde los datos en el selector de apps. Con el bloqueo encima sobra y parpadea con el código de iOS.
   const privacidad = appOculta(estadoApp) && !bloqueada && !cargando;
   const tapada = cargando || errorSinDatos || bloqueada || privacidad;
 
@@ -88,13 +83,13 @@ export function AccessGate({ children }: { children: ReactNode }) {
   );
 }
 
-/** Cierra la sesión si la app estuvo en segundo plano MINUTOS_PARA_BLOQUEAR o más. */
+// Solo cuenta background: inactive salta con el centro de control y no debe bloquear.
 function useBloqueoPorAusencia() {
   useEffect(() => {
     let salioEn: number | null = null;
     const sub = AppState.addEventListener('change', (estado) => {
       if (estado === 'background') {
-        // El PIN de Android abre otra pantalla: ese viaje no cuenta como salir de Trazo.
+        // El PIN de Android manda la app a segundo plano; eso no es salir de Trazo.
         if (!verificacionEnCurso()) salioEn ??= Date.now();
         return;
       }

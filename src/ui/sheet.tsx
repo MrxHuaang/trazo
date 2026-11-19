@@ -6,18 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 type SheetProps = {
   header: ReactNode;
   children: ReactNode;
-  /** Botones fijos abajo (p. ej. Guardar). */
+  /** Botones fijos abajo, p. ej. Guardar. */
   footer?: ReactNode;
 };
 
-/**
- * Contenedor de hojas (rutas con presentation 'formSheet'): encabezado fijo, contenido con scroll,
- * pie fijo y manejo de teclado en iOS y Android.
- */
+/** Base de las rutas tipo hoja: encabezado y pie fijos, contenido con scroll y teclado resuelto. */
 export function Sheet({ header, children, footer }: SheetProps) {
   const insets = useSafeAreaInsets();
 
-  // Android: el botón atrás cierra la hoja desde JS, igual que la X.
+  // En Android la hoja es un modal, así que el botón atrás se maneja aquí para que cierre igual que la X.
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -31,7 +28,7 @@ export function Sheet({ header, children, footer }: SheetProps) {
     <KeyboardAvoidingView
       className="flex-1 bg-canvas"
       behavior="padding"
-      // En Android la hoja es una pantalla completa: deja libre la barra de estado.
+      // En Android ocupa toda la pantalla y hay que bajar el contenido de la barra de estado.
       style={Platform.OS === 'android' ? { paddingTop: insets.top } : undefined}>
       {header}
       <ScrollView contentContainerClassName="gap-4 px-5 pb-8" keyboardShouldPersistTaps="handled">

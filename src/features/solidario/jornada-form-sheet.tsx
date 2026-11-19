@@ -23,7 +23,7 @@ import { useUbicacionStore } from './store/use-ubicacion-store';
 
 const MAX_CUPOS = 300;
 
-/** Hoja "Programar jornada" (HU-20). Con `id` edita una jornada existente. */
+/** Programar jornada (HU-20). Con `id` edita una existente. */
 export function JornadaFormSheet({ id }: { id?: string }) {
   const jornada = useJornada(id);
 
@@ -51,7 +51,7 @@ function JornadaForm({ inicial }: { inicial?: JornadaConInscritos }) {
   const [descripcion, setDescripcion] = useState(inicial?.descripcion ?? '');
   const [intentado, setIntentado] = useState(false);
 
-  // El punto en el mapa vive en el store: el mapa en modo selección lo fija y este formulario lo lee.
+  // El punto vive en el store porque lo fija otra pantalla (el mapa en modo selección).
   const punto = useUbicacionStore((s) => s.puntoJornada);
   const fijarPunto = useUbicacionStore((s) => s.fijarPuntoJornada);
   const latInicial = inicial?.latitud ?? null;

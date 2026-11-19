@@ -1,16 +1,16 @@
-/** Respuesta GeoJSON del servicio `query` del USGS (solo los campos que usa la app). */
+// Solo los campos del GeoJSON del USGS que usa la app.
 export type USGSFeature = {
   id: string;
   properties: {
     mag: number | null;
     place: string | null;
-    /** Milisegundos desde 1970 (UTC). */
+    /** Epoch en ms (UTC). */
     time: number;
     url?: string;
     title?: string;
   };
   geometry: {
-    /** [longitud, latitud, profundidad en km] */
+    /** GeoJSON pone la longitud primero: [lng, lat, profundidad km]. */
     coordinates: [number, number, number];
   } | null;
 };

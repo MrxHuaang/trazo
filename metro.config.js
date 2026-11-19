@@ -4,7 +4,7 @@ const { withNativeWind } = require('nativewind/metro');
 
 const config = getDefaultConfig(__dirname);
 
-// La carpeta video/ es un proyecto aparte (Remotion) con sus propias dependencias: Metro no debe verla.
+// video/ es el proyecto de Remotion, con su propio node_modules. Si Metro lo indexa, mezcla dependencias.
 const carpetaVideo = path.resolve(__dirname, 'video').replace(/[/\\]/g, '[/\\\\]');
 config.resolver.blockList = [new RegExp(`^${carpetaVideo}([/\\\\].*)?$`)];
 

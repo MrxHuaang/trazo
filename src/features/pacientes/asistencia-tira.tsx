@@ -17,8 +17,8 @@ const FORMA: Record<PuntoAsistencia['tipo'], string> = {
 const plural = (n: number, uno: string, varios: string) => `${n} ${n === 1 ? uno : varios}`;
 
 /**
- * "Asistencia de un vistazo": las últimas citas como una tira de puntos (la más reciente a la derecha)
- * y el porcentaje de asistencia. La tira es decorativa para el lector de pantalla; el resumen va en la etiqueta.
+ * Últimas citas como tira de puntos (la más reciente a la derecha) y el % de asistencia.
+ * El lector de pantalla ignora la tira y lee el resumen de la etiqueta.
  */
 export function AsistenciaTira({ asistencia }: { asistencia: Asistencia }) {
   const { puntos, asistidas, faltas, canceladas, futuras, porcentaje } = asistencia;

@@ -26,7 +26,6 @@ import { capitalizar, diaMes, estadoCupos, masUrgentes, plural, textoDirectorio 
 const MAX_JORNADAS = 4;
 const MAX_AFECTADOS = 4;
 
-/** Pestaña Solidario: cupos de la semana, jornadas y su mapa, sismos, seguimientos, personas afectadas y líneas de ayuda. */
 export function SolidarioScreen() {
   const hoy = hoyClave();
 
@@ -69,7 +68,7 @@ export function SolidarioScreen() {
   );
 }
 
-/* ---------- Cupos de la semana (HU-18, RN-03) ---------- */
+// Cupos de la semana (HU-18, RN-03)
 
 function CuposHero() {
   const consultorio = useConsultorio();
@@ -104,7 +103,7 @@ function CuposHero() {
   );
 }
 
-/* ---------- Jornadas (HU-20) y su mapa ---------- */
+// Jornadas y su mapa (HU-20)
 
 type Celda = { tipo: 'jornada'; jornada: JornadaConInscritos } | { tipo: 'nueva' };
 
@@ -170,7 +169,7 @@ function Jornadas() {
   );
 }
 
-/** Entrada al mapa solidario: cuántas jornadas están ubicadas en Pereira. */
+/** Cuenta solo las jornadas que tienen punto en el mapa. */
 function MapaEntrada() {
   const todas = useJornadas();
   const ubicadas = (todas.data ?? []).filter((j) => typeof j.latitud === 'number' && typeof j.longitud === 'number').length;
@@ -192,7 +191,7 @@ function MapaEntrada() {
   );
 }
 
-/* ---------- Seguimientos (HU-22) ---------- */
+// Seguimientos (HU-22)
 
 function Seguimientos({ hoy }: { hoy: string }) {
   const pendientes = useSeguimientos({ estado: 'pendiente' });
@@ -219,7 +218,7 @@ function Seguimientos({ hoy }: { hoy: string }) {
   );
 }
 
-/* ---------- Personas afectadas (HU-17) ---------- */
+// Personas afectadas (HU-17)
 
 const etiquetasAfectacion = (p: Paciente) =>
   p.afectaciones.length
@@ -268,7 +267,7 @@ function Afectados() {
   );
 }
 
-/* ---------- Líneas de ayuda (HU-19) ---------- */
+// Líneas de ayuda (HU-19)
 
 function LineasDeAyuda() {
   const recursos = useRecursos();
@@ -299,7 +298,7 @@ function LineasDeAyuda() {
   );
 }
 
-/* ---------- Informe del mes (HU-23) ---------- */
+// Informe del mes (HU-23)
 
 function InformeEnlace() {
   const mes = mesClave();

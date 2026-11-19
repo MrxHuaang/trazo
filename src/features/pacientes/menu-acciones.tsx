@@ -23,8 +23,8 @@ const ALTO_BARRA = 52;
 /** Menú corto anclado arriba a la derecha (acciones de la ficha). Se cierra tocando fuera o con atrás. */
 export function MenuAcciones({ visible, onCerrar, acciones }: MenuAccionesProps) {
   const insets = useSafeAreaInsets();
-  // En iOS no se puede presentar una alerta o el menú de compartir mientras el modal se cierra:
-  // la acción espera a onDismiss.
+  // iOS no abre alertas ni el menú de compartir mientras el modal se está cerrando,
+  // así que la acción queda pendiente hasta onDismiss.
   const pendiente = useRef<(() => void) | null>(null);
 
   const elegir = (accion: () => void) => {

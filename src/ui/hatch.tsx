@@ -9,9 +9,8 @@ type HatchProps = {
 };
 
 /**
- * Textura rayada a 45°: marca visual de lo solidario además del color,
- * para que ningún estado dependa solo del color (accesibilidad).
- * Se dibuja con líneas medidas (no con <Pattern>) para cubrir el bloque completo en Android.
+ * Rayado de lo solidario, para no depender solo del color.
+ * Va con líneas medidas porque <Pattern> no cubría todo el bloque en Android.
  */
 export function HatchOverlay({ color, opacity = 0.12, gap = 7 }: HatchProps) {
   const [size, setSize] = useState({ w: 0, h: 0 });

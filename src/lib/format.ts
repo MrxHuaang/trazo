@@ -2,7 +2,7 @@ export function formatoCOP(valor: number) {
   return `$${Math.round(valor).toLocaleString('es-CO')}`;
 }
 
-/** Celular colombiano legible: 300 123 4567. */
+/** 300 123 4567. Si no son 10 dígitos lo deja como venga. */
 export function formatoTelefono(telefono?: string | null) {
   const d = (telefono ?? '').replace(/\D/g, '');
   if (d.length !== 10) return telefono ?? '';
@@ -18,7 +18,7 @@ export function iniciales(nombre: string) {
     .join('');
 }
 
-/** "Laura M." para filas compactas. */
+/** 'Laura M.' para filas compactas. */
 export function nombreCorto(nombre: string) {
   const [primero, segundo] = nombre.split(/\s+/);
   return segundo ? `${primero} ${segundo[0]}.` : (primero ?? nombre);

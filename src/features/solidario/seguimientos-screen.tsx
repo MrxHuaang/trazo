@@ -17,7 +17,7 @@ const DETALLE: Record<ClaveGrupo, string | undefined> = {
   hechos: undefined,
 };
 
-/** Seguimientos (HU-22): Vencidos · Hoy · Próximos · Hechos, con Llamar, WhatsApp, Hecho y Posponer 7 días. */
+/** Seguimientos agrupados por urgencia (HU-22). */
 export function SeguimientosScreen() {
   const hoy = hoyClave();
   const seguimientos = useSeguimientos();

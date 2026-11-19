@@ -1,8 +1,3 @@
-/**
- * Hooks (TanStack Query) del programa solidario. Llaves bajo qk.jornadas, qk.asistentes y qk.recursos;
- * las cifras del informe se guardan bajo la llave de la entidad que cuentan, para que las mutaciones
- * de otros módulos (citas, pagos, seguimientos) las actualicen solas.
- */
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useConsultorio, useCrearPaciente, useCrearSeguimiento } from '@/data/hooks';
@@ -15,21 +10,18 @@ import type { CifrasInforme } from './informe';
 import * as repo from './repo';
 import { fechaSeguimientoAsistente, motivoSeguimientoJornada } from './rules';
 
-/* ---------- Jornadas ---------- */
-
 export const useJornadasProximas = () =>
   useQuery({ queryKey: [...qk.jornadas, 'proximas'], queryFn: repo.listarJornadasProximas });
 
 export const useJornadasAnteriores = (limite = 3) =>
   useQuery({ queryKey: [...qk.jornadas, 'anteriores', limite], queryFn: () => repo.listarJornadasAnteriores(limite) });
 
-/** Todas las jornadas, próximas y pasadas (mapa solidario). */
+/** Para el mapa: próximas y pasadas. */
 export const useJornadas = () => useQuery({ queryKey: [...qk.jornadas, 'todas'], queryFn: repo.listarJornadas });
 
 export const useJornada = (id?: string) =>
   useQuery({ queryKey: [...qk.jornadas, 'una', id], queryFn: () => repo.obtenerJornada(id!), enabled: !!id });
 
-/** Jornadas a las que asistió un paciente (para la historia de su ficha). */
 export const useJornadasDePaciente = (pacienteId?: string) =>
   useQuery({
     queryKey: [...qk.jornadas, 'paciente', pacienteId],
@@ -64,8 +56,6 @@ export function useEliminarJornada() {
   });
 }
 
-/* ---------- Asistentes ---------- */
-
 const llaveAsistentes = (jornadaId: string) => [...qk.asistentes, 'jornada', jornadaId] as const;
 
 export const useAsistentes = (jornadaId?: string) =>
@@ -75,7 +65,7 @@ export const useAsistentes = (jornadaId?: string) =>
     enabled: !!jornadaId,
   });
 
-/** Registra un asistente y lo muestra en la lista al instante (actualización optimista). */
+/** Optimista: el asistente aparece en la lista antes de que termine de guardarse. */
 export function useCrearAsistente() {
   const qc = useQueryClient();
   return useMutation({
@@ -107,10 +97,7 @@ export function useCrearAsistente() {
 
 export type DatosAsistente = Pick<repo.NuevoAsistente, 'nombre' | 'telefono' | 'requiereSeguimiento' | 'consentimientoDatos'>;
 
-/**
- * HU-21 + RN-08: registra el asistente y, si requiere seguimiento,
- * crea un seguimiento a 7 días ligado al asistente.
- */
+/** HU-21, RN-08: si el asistente requiere seguimiento, se le crea uno a 7 días. */
 export function useRegistrarAsistente() {
   const crearAsistente = useCrearAsistente();
   const crearSeguimiento = useCrearSeguimiento();
@@ -162,7 +149,7 @@ export function useVincularAsistente() {
   });
 }
 
-/** "Convertir en paciente": crea la ficha como persona afectada por el sismo y la liga al asistente. */
+/** Crea la ficha marcada como afectada por el sismo y la liga al asistente. */
 export function useConvertirEnPaciente() {
   const crearPaciente = useCrearPaciente();
   const vincular = useVincularAsistente();
@@ -186,11 +173,10 @@ export function useConvertirEnPaciente() {
   };
 }
 
-/* ---------- Líneas de ayuda ---------- */
-
 export const useRecursos = () => useQuery({ queryKey: qk.recursos, queryFn: repo.listarRecursos, staleTime: Infinity });
 
-/* ---------- Informe de impacto (HU-23) ---------- */
+// Informe (HU-23): cada cifra usa la llave de la entidad que cuenta, así las mutaciones de citas,
+// pagos o seguimientos la refrescan sin invalidarla desde aquí.
 
 export function useInformeMes(mes: string) {
   const consultorio = useConsultorio();

@@ -14,7 +14,7 @@ type BotonIconoProps = {
   className?: string;
 };
 
-/** Botón redondo solo con ícono, de 44 de diámetro. */
+/** Botón circular de 44 pt, el mínimo táctil. */
 export function BotonIcono({ icono, etiqueta, onPress, destacado, className }: BotonIconoProps) {
   return (
     <Presionable
@@ -37,7 +37,7 @@ type BotonTextoProps = {
   className?: string;
 };
 
-/** Acción de texto en cobalto (o píldora con borde de tinta) con área táctil de 44. */
+/** Acción de texto o píldora; aunque se vea pequeña, el área táctil es de 44. */
 export function BotonTexto({ etiqueta, onPress, accessibilityLabel, borde, className }: BotonTextoProps) {
   return (
     <Pressable

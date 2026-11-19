@@ -15,7 +15,7 @@ import { estadoCupos } from './rules';
 
 const MAX_CUPOS = 20;
 
-/** Hoja "Cupos solidarios" (HU-18): cupos por semana y valor de la tarifa social. */
+/** Cupos por semana y valor de la tarifa social (HU-18). */
 export function CuposSheet() {
   const consultorio = useConsultorio();
 

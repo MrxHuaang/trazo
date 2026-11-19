@@ -1,7 +1,5 @@
-/**
- * Datos ficticios de demostración (HU-27). Fechas relativas a hoy para que la demo siempre esté viva.
- * Ningún dato corresponde a personas reales; los teléfonos son números de prueba.
- */
+// Demo de HU-27. Todo es ficticio y los teléfonos son de prueba.
+// Las fechas se calculan desde hoy para que la demo nunca quede vieja.
 import type { Afectacion, EstadoCita, Tarifa } from '@/domain/types';
 import { diaSemana, fechaClave, hoyClave, inicioSemana, isoDesde, sumarDias } from '@/lib/dates';
 import { nuevoId } from '@/lib/id';
@@ -29,17 +27,14 @@ const PACIENTES: P[] = [
 const HORAS = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
 const MINUTO = 60_000;
 
-/**
- * Citas de hoy relativas a la hora en que se carga la demostración: tres ya atendidas y tres por venir,
- * la primera en unos 12 minutos. Así la demo siempre tiene una próxima cita con su cuenta regresiva,
- * sin importar a qué hora se presente.
- */
+// Tres citas antes de ahora y tres después, la primera en ~12 min, para que siempre haya
+// cuenta regresiva sin importar a qué hora se presente la demo.
 function iniciosDeHoy(ahora: number) {
   const enPunto = Math.floor(ahora / (60 * MINUTO)) * 60 * MINUTO;
   const proxima = Math.ceil((ahora + 12 * MINUTO) / (5 * MINUTO)) * 5 * MINUTO;
   return [enPunto - 3 * 60 * MINUTO, enPunto - 2 * 60 * MINUTO, enPunto - 60 * MINUTO, proxima, proxima + 70 * MINUTO, proxima + 150 * MINUTO].map(
     (t) => new Date(t).toISOString(),
-  ).filter((iso) => fechaClave(iso) === hoyClave()); // si se presenta de noche, no pasa al día siguiente
+  ).filter((iso) => fechaClave(iso) === hoyClave()); // de noche las últimas caerían en mañana
 }
 
 export async function cargarDemo() {
@@ -74,7 +69,7 @@ export async function cargarDemo() {
   const ahora = Date.now();
   let n = 0;
   const solidariasPorSemana = new Map<string, number>();
-  // Citas de 14 días atrás a 14 días adelante, entre semana, 3 por día. Hoy siempre tiene citas (ver iniciosDeHoy).
+  // Dos semanas hacia atrás y dos hacia adelante, solo entre semana. Hoy se incluye aunque sea fin de semana.
   for (let d = -14; d <= 14; d++) {
     const dia = sumarDias(hoy, d);
     if (d !== 0 && diaSemana(dia) > 5) continue;
@@ -90,9 +85,9 @@ export async function cargarDemo() {
       let estado: EstadoCita = pasada ? 'asistio' : 'confirmada';
       if (pasada && n % 9 === 4) estado = 'no_asistio';
       if (pasada && n % 13 === 6) estado = 'cancelada';
-      // Hoy: la próxima cita queda confirmada (para la cuenta regresiva) y la última, solicitada.
+      // Hoy la última queda solicitada; la próxima tiene que seguir confirmada para la cuenta regresiva.
       if (!pasada && (d === 0 ? k === inicios.length - 1 : n % 7 === 3)) estado = 'solicitada';
-      // Cupos solidarios (RN-03): máximo 3 por semana; en la semana actual quedan 2 usados y 1 libre.
+      // RN-03: máximo 3 solidarias por semana. En la actual se dejan 2 para mostrar un cupo libre.
       const semana = inicioSemana(dia);
       const tope = semana === inicioSemana(hoy) ? 2 : 3;
       const usados = solidariasPorSemana.get(semana) ?? 0;
@@ -125,7 +120,7 @@ export async function cargarDemo() {
     }
   }
 
-  // Disponibilidad: lunes a viernes mañana y tarde presencial; sábado mañana virtual.
+  // Lunes a viernes presencial en dos bloques; sábado en la mañana, virtual.
   for (let dia = 1; dia <= 5; dia++) {
     for (const [ini, finH] of [['08:00', '12:00'], ['14:00', '18:00']] as const) {
       await base.runAsync('INSERT INTO disponibilidad (id, dia_semana, hora_inicio, hora_fin, modalidad) VALUES (?,?,?,?,?)', [
@@ -137,7 +132,7 @@ export async function cargarDemo() {
     nuevoId(), 6, '09:00', '12:00', 'virtual',
   ]);
 
-  // Jornadas: una pasada con asistentes y una próxima.
+  // Una jornada pasada con asistentes (para los seguimientos) y una próxima.
   const pasada = nuevoId();
   const jPasadaDia = sumarDias(hoy, -9);
   await base.runAsync(
@@ -175,7 +170,7 @@ export async function cargarDemo() {
       isoDesde(sumarDias(hoy, 5), '11:00'), 25, 'Taller práctico de respiración y regulación emocional.', t, 4.7936, -75.7352],
   );
 
-  // Líneas de ayuda (verificar vigencia antes de publicar).
+  // TODO: confirmar que estas líneas sigan vigentes antes de publicar.
   const recursos = [
     ['Línea Amiga Risaralda', 'Orientación en salud mental, 24 horas.', '6063339610', '3155608849', null],
     ['Línea 106', 'Línea nacional de teleorientación en salud mental.', '106', null, null],

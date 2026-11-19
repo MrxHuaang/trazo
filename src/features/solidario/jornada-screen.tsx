@@ -34,7 +34,7 @@ import {
 import { buscarPacientePorTelefono, type JornadaConInscritos } from './repo';
 import { capitalizar, diaMes, etiquetaTipo, fechaSeguimientoAsistente, plural } from './rules';
 
-/** Jornada (HU-20, HU-21): datos, inscritos de cupos y registro rápido de asistentes. */
+/** Detalle de la jornada y registro rápido de asistentes (HU-20, HU-21). */
 export function JornadaScreen({ id }: { id: string }) {
   const jornada = useJornada(id);
 
@@ -65,7 +65,7 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
         {
           text: 'Eliminar',
           style: 'destructive',
-          // Se sale primero: al borrarse la jornada esta pantalla se queda sin datos y sus callbacks ya no corren.
+          // Primero se sale: al borrar la jornada la pantalla queda sin datos y sus callbacks ya no corren.
           onPress: () => {
             eliminar.mutateAsync(j.id).catch(avisarError('No se pudo eliminar la jornada'));
             if (router.canGoBack()) router.back();
@@ -154,7 +154,7 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
         {asistentes.data && lista.length === 0 ? (
           <EmptyState title="Aún no hay asistentes" body="Regístralos durante la jornada; cada nombre aparece aquí al instante." />
         ) : null}
-        {/* Los que ya estaban no se animan al abrir; solo los que se registran después. */}
+        {/* Solo se animan los que se registran después de abrir. */}
         <LayoutAnimationConfig skipEntering>
           <View>
             {lista.map((a) => (
@@ -167,7 +167,7 @@ function Detalle({ jornada: j }: { jornada: JornadaConInscritos }) {
   );
 }
 
-/* ---------- Registro rápido (HU-21, RN-08) ---------- */
+// Registro rápido (HU-21, RN-08)
 
 function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; lleno: boolean }) {
   const [nombre, setNombre] = useState('');
@@ -186,7 +186,7 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
     setIntentado(true);
     if (errorNombre) return;
     const datos = { nombre, telefono, requiereSeguimiento: seguimiento, consentimientoDatos: autoriza };
-    // La fila aparece al instante (actualización optimista); el formulario queda listo para el siguiente.
+    // Optimista: la fila aparece al instante y el formulario queda listo para el siguiente.
     registrar(jornada, datos)
       .then(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success))
       .catch(avisarError('No se pudo registrar el asistente'));
@@ -241,8 +241,6 @@ function RegistroRapido({ jornada, lleno }: { jornada: JornadaConInscritos; llen
     </>
   );
 }
-
-/* ---------- Asistente ---------- */
 
 // Un asistente nuevo entra desde arriba; los demás bajan con resorte para hacerle sitio.
 const entrada = FadeInDown.springify().damping(18).stiffness(190).reduceMotion(ReduceMotion.System);

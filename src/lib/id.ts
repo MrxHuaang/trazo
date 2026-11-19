@@ -1,4 +1,4 @@
 import { randomUUID } from 'expo-crypto';
 
-/** UUID generado en el teléfono (permite crear registros antes de cualquier sincronización). */
+// UUID local y no autoincremental, para que los registros no choquen el día que se sincronice (ADR-010).
 export const nuevoId = () => randomUUID();

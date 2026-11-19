@@ -1,7 +1,6 @@
 /**
- * Aviso local antes de cada cita (HU-07). Sin nombres ni motivos en el texto (RN-10).
- * Las notificaciones locales funcionan en Expo Go (las push remotas no, y no se usan).
- * Si la profesional niega el permiso, la app sigue igual, solo que sin avisos.
+ * Aviso local antes de cada cita (HU-07), sin nombres ni motivos (RN-10).
+ * Locales y no push porque las push no funcionan en Expo Go. Sin permiso, la app sigue igual.
  */
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance, IosAuthorizationStatus } from 'expo-notifications';
@@ -17,7 +16,7 @@ const idAviso = (citaId: string) => `cita-${citaId}`;
 
 let handlerListo = false;
 
-/** Muestra el aviso también con la app abierta. Se puede llamar varias veces. */
+/** Para que el aviso salga también con la app abierta. Se puede llamar más de una vez. */
 export function configurarAvisos() {
   if (!disponible || handlerListo) return;
   handlerListo = true;
@@ -33,7 +32,7 @@ export function configurarAvisos() {
 
 let canal: Promise<unknown> | null = null;
 
-/** Android 13+ solo muestra la solicitud de permiso si ya existe un canal. Sin vibración fuerte (calma por diseño). */
+// Android 13+ no muestra el diálogo de permiso si no existe un canal antes. Vibración suave a propósito.
 function asegurarCanal() {
   if (Platform.OS !== 'android') return Promise.resolve();
   canal ??= Notifications.setNotificationChannelAsync(CANAL, {
@@ -53,7 +52,7 @@ async function tienePermiso() {
   return actual.granted || actual.ios?.status === IosAuthorizationStatus.PROVISIONAL;
 }
 
-/** Pide el permiso la primera vez. Devuelve false si no se concede (sin insistir). */
+/** Devuelve false si se niega; no se vuelve a insistir. */
 export async function pedirPermiso(): Promise<boolean> {
   if (!disponible) return false;
   try {
@@ -84,10 +83,7 @@ async function agendarAviso(citaId: string, fecha: Date) {
 
 const fechaAviso = (inicioIso: string) => new Date(new Date(inicioIso).getTime() - MINUTOS_ANTES * 60_000);
 
-/**
- * Programa (o reprograma) el aviso 15 min antes del inicio. Si ese momento ya pasó, no programa nada.
- * Nunca lanza: un fallo del aviso no debe impedir guardar la cita.
- */
+/** Aviso 15 min antes del inicio. Nunca lanza: si falla, la cita igual tiene que guardarse. */
 export async function programarAviso(citaId: string, inicioIso: string): Promise<boolean> {
   if (!disponible) return false;
   try {
@@ -108,14 +104,13 @@ export async function cancelarAviso(citaId: string) {
   try {
     await Notifications.cancelScheduledNotificationAsync(idAviso(citaId));
   } catch {
-    // Sin aviso que cancelar.
+    // No había aviso programado.
   }
 }
 
 /**
- * Alinea los avisos con las citas dadas sin pedir permiso: programa los que faltan para citas
- * confirmadas futuras y quita los de citas que ya no están confirmadas. Cubre las citas de la demo
- * y las que otros módulos confirman.
+ * Programa los avisos que faltan para citas confirmadas futuras y quita los que sobran.
+ * No pide permiso; sirve para la demo y para citas confirmadas desde otras pantallas.
  */
 export async function sincronizarAvisos(citas: CitaConPaciente[]) {
   if (!disponible) return;

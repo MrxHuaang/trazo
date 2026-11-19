@@ -9,7 +9,7 @@ import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 import { color, radius, space, tile } from '@/theme';
 import { Text } from '@/ui';
 
-/** Versión web (página de reservas y vista previa): barra inferior propia con el estilo de la app. */
+// NativeTabs no existe en web, así que aquí la barra se arma a mano con expo-router/ui.
 export default function AppTabs() {
   return (
     <Tabs>
@@ -42,7 +42,7 @@ type TabButtonProps = TabTriggerSlotProps & { label: string; icon: Icon };
 
 function TabButton({ label, icon: IconComponent, isFocused, ...props }: TabButtonProps) {
   const tint = isFocused ? color.accent : color.inkSoft;
-  // TabTrigger (asChild) entrega props de Pressable; su `ref` está tipado para otro elemento.
+  // El cast es por el tipo de `ref` que trae TabTrigger con asChild; en la práctica son props de Pressable.
   return (
     <Pressable {...(props as PressableProps)} style={styles.button}>
       <View style={styles.inner}>

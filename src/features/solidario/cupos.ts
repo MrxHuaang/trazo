@@ -1,10 +1,4 @@
-/**
- * RN-03: los cupos solidarios se cuentan por semana calendario (lunes a domingo)
- * y superarlos requiere confirmación explícita.
- *
- * Lo usa el módulo agenda al crear o marcar una cita como solidaria:
- *   if (esSolidaria && !(await confirmarCupoSolidario(fechaClave(inicio)))) return;
- */
+// RN-03: los cupos se cuentan por semana (lunes a domingo) y pasarse pide confirmación.
 import { Alert } from 'react-native';
 
 import { contarSolidariasSemana } from '@/data/repos/citas';
@@ -13,9 +7,8 @@ import { obtenerConsultorio } from '@/data/repos/consultorio';
 import { plural } from './rules';
 
 /**
- * Resuelve `true` si hay cupo o si la profesional decide continuar; `false` si cancela.
- * @param clave 'yyyy-MM-dd' (hora de Colombia) de la cita.
- * @param descontar citas solidarias de esa semana que no deben contarse (p. ej. la misma cita al editarla).
+ * `true` si hay cupo o si la profesional decide seguir igual.
+ * `descontar` sirve al editar, para no contar la misma cita dos veces.
  */
 export async function confirmarCupoSolidario(clave: string, descontar = 0): Promise<boolean> {
   const [contadas, consultorio] = await Promise.all([contarSolidariasSemana(clave), obtenerConsultorio()]);

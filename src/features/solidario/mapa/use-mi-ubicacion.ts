@@ -6,9 +6,8 @@ import { useUbicacionStore } from '../store/use-ubicacion-store';
 import type { MapaLeafletHandle } from './mapa-leaflet';
 
 /**
- * Ubicación propia en el mapa. Al abrir solo consulta el permiso (sin diálogo): si ya está
- * concedido pinta el punto; si no, el mapa sigue funcionando y el permiso se pide cuando la
- * persona toca "Mi ubicación" o el aviso. Al volver de Ajustes se vuelve a consultar.
+ * Al abrir solo consulta el permiso; el diálogo sale cuando la persona toca "Mi ubicación".
+ * Se vuelve a consultar al regresar de Ajustes.
  */
 export function useMiUbicacion(mapa: RefObject<MapaLeafletHandle | null>, listo: boolean) {
   const permiso = usePermisosStore((s) => s.ubicacion);
@@ -35,7 +34,6 @@ export function useMiUbicacion(mapa: RefObject<MapaLeafletHandle | null>, listo:
     if (listo && ultima) mapa.current?.setUsuario(ultima);
   }, [listo, ultima, mapa]);
 
-  /** Pide el permiso si hace falta y centra el mapa en la ubicación propia. */
   const irAMiUbicacion = async () => {
     const estado = permiso === 'concedido' ? permiso : await pedir();
     if (estado !== 'concedido') return;

@@ -1,7 +1,4 @@
-/**
- * Mutaciones propias del módulo acceso: crear el consultorio, cargar la demostración y borrar todo.
- * Las tres reescriben datos de todos los módulos, por eso invalidan todas las consultas.
- */
+// Estas mutaciones tocan datos de toda la app, por eso invalidan todas las consultas.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { borrarTodo } from '@/data/db';
@@ -11,21 +8,21 @@ import { cargarDemo } from '@/data/seed';
 
 import { abrirSesion } from './sesion';
 
-/** HU-26: registro local del consultorio. La sesión queda abierta para no pedir desbloqueo de inmediato. */
+/** HU-26. Deja la sesión abierta para no pedir desbloqueo recién creado el consultorio. */
 export function useCrearConsultorio() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (datos: NuevoConsultorio) => crearConsultorio(datos),
     onSuccess: async (consultorio) => {
       abrirSesion();
-      // Se fija antes de navegar: el AccessGate no debe ver un consultorio vacío al salir de la bienvenida.
+      // Antes de navegar, o el AccessGate alcanza a ver el consultorio vacío y vuelve a la bienvenida.
       qc.setQueryData(qk.consultorio, consultorio);
       await qc.invalidateQueries();
     },
   });
 }
 
-/** HU-27: reemplaza todo por los datos ficticios de demostración. */
+/** HU-27. Reemplaza lo que haya por los datos ficticios. */
 export function useCargarDemo() {
   const qc = useQueryClient();
   return useMutation({
@@ -41,7 +38,7 @@ export function useCargarDemo() {
   });
 }
 
-/** Borra todos los datos del teléfono. El AccessGate ve que no hay consultorio y lleva a la bienvenida. */
+/** Con el consultorio en null, el AccessGate vuelve solo a la bienvenida. */
 export function useBorrarTodo() {
   const qc = useQueryClient();
   return useMutation({

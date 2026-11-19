@@ -1,10 +1,5 @@
-/**
- * Sismógrafo vivo: convierte el movimiento real del teléfono en la energía del Trazo.
- *
- * Lee el acelerómetro (expo-sensors, incluido en Expo Go), separa la gravedad del movimiento y
- * escribe una energía de 0 (quieto) a 1 (sacudida) en un SharedValue de Reanimated. Las muestras
- * nunca pasan por estado de React: van del sensor directo al hilo de la interfaz.
- */
+// Movimiento del teléfono convertido en energía del Trazo (expo-sensors viene en Expo Go).
+// Las muestras van directo a un SharedValue y no a estado de React, para no re-renderizar 30 veces por segundo.
 import { Accelerometer, type AccelerometerMeasurement } from 'expo-sensors';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
@@ -12,36 +7,36 @@ import { Easing, useSharedValue, withTiming, type SharedValue } from 'react-nati
 
 import { useEstadoApp } from '@/features/acceso/use-estado-app';
 
-/** Milisegundos entre muestras (unas 30 por segundo: fluido y sin gastar batería de más). */
+// Unas 30 muestras por segundo: se ve fluido sin gastar batería de más.
 const INTERVALO_MS = 33;
-/** Qué tan rápido la estimación de gravedad sigue al sensor (más bajo = más lento). */
+// Filtro paso bajo para estimar la gravedad; entre más bajo, más lento sigue al sensor.
 const SEGUIR_GRAVEDAD = 0.08;
-/** Movimiento, en g, que se ignora: ruido del sensor y pulso de la mano. */
+// En g. Por debajo es ruido del sensor o el pulso de la mano.
 const PISO = 0.012;
-/** Movimiento, en g, que ya cuenta como energía máxima. */
+// En g. Desde aquí ya es energía máxima.
 const TECHO = 0.5;
-/** La energía sube rápido y baja despacio: el Trazo se agita al instante y se calma con suavidad. */
+// Sube rápido y baja despacio: se agita al instante y se calma con suavidad.
 const SUBIDA = 0.55;
 const BAJADA = 0.07;
 
 type Opciones = {
-  /** Se suscribe al sensor solo mientras es verdadero (pantalla visible). */
+  /** Solo escucha el sensor mientras es true. */
   activo?: boolean;
-  /** Energía con la que arranca: el Trazo entra agitado y se calma solo. */
+  /** Energía inicial, para que el Trazo entre agitado y se calme solo. */
   impulso?: number;
 };
 
 export type Sismografo = {
-  /** Energía del movimiento, de 0 a 1. Se le pasa tal cual a `<TraceLine energia>`. */
+  /** De 0 a 1; va tal cual a `<TraceLine energia>`. */
   energia: SharedValue<number>;
-  /** null mientras se consulta; false en web o en dispositivos sin acelerómetro (la energía se queda en 0). */
+  /** null mientras consulta; false en web o sin acelerómetro. */
   disponible: boolean | null;
 };
 
-/** Movimiento sin gravedad, de 0 a 1. Es una función pura para poder razonarla y probarla. */
+/** Pura y exportada para poder probarla sin sensor. */
 export function energiaDelMovimiento(movimientoEnG: number) {
   const sobrante = Math.max(0, movimientoEnG - PISO) / TECHO;
-  // La raíz realza los movimientos pequeños: un balanceo suave ya se nota en el Trazo.
+  // El exponente 0.6 realza los movimientos pequeños para que un balanceo suave ya se note.
   return Math.min(1, Math.pow(sobrante, 0.6));
 }
 
@@ -80,7 +75,7 @@ export function useSismografo({ activo = true, impulso = 0 }: Opciones = {}): Si
         gy += (y - gy) * SEGUIR_GRAVEDAD;
         gz += (z - gz) * SEGUIR_GRAVEDAD;
       }
-      // Se divide por la gravedad estimada para no depender de la unidad que entregue el sensor.
+      // Dividir por la gravedad estimada evita depender de la unidad que entregue el sensor.
       const gravedad = Math.hypot(gx, gy, gz) || 1;
       const movimiento = Math.hypot(x - gx, y - gy, z - gz) / gravedad;
       const cruda = energiaDelMovimiento(movimiento);

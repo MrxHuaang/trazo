@@ -8,7 +8,7 @@ type Opciones = {
   destructiva?: boolean;
 };
 
-/** Confirmación explícita (Alert nativo; en web, el diálogo del navegador). */
+/** Alert.alert no muestra nada en web, por eso ahí se usa window.confirm. */
 export function confirmar({ titulo, mensaje, aceptar, cancelar = 'Volver', destructiva }: Opciones): Promise<boolean> {
   if (Platform.OS === 'web') {
     return Promise.resolve(typeof window !== 'undefined' && window.confirm(`${titulo}\n\n${mensaje}`));

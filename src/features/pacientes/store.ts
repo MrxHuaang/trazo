@@ -3,7 +3,6 @@ import { create } from 'zustand';
 import type { FiltroLista } from './rules';
 
 type EstadoLista = {
-  /** Lo escrito en el buscador de la pestaña Pacientes. */
   consulta: string;
   filtro: FiltroLista;
   setConsulta: (consulta: string) => void;
@@ -11,8 +10,8 @@ type EstadoLista = {
 };
 
 /**
- * Estado de interfaz de la lista de pacientes (Zustand): la búsqueda y el filtro se conservan
- * al abrir una ficha y volver, o al cambiar de pestaña. No guarda datos de pacientes.
+ * Búsqueda y filtro de la lista, aquí para que sobrevivan a abrir una ficha o cambiar de pestaña.
+ * Solo estado de interfaz: ningún dato de pacientes pasa por este store.
  */
 export const usePacientesStore = create<EstadoLista>()((set) => ({
   consulta: '',

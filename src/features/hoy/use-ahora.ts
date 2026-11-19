@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 
 import { ahora as ahoraEnColombia } from '@/lib/dates';
 
-/** Hora actual de Colombia, actualizada cada minuto (al cambiar el minuto del reloj). */
+/** Hora de Colombia; se refresca cuando cambia el minuto. */
 export function useAhora() {
   const [ahora, setAhora] = useState(ahoraEnColombia);
 
   useEffect(() => {
     let intervalo: ReturnType<typeof setInterval> | undefined;
     const tick = () => setAhora(ahoraEnColombia());
-    // Alinea el primer tick con el cambio de minuto para que "en 25 min" no quede atrasado.
+    // Primer tick alineado al cambio de minuto; si no, "en 25 min" puede ir casi un minuto atrasado.
     const espera = setTimeout(() => {
       tick();
       intervalo = setInterval(tick, 60_000);

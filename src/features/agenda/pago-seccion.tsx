@@ -16,10 +16,7 @@ function metodoEnFrase(m: MetodoPago | null) {
   return m === 'nequi' || m === 'daviplata' ? etiqueta : etiqueta.toLowerCase();
 }
 
-/**
- * Pago de la cita (RN-05: se crea al marcar "asistió"). Muestra el estado y, si está pendiente,
- * permite registrarlo eligiendo el método.
- */
+/** Pago de la cita. Solo existe desde que se marca "asistió" (RN-05). */
 export function PagoSeccion({ citaId }: { citaId: string }) {
   const pago = usePagoDeCita(citaId).data;
   const registrar = useRegistrarPago();

@@ -25,9 +25,8 @@ const DIAS_ADELANTE = 21;
 const esFecha = (v: unknown): v is string => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 
 /**
- * Nueva cita (HU-04): llega con la hora del hueco tocado y la duración por defecto.
- * Paciente con buscador y creación en contexto, cupo solidario con aviso de RN-03,
- * choque de horario en línea (RN-01) y aviso local al guardar (HU-07).
+ * Nueva cita (HU-04). Llega con la hora del hueco tocado; los choques se avisan en línea (RN-01)
+ * y el aviso local se programa al guardar (HU-07).
  */
 export function NuevaCitaSheet() {
   const params = useLocalSearchParams<{ inicio?: string; pacienteId?: string }>();
@@ -40,7 +39,7 @@ export function NuevaCitaSheet() {
   const pacienteParam = usePaciente(pacienteIdParam).data ?? null;
   const crear = useCrearCita();
 
-  // Paciente: el elegido en la hoja o, mientras no se cambie, el que llega por parámetro.
+  // El paciente del parámetro vale hasta que se elige otro en la hoja.
   const [eleccion, setEleccion] = useState<{ paciente: Paciente | null; nuevo: boolean } | null>(null);
   const paciente = eleccion ? eleccion.paciente : pacienteParam;
   const pacienteNuevo = eleccion?.nuevo ?? false;
@@ -60,7 +59,7 @@ export function NuevaCitaSheet() {
   const datos = useHorasDelDia({ fecha, hora, duracion, ahoraMs, todas });
   const horaLista = datos.seleccion?.estado === 'libre' ? datos.seleccion.hora : null;
 
-  // Valores por defecto derivados: la modalidad de la franja y el cupo solidario según el paciente.
+  // Mientras no se elijan a mano, modalidad y cupo solidario salen de la franja y del paciente.
   const modalidad = modalidadElegida ?? (hora ? modalidadEn(datos.franjas, aMinutos(hora)) : undefined) ?? 'presencial';
   const solidaria = solidariaElegida ?? (paciente ? sugiereSolidaria(paciente) : false);
 
@@ -80,7 +79,7 @@ export function NuevaCitaSheet() {
   const guardar = async () => {
     if (!paciente || !horaLista || guardando) return;
     setError(null);
-    // RN-03: la regla de cupos vive en el módulo solidario; aquí solo se pregunta.
+    // RN-03: la regla de cupos es de solidario; aquí solo se consulta.
     if (solidaria && !(await confirmarCupoSolidario(fecha))) return;
     setGuardando(true);
     try {

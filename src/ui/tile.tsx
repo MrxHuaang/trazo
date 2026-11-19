@@ -20,18 +20,15 @@ type TileProps = {
   children: ReactNode;
   onPress?: () => void;
   accessibilityLabel?: string;
-  /** Clases de posición del bloque (flex, márgenes). */
+  /** Posición del bloque en el mosaico (flex, márgenes). */
   className?: string;
-  /** Clases del interior (dirección, alineación). */
+  /** Layout interno. Va aparte porque con onPress el interior es la vista que se anima. */
   contentClassName?: string;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
 };
 
-/**
- * Bloque de color del mosaico. Cada tono corresponde a un tipo de información:
- * consulta (lavanda), confirmar (menta), solidario (durazno + textura), pagos (mantequilla).
- */
+/** Bloque de color; el tono dice qué tipo de información lleva. Solidario siempre con rayado. */
 export function Tile({ tone = 'neutral', children, onPress, accessibilityLabel, className, contentClassName, style, contentStyle }: TileProps) {
   const interior = cn('grow overflow-hidden rounded-tile p-4', FONDO[tone], contentClassName);
   const textura = tone === 'solidario' ? <HatchOverlay color={tile.solidario.fg} /> : null;

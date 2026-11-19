@@ -17,13 +17,10 @@ import { Seccion } from './seccion';
 const VISIBLES = 4;
 const aparecer = FadeIn.duration(260).reduceMotion(ReduceMotion.System);
 
-/**
- * Sismos recientes cerca de Pereira (catálogo público del USGS, vía axios + TanStack Query).
- * Si hubo uno de magnitud 4 o más en las últimas 48 horas, sugiere revisar los seguimientos.
- */
+/** Si hubo un sismo de magnitud 4 o más en las últimas 48 h, sugiere revisar los seguimientos. */
 export function SismosRecientes() {
   const q = useSismos();
-  // "Ahora" es el momento de la consulta: así el texto no cambia en cada render.
+  // "Ahora" es la hora de la consulta, así el texto no cambia en cada render.
   const ahora = q.dataUpdatedAt || q.errorUpdatedAt;
   const sismos = q.data ?? [];
   const aviso = q.data ? sismoDeAviso(sismos, ahora) : null;
@@ -104,7 +101,7 @@ function FilaSismo({ sismo: s, ahora }: { sismo: Sismo; ahora: number }) {
   );
 }
 
-/** Aviso tranquilo: no alarma, sugiere qué hacer. */
+// Tono tranquilo a propósito: sugiere qué hacer, no alarma.
 function Aviso({ sismo, ahora }: { sismo: Sismo; ahora: number }) {
   return (
     <View className="gap-3 rounded-tile bg-lavanda p-4">

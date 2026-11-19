@@ -20,7 +20,7 @@ import { iniciales } from '@/lib/format';
 import { color, tile } from '@/theme';
 import { Presionable, SolidarioMark, Text } from '@/ui';
 
-/** Desplazamiento a partir del cual, al soltar, se ejecuta la acción. */
+/** Px que hay que arrastrar para que la acción se ejecute al soltar. */
 const UMBRAL = 64;
 
 const avisarUmbral = () => {
@@ -29,19 +29,17 @@ const avisarUmbral = () => {
 
 type FilaPacienteProps = {
   paciente: Paciente;
-  /** "Próxima cita: lun 16 nov", "Última cita: …" o "Sin citas". */
   detalle: string;
   ultima: boolean;
   onAbrir: () => void;
-  /** Deslizar a la derecha. Sin celular no se ofrece. */
+  /** Undefined si el paciente no tiene celular: la fila no desliza a la derecha. */
   onWhatsApp?: () => void;
-  /** Deslizar a la izquierda. */
   onAgendar?: () => void;
 };
 
 /**
- * Fila de paciente: tocar abre la ficha; deslizar a la derecha escribe por WhatsApp
- * y a la izquierda agenda. Las mismas acciones están en la ficha y como acciones de accesibilidad.
+ * Tocar abre la ficha; deslizar a la derecha abre WhatsApp y a la izquierda agenda.
+ * Los gestos también van como accessibilityActions para quien no puede deslizar.
  */
 export function FilaPaciente({ paciente: p, detalle, ultima, onAbrir, onWhatsApp, onAgendar }: FilaPacienteProps) {
   const deslizable = useRef<SwipeableMethods>(null);
@@ -126,7 +124,7 @@ export function FilaPaciente({ paciente: p, detalle, ultima, onAbrir, onWhatsApp
   );
 }
 
-/** Fondo que aparece bajo la fila al deslizar: el ícono crece hasta el umbral y avisa con un toque háptico. */
+/** Fondo bajo la fila: el ícono crece hasta el umbral y ahí vibra para avisar que ya puede soltar. */
 function AccionDeslizada({
   traslacion,
   etiqueta,

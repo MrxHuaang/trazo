@@ -1,7 +1,4 @@
-/**
- * Reglas puras de la agenda: huecos de 30 min, disponibilidad, bloqueos y acomodo de bloques.
- * Los minutos se cuentan desde la medianoche en hora de Colombia (RN-02).
- */
+// Lógica pura de la agenda. Los minutos se cuentan desde la medianoche en hora de Colombia (RN-02).
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale/es';
 
@@ -41,7 +38,7 @@ export function rangoEnDia(dia: string, inicioIso: string, finIso: string): Rang
   return { ini: Math.round((a - base) / MS_MIN), fin: Math.round((b - base) / MS_MIN) };
 }
 
-/* ---------- Semana y fechas ---------- */
+// Semana y fechas
 
 export const diasDesde = (desde: string, n: number) => Array.from({ length: n }, (_, i) => sumarDias(desde, i));
 
@@ -60,7 +57,7 @@ export const fechaTitulo = (clave: string) => capitalizar(fechaLarga(isoDesde(cl
 
 export const NOMBRES_DIA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
-/* ---------- Disponibilidad y bloqueos ---------- */
+// Disponibilidad y bloqueos
 
 export type FranjaDia = Rango & { modalidad: Modalidad };
 
@@ -94,7 +91,7 @@ export function resumenFranjas(franjas: FranjaDia[]) {
 export const modalidadEn = (franjas: FranjaDia[], min: number) =>
   franjas.find((f) => f.ini <= min && min < f.fin)?.modalidad;
 
-/* ---------- Citas en el día ---------- */
+// Citas en el día
 
 export type CitaEnDia = Rango & { cita: CitaConPaciente };
 
@@ -121,8 +118,8 @@ export function ventanaDelDia(rangos: Rango[]): Rango {
 export type EstadoHueco = 'libre' | 'fuera' | 'bloqueado' | 'ocupado' | 'pasado';
 
 /**
- * Huecos de 30 min de la ventana. Sin ninguna franja configurada, todo el día cuenta como disponible
- * (la agenda no queda inútil antes de definir la disponibilidad).
+ * Huecos de 30 min de la ventana. Sin franjas configuradas todo cuenta como disponible,
+ * para que la agenda sirva antes de definir horarios.
  */
 export function huecosDelDia(p: {
   dia: string;
@@ -161,10 +158,7 @@ export function agruparHuecos(huecos: { ini: number; estado: EstadoHueco }[], es
 
 export type OpcionHora = { hora: string; estado: 'libre' | 'ocupada' | 'bloqueada' };
 
-/**
- * Horas de inicio posibles para una cita de `duracion` minutos en el día (cada 30 min).
- * Por defecto solo dentro de la disponibilidad; con `todas`, de 7:00 a 20:00.
- */
+/** Horas de inicio cada 30 min. Con `todas` ignora la disponibilidad y usa de 7:00 a 20:00. */
 export function horasParaCita(p: {
   dia: string;
   franjas: FranjaDia[];
@@ -227,13 +221,9 @@ export function primerHuecoLibre(p: {
   return null;
 }
 
-/** Paso del arrastre para reprogramar: 15 minutos. */
 export const PASO_ARRASTRE = 15;
 
-/**
- * Valida soltar una cita en un nuevo rango del mismo día (RN-01 antes de tocar la base de datos).
- * Devuelve el motivo en palabras cuando no se puede.
- */
+/** RN-01 antes de tocar la base: si no se puede mover, devuelve el motivo listo para mostrar. */
 export function validarMovimiento(p: {
   dia: string;
   rango: Rango;
@@ -277,7 +267,7 @@ export function distribuirColumnas<T extends Rango>(items: T[]): (T & { col: num
   return res;
 }
 
-/* ---------- Presentación de una cita ---------- */
+// Presentación de una cita
 
 export const ETIQUETA_ESTADO: Record<CitaConPaciente['estado'], string> = {
   solicitada: 'Solicitada',
@@ -320,7 +310,7 @@ export function mensajeCita(plantilla: string, cita: CitaConPaciente) {
     .trim();
 }
 
-/** Asegura el protocolo del enlace de videollamada. */
+/** Sin protocolo, Linking no abre el enlace de la videollamada. */
 export function normalizarEnlace(texto: string) {
   const t = texto.trim();
   if (!t) return null;

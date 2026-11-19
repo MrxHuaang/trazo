@@ -8,9 +8,8 @@ type MedidorCuposProps = {
 };
 
 /**
- * Medidor por segmentos sobre el bloque durazno: un segmento por cupo, lleno si ya se usó.
- * No es una barra con fondo: cada cupo es una pieza separada con borde, así se lee sin depender del color.
- * Al entrar, los segmentos usados se llenan uno a uno.
+ * Un segmento con borde por cupo en vez de una barra, para que se lea sin depender del color.
+ * Al entrar, los usados se llenan uno a uno.
  */
 export function MedidorCupos({ usados, total }: MedidorCuposProps) {
   if (total <= 0) return null;

@@ -1,7 +1,4 @@
-/**
- * Informe de impacto del mes (HU-23): cifras agregadas, frases y HTML del PDF.
- * Nunca incluye nombres, motivos de consulta ni notas (RN-10).
- */
+// Informe de impacto (HU-23). Nunca incluye nombres, motivos de consulta ni notas (RN-10).
 import { mesTexto } from '@/lib/dates';
 import { color, tile } from '@/theme';
 
@@ -17,18 +14,18 @@ export type CifrasInforme = {
   seguimientosHechos: number;
 };
 
-/** `valor` es la cifra como número (para animarla); `cifra`, el mismo valor ya escrito. */
+/** `valor` es para animar el número; `cifra`, el mismo valor ya formateado. */
 export type Frase = { clave: string; valor: number; cifra: string; texto: string };
 
 export const horasDonadas = (c: CifrasInforme) => (c.sesionesDonadas * c.minutosPorSesion) / 60;
 
-/** 12,5 · 3 · 0,8 */
+/** Máximo un decimal: 12,5 o 3 */
 export const formatoHoras = (horas: number) => horas.toLocaleString('es-CO', { maximumFractionDigits: 1 });
 
 export const informeVacio = (c: CifrasInforme) =>
   c.personasAfectadas + c.sesionesSolidarias + c.sesionesDonadas + c.asistentes + c.seguimientosHechos === 0;
 
-/** Cifra principal: horas donadas en sesiones sin costo. */
+/** La cifra principal del informe. */
 export function fraseHoras(c: CifrasInforme): Frase {
   const horas = horasDonadas(c);
   return {
@@ -86,7 +83,7 @@ export function frasesInforme(c: CifrasInforme): Frase[] {
 const escapar = (texto: string) =>
   texto.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** HTML del PDF: solo cifras agregadas del mes y el nombre del consultorio que lo emite. */
+/** Solo cifras agregadas y el nombre del consultorio. */
 export function htmlInforme(c: CifrasInforme, mes: string, consultorio: string, generado: string) {
   const horas = fraseHoras(c);
   const filas = frasesInforme(c)

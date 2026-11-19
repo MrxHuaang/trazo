@@ -10,25 +10,24 @@ const ANCHO_DIA = 58;
 const ANCHO_HORA = 72;
 const GAP = 8;
 
-/** Desplazamiento inicial para que la opción elegida quede a la vista (con una antes). */
+// Arranca con la opción elegida a la vista, dejando una antes.
 const desplazamiento = (indice: number, ancho: number) => ({ x: Math.max(indice - 1, 0) * (ancho + GAP), y: 0 });
 
 type SelectorDiaProps = {
   label: string;
-  /** Fechas 'yyyy-MM-dd' en orden. */
+  /** 'yyyy-MM-dd', ordenadas. */
   dias: string[];
   valor: string;
   hoy: string;
   onChange: (dia: string) => void;
 };
 
-/** Fila deslizable de días (hoy y los siguientes) con la fecha completa debajo. */
 export function SelectorDia({ label, dias, valor, hoy, onChange }: SelectorDiaProps) {
   const indice = Math.max(dias.indexOf(valor), 0);
   return (
     <View className="gap-1.5">
       <Text variant="label">{label}</Text>
-      {/* La fila se sale del margen de la hoja (-mx-5) para deslizar de borde a borde. */}
+      {/* -mx-5 saca la fila del margen de la hoja para que deslice de borde a borde. */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -71,13 +70,12 @@ export function SelectorDia({ label, dias, valor, hoy, onChange }: SelectorDiaPr
 
 type SelectorHoraProps = {
   label: string;
-  /** Horas 'HH:mm' en orden. */
+  /** 'HH:mm', ordenadas. */
   horas: string[];
   valor: string;
   onChange: (hora: string) => void;
 };
 
-/** Fila deslizable de horas cada 30 minutos. */
 export function SelectorHora({ label, horas, valor, onChange }: SelectorHoraProps) {
   const indice = Math.max(horas.indexOf(valor), 0);
   return (

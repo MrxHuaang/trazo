@@ -1,7 +1,7 @@
 
 import { CitaDetalleSheet } from '@/features/agenda/cita-detalle-sheet';
 
-/** Hoja con el detalle y las acciones de una cita. */
+/** Detalle de una cita en hoja. */
 export default function CitaRoute() {
   return (
     <>

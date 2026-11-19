@@ -18,10 +18,7 @@ type Props = {
   duracionMs?: number;
 };
 
-/**
- * Chip flotante sobre la barra de pestañas: explica por qué algo no se pudo o deja deshacer
- * el último cambio durante unos segundos. Se va solo.
- */
+/** Aviso temporal sobre la barra de pestañas: explica un rechazo u ofrece deshacer. */
 export function AvisoFlotante({ aviso, onCerrar, duracionMs = 5000 }: Props) {
   const id = aviso?.id;
 

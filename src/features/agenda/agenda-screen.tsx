@@ -57,26 +57,23 @@ import { useAgendaStore } from './store';
 import { instante, useAhoraMs } from './use-ahora-ms';
 
 const DIAS_BUSQUEDA = 28;
-/** Franja (px) cerca de los bordes donde arrastrar una cita desplaza la lista sola. */
+// Zona (px) junto a los bordes que activa el autoscroll al arrastrar una cita.
 const ZONA_SCROLL = 72;
 const VELOCIDAD_SCROLL = 12;
-/** Margen superior del contenido desplazable (clase `pt-4`). */
+// Tiene que coincidir con el pt-4 del contenido del scroll.
 const MARGEN_CONTENIDO = 16;
 
 const textoCitas = (n: number) => (n === 0 ? 'Sin citas' : n === 1 ? '1 cita' : `${n} citas`);
 const esSolape = (e: unknown) => e instanceof ErrorSolape || (e instanceof Error && e.name === 'ErrorSolape');
 
-/**
- * Agenda (HU-03): tira de la semana y línea de tiempo del día. Se agenda tocando un hueco libre
- * (HU-04), se abre una cita tocando su bloque y se reprograma arrastrándola.
- */
+/** Agenda del día (HU-03). Tocar un hueco agenda (HU-04) y arrastrar un bloque lo reprograma. */
 export function AgendaScreen() {
   const ahoraMs = useAhoraMs();
   const hoy = fechaClave(new Date(ahoraMs));
   const reducir = useReducedMotion();
   const qc = useQueryClient();
 
-  // Estado de interfaz en Zustand: otras pantallas pueden dejar la Agenda en un día concreto.
+  // El día vive en el store para que otras pantallas puedan abrir la Agenda en una fecha.
   const dia = useAgendaStore((s) => s.dia);
   const direccion = useAgendaStore((s) => s.direccion);
   const resaltado = useAgendaStore((s) => s.resaltado);
@@ -98,7 +95,7 @@ export function AgendaScreen() {
   const cupos = useCuposSolidariosSemana(dia).data ?? 0;
   const actualizar = useActualizarCita();
 
-  // Avisos locales de la próxima semana (sin pedir permiso aquí: eso pasa al agendar).
+  // Sincroniza los avisos de la próxima semana. El permiso se pide al agendar, no aquí.
   const avisosQ = useCitasParaAvisos(isoDesde(hoy), isoDesde(sumarDias(hoy, 8)));
   useEffect(() => {
     if (avisosQ.data) void sincronizarAvisos(avisosQ.data);
@@ -123,7 +120,7 @@ export function AgendaScreen() {
   const diaSinAtencion = !sinDisponibilidad && franjas.length === 0 && citas.length === 0 && bloqueos.length === 0;
   const huecoResaltado = resaltado && resaltado.dia === dia ? resaltado.ini : null;
 
-  /* ---------- Avisos flotantes (motivo de un rechazo, deshacer) ---------- */
+  // Avisos flotantes: motivo de un rechazo o deshacer.
 
   const [aviso, setAviso] = useState<Aviso | null>(null);
   const contador = useRef(0);
@@ -133,7 +130,7 @@ export function AgendaScreen() {
     setAviso({ id: contador.current, texto, accion });
   };
 
-  /* ---------- Desplazamiento de la línea de tiempo ---------- */
+  // Scroll de la línea de tiempo
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
@@ -165,7 +162,7 @@ export function AgendaScreen() {
     );
   }, [cargando, yLinea, claveVista, ventana, objetivo, reducir, scrollRef]);
 
-  // El pulso del hueco señalado dura unos segundos y se retira solo.
+  // El resaltado se apaga solo a los pocos segundos.
   useEffect(() => {
     if (!resaltado) return;
     const t = setTimeout(quitarResaltado, 3600);
@@ -194,9 +191,7 @@ export function AgendaScreen() {
     autoScroll.setActive(activo);
   };
 
-  /* ---------- Acciones ---------- */
-
-  // Deslizar la tira cambia de semana; las flechas hacen lo mismo sin gesto.
+  // Swipe en la tira para cambiar de semana; las flechas quedan como alternativa sin gesto.
   const deslizar = usePanGesture({
     runOnJS: true,
     activeOffsetX: [-14, 14],
@@ -224,7 +219,7 @@ export function AgendaScreen() {
     }
   };
 
-  /** Soltar una cita arrastrada: valida RN-01, guarda, mueve el aviso local y ofrece deshacer. */
+  // Al soltar se valida RN-01 antes de guardar y también se mueve el aviso local.
   const moverCita = async (bloque: CitaEnDia, nuevoIni: number): Promise<boolean> => {
     const { cita } = bloque;
     const minutos = duracionMin(cita);
@@ -260,7 +255,7 @@ export function AgendaScreen() {
     }
   };
 
-  /** Próximo hueco libre según disponibilidad, bloqueos y citas: salta al día y lo señala. */
+  // Busca el próximo hueco libre, salta a ese día y lo resalta.
   const [buscando, setBuscando] = useState(false);
   const buscarHueco = async () => {
     if (buscando) return;

@@ -1,22 +1,18 @@
-/**
- * Documento HTML del mapa: Leaflet + teselas de OpenStreetMap dentro de una WebView
- * (el mismo enfoque de la clase de mapas). No usa los controles por defecto de Leaflet:
- * los botones son de la app y hablan con el mapa por `injectJavaScript`.
- *
- * Mensajes hacia la app (JSON): listo · sin-leaflet · jornada {id} · sismo {id} · mapa · punto {lat, lng}.
- */
+// Leaflet + OSM en una WebView, como en la clase de mapas. Sin los controles de Leaflet: los botones
+// son de la app y llegan por injectJavaScript.
+// Mensajes a la app (JSON): listo, sin-leaflet, jornada {id}, sismo {id}, mapa, punto {lat, lng}.
 import { color, tile } from '@/theme';
 
 export type OpcionesMapa = {
   latitud: number;
   longitud: number;
   zoom: number;
-  /** En modo selección, tocar el mapa fija un punto. */
+  /** Tocar el mapa fija un punto. */
   elegir: boolean;
   animar: boolean;
 };
 
-/** Colores de la paleta que el mapa necesita dentro de la WebView. */
+// La WebView no ve los tokens, así que se le pasan los colores a mano.
 const C = {
   lienzo: color.canvas,
   superficie: color.surface,

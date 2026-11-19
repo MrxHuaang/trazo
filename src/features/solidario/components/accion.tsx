@@ -10,7 +10,7 @@ type AccionProps = {
   label: string;
   onPress: () => void;
   icon?: Icono;
-  /** pill: píldora con borde (acciones de fila) · texto: solo texto cobalto (enlaces como "Ver todos"). */
+  /** `texto` para enlaces tipo "Ver todos"; `pill` para acciones de fila. */
   variante?: 'pill' | 'texto';
   disabled?: boolean;
   accessibilityLabel?: string;
@@ -18,7 +18,7 @@ type AccionProps = {
   className?: string;
 };
 
-/** Acción compacta con ícono y texto en la misma línea. Área táctil de 44 pt. */
+/** Ícono y texto en línea; el área táctil no baja de 44 pt. */
 export function Accion({ label, onPress, icon: Icon, variante = 'pill', disabled, accessibilityLabel, accessibilityHint, className }: AccionProps) {
   return (
     <Presionable
@@ -45,18 +45,17 @@ export function Accion({ label, onPress, icon: Icon, variante = 'pill', disabled
 
 type BotonIconoProps = {
   icon: Icono;
-  /** Etiqueta para lectores de pantalla (obligatoria: el botón no tiene texto visible). */
+  /** Obligatoria: es lo único que oye el lector de pantalla. */
   label: string;
   onPress: () => void;
-  /** Color del ícono (valor de los tokens). */
+  /** Valor crudo de los tokens, no una clase. */
   tone?: string;
-  /** Fondo: quiet sobre el lienzo, surface sobre el mapa. */
+  /** `surface` cuando va encima del mapa. */
   fondo?: 'quiet' | 'surface';
   disabled?: boolean;
   className?: string;
 };
 
-/** Botón redondo de solo ícono, 44 × 44. */
 export function BotonIcono({ icon: Icon, label, onPress, tone = color.ink, fondo = 'quiet', disabled, className }: BotonIconoProps) {
   return (
     <Presionable

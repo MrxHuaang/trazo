@@ -7,10 +7,10 @@ import { getSismosRecientes } from './sismos.api';
 const QUINCE_MINUTOS = 1000 * 60 * 15;
 const UN_DIA = 1000 * 60 * 60 * 24;
 
-/** Llave propia: son datos remotos públicos, no una entidad de la base local (`qk`). */
+// Fuera de `qk` a propósito: son datos remotos públicos, no una tabla local.
 export const llaveSismos = ['solidario', 'sismos'] as const;
 
-/** Sismos recientes cerca de Pereira (USGS). Se consideran frescos 15 minutos. */
+/** Sismos cerca de Pereira (USGS), frescos por 15 minutos. */
 export const useSismos = () =>
   useQuery({
     queryKey: llaveSismos,
@@ -20,10 +20,8 @@ export const useSismos = () =>
     retry: 1,
   });
 
-/** `true` si la petición no llegó al servidor (sin internet, DNS o tiempo de espera agotado). */
+// Sin `response` la petición ni llegó al servidor: sin internet, DNS o timeout.
 export const esFalloDeRed = (error: unknown) => isAxiosError(error) && !error.response;
-
-/* ---------- Reglas de presentación ---------- */
 
 const HORA = 1000 * 60 * 60;
 
@@ -39,20 +37,20 @@ export function haceCuanto(momento: number, ahora: number) {
   return `hace ${dias} días`;
 }
 
-/** 4,6 */
+/** Siempre con un decimal: 4,6 */
 export const formatoMagnitud = (m: number) => m.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-/** Umbral del aviso para la psicóloga: magnitud 4 o más en las últimas 48 horas. */
+/** Aviso a la psicóloga: magnitud 4 o más en las últimas 48 horas. */
 export const AVISO = { magnitud: 4, horas: 48 } as const;
 
-/** El sismo más fuerte que cumple el umbral del aviso, o null. */
+/** El más fuerte dentro del umbral, o null. */
 export function sismoDeAviso(sismos: Sismo[], ahora: number) {
   const recientes = sismos.filter((s) => s.magnitud >= AVISO.magnitud && ahora - s.momento <= AVISO.horas * HORA && s.momento <= ahora);
   if (!recientes.length) return null;
   return recientes.reduce((a, b) => (b.magnitud > a.magnitud ? b : a));
 }
 
-/** Qué tanto se agita el Trazo del bloque: 0 (calma) a 1 (magnitud 6 o más), según el sismo más reciente. */
+// Cuánto se agita el Trazo según el último sismo; llega a 1 con magnitud 6.
 export function agitacionPorSismos(sismos: Sismo[]) {
   const ultimo = sismos[0];
   if (!ultimo) return 0.15;

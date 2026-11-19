@@ -15,7 +15,7 @@ const mapear = (f: Fila): Seguimiento => ({
 
 export type FiltroSeguimientos = { estado?: EstadoSeguimiento; hasta?: string; pacienteId?: string };
 
-/** `hasta` = fechaClave inclusiva (p. ej. hoy → vencidos y de hoy). */
+/** `hasta` es inclusivo: con la clave de hoy salen los vencidos y los de hoy. */
 export async function listarSeguimientos(f: FiltroSeguimientos = {}) {
   const where: string[] = [];
   const params: string[] = [];

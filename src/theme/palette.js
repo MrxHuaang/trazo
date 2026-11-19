@@ -1,7 +1,4 @@
-/**
- * Paleta de Trazo suave. Única fuente de color: la consumen tailwind.config.js (clases)
- * y src/theme/tokens.ts (valores para SVG, Reanimated y APIs nativas).
- */
+// Única fuente de color. Es JS plano porque también la lee tailwind.config.js, que no pasa por TypeScript.
 const palette = {
   canvas: '#F6F7F9',
   surface: '#FFFFFF',

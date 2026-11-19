@@ -1,8 +1,4 @@
-/**
- * Sistema visual "Trazo suave".
- * Valores para SVG, Reanimated y APIs nativas; las pantallas usan clases de NativeWind
- * (tailwind.config.js). Los colores salen de palette.js, la única fuente.
- */
+// Valores crudos para SVG, Reanimated y APIs nativas. Las pantallas usan las clases de NativeWind.
 import { Platform } from 'react-native';
 
 import { palette } from './palette';
@@ -21,7 +17,7 @@ export const color = {
   quiet: palette.quiet,
 } as const;
 
-/** Bloques: fondo pastel + texto oscuro de la misma familia (contraste > 7:1). */
+/** Cada fondo pastel lleva su tinta oscura de la misma familia; todos pasan 7:1 de contraste. */
 export const tile = {
   consulta: { bg: palette.lavanda, fg: palette.lavandaInk },
   confirmar: { bg: palette.menta, fg: palette.mentaInk },
@@ -32,7 +28,7 @@ export const tile = {
 
 export type TileTone = keyof typeof tile;
 
-/** Nombres registrados con useFonts en el layout raíz. */
+/** Tienen que ser los mismos nombres que se registran con useFonts en el layout raíz. */
 export const font = {
   display: 'BricolageGrotesque_800ExtraBold',
   displayBold: 'BricolageGrotesque_700Bold',
@@ -61,5 +57,5 @@ export const radius = { tile: 22, field: 14, pill: 999 } as const;
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 } as const;
 
-/** Espacio que ocupa la barra de pestañas sobre el contenido (iOS flota, Android es edge-to-edge). */
+/** Alto que tapa la barra de pestañas. Cambia por plataforma: en iOS flota y Android va edge-to-edge. */
 export const tabBarInset = Platform.select({ ios: 50, android: 80, default: 84 }) ?? 0;

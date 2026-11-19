@@ -1,7 +1,4 @@
-/**
- * Estado de interfaz de Pagos (Zustand): no son datos, solo dónde estaba la profesional.
- * Se conserva mientras la app está abierta, así volver a Pagos no pierde el mes ni el método habitual.
- */
+// Solo estado de UI. Vive fuera de la pantalla para no perder el mes ni el último método al volver.
 import { create } from 'zustand';
 
 import type { MetodoPago } from '@/domain/types';
@@ -10,9 +7,9 @@ import { mesClave } from '@/lib/dates';
 type EstadoPagos = {
   /** Mes que se está viendo ('yyyy-MM'). */
   mes: string;
-  /** Pago pendiente con el panel "Registrar" desplegado. */
+  /** Pago con el panel de registro abierto. */
   filaAbierta: string | null;
-  /** Último método usado: se propone en el siguiente registro. */
+  /** Se propone por defecto en el siguiente registro. */
   metodo: MetodoPago;
   elegirMes: (mes: string) => void;
   abrirFila: (pagoId: string | null) => void;

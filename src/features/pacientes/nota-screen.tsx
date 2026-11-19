@@ -21,8 +21,8 @@ type NotaScreenProps = {
 };
 
 /**
- * Nota de sesión privada (HU-12). El contenido solo se lee de la base con la nota desbloqueada
- * y se retira de la memoria al bloquearla; el borrador se guarda antes de bloquear.
+ * Nota de sesión privada (HU-12). El contenido solo se lee desbloqueada y sale de memoria
+ * al bloquear, después de guardar el borrador.
  */
 export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
   const qc = useQueryClient();
@@ -43,7 +43,7 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
   };
 
   const candado = useCandado(() => {
-    // Antes de bloquear: el borrador no se pierde y el contenido sale de la memoria.
+    // Primero se guarda el borrador; después se suelta el texto de la memoria y de la caché.
     const guardado = notaId ? (qc.getQueryData<string>([...llaveContenidoNota, notaId]) ?? '') : '';
     if (texto !== null && texto.trim() && texto !== guardado) persistir(texto).catch(() => undefined);
     setTexto(null);
@@ -162,7 +162,6 @@ export function NotaScreen({ id, pacienteId }: NotaScreenProps) {
           onPress={() => void guardarYSalir()}
         />
       }>
-      {/* Al desbloquear, el contenido aparece con un fundido corto. */}
       <Animated.View
         entering={FadeIn.duration(260).reduceMotion(ReduceMotion.System)}
         onTouchStart={candado.registrarActividad}

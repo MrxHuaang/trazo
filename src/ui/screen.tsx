@@ -6,11 +6,11 @@ import { tabBarInset } from '@/theme';
 
 type ScreenProps = {
   children: ReactNode;
-  /** Elementos flotantes (p. ej. el botón Agendar) que no hacen scroll. */
+  /** Lo que flota fuera del scroll, como el Fab. */
   overlay?: ReactNode;
 };
 
-/** Contenedor de pantalla: lienzo, márgenes seguros y espacio para la barra de pestañas. */
+/** El padding inferior extra deja libre el Fab además de la barra de pestañas. */
 export function Screen({ children, overlay }: ScreenProps) {
   return (
     <View className="flex-1 bg-canvas">

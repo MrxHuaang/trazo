@@ -6,7 +6,7 @@ type PlaceholderScreenProps = {
   emptyBody: string;
 };
 
-/** Pantalla provisional mientras se construye el módulo en su sprint. */
+/** Provisional para las rutas que todavía no tienen pantalla. */
 export function PlaceholderScreen({ title, emptyTitle, emptyBody }: PlaceholderScreenProps) {
   return (
     <Screen>

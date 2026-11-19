@@ -18,10 +18,7 @@ export function useRegistrarContacto() {
   });
 }
 
-/**
- * Resumen de la semana que empieza en `lunes`. Son dos consultas para que cada una
- * se invalide con su entidad: las citas con `qk.citas` y los cobros con `qk.pagos`.
- */
+/** Dos consultas separadas para que citas y cobros se invaliden cada uno con su llave. */
 export function useResumenSemana(lunes: string): { resumen: ResumenSemana; cargando: boolean } {
   const citas = useQuery({ queryKey: [...qk.citas, 'resumen-semana', lunes], queryFn: () => resumenCitasSemana(lunes) });
   const pagos = useQuery({ queryKey: [...qk.pagos, 'resumen-semana', lunes], queryFn: () => resumenPagosSemana(lunes) });

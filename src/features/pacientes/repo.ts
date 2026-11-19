@@ -1,7 +1,6 @@
 /**
- * Repositorio del módulo pacientes para sus tablas propias (notas_sesion, consentimientos)
- * y una lectura agregada de citas para la lista.
- * Las notas se listan SIN contenido: el texto solo se lee al desbloquear la nota (HU-12).
+ * Tablas propias de pacientes (notas_sesion, consentimientos) y el resumen de citas de la lista.
+ * Las notas se listan sin contenido; el texto solo se lee al desbloquear (HU-12).
  */
 import { ahoraIso, consultar, consultarUno, ejecutar } from '@/data/db';
 import type { Consentimiento, NotaSesion } from '@/domain/types';
@@ -9,7 +8,7 @@ import { nuevoId } from '@/lib/id';
 
 import { VERSION_AUTORIZACION } from './rules';
 
-/* ---------- Notas de sesión ---------- */
+// Notas de sesión
 
 /** Nota sin su contenido: lo único que ven la ficha y la historia. */
 export type NotaResumen = Omit<NotaSesion, 'contenido'>;
@@ -41,8 +40,8 @@ export type ContextoNota = {
 };
 
 /**
- * `id` puede ser el id de una cita (así la abre el detalle de cita), el id de una nota
- * sin cita (así la abre la historia) o `nueva` con `pacienteId`.
+ * `id` llega como id de cita (desde el detalle de cita), id de nota sin cita (desde la historia)
+ * o `nueva` junto con `pacienteId`.
  */
 export async function contextoNota(id: string, pacienteId?: string): Promise<ContextoNota> {
   const vacio: ContextoNota = { notaId: null, pacienteId: null, pacienteNombre: null, citaId: null, fecha: null };
@@ -83,7 +82,7 @@ export async function obtenerContenidoNota(id: string): Promise<string> {
 
 export type GuardarNota = { notaId?: string | null; pacienteId: string; citaId?: string | null; contenido: string };
 
-/** Crea o actualiza la nota y devuelve su id. */
+/** Devuelve el id, que es nuevo si la nota no existía. */
 export async function guardarNota(d: GuardarNota): Promise<string> {
   const t = ahoraIso();
   if (d.notaId) {
@@ -98,7 +97,7 @@ export async function guardarNota(d: GuardarNota): Promise<string> {
   return id;
 }
 
-/* ---------- Consentimientos (HU-11) ---------- */
+// Consentimientos (HU-11)
 
 type FilaConsentimiento = {
   id: string; paciente_id: string; tipo: Consentimiento['tipo']; version_texto: string; aceptado_en: string; revocado_en: string | null;
@@ -123,7 +122,7 @@ export async function registrarConsentimiento(pacienteId: string, tipo: Consenti
   );
 }
 
-/* ---------- Resumen de citas para la lista ---------- */
+// Resumen de citas para la lista
 
 export type ResumenCitas = { proxima: string | null; ultima: string | null };
 
